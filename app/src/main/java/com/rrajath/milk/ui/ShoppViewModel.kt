@@ -7,19 +7,24 @@ import com.rrajath.milk.AppContainer
 import com.rrajath.milk.data.db.ItemEntity
 import com.rrajath.milk.data.db.LabelEntity
 import com.rrajath.milk.domain.LabelRef
+import com.rrajath.milk.ui.theme.ThemeMode
+import com.rrajath.milk.usecases.RenameLabel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 private const val UNDO_WINDOW_MS = 4_000L
 
+enum class Screen { LIST, RECENTLY_COMPLETED, LABELS, SETTINGS }
+
 data class ListSection(
-    val labelId: String?, // null = Inbox
+    val labelId: String?, // null = Inbox (or "All items" when ungrouped)
     val name: String,
     val colorIndex: Int?, // null = Inbox tint, not a palette entry
     val items: List<ItemEntity>,
@@ -52,23 +57,105 @@ fun quickAddSuggestions(draft: String, labels: List<LabelEntity>): List<LabelEnt
 
 class ShoppViewModel(private val container: AppContainer) : ViewModel() {
 
-    val sections: StateFlow<List<ListSection>> =
-        combine(
-            container.itemRepository.observeActiveItems(),
-            container.labelRepository.observeLabels(),
-        ) { items, labels -> buildSections(items, labels) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    // --- Navigation ---
+
+    private val _screen = MutableStateFlow(Screen.LIST)
+    val screen: StateFlow<Screen> = _screen
+
+    private val _drawerOpen = MutableStateFlow(false)
+    val drawerOpen: StateFlow<Boolean> = _drawerOpen
+
+    private val _filterLabelId = MutableStateFlow<String?>(null)
+    val filterLabelId: StateFlow<String?> = _filterLabelId
+
+    fun openDrawer() {
+        _drawerOpen.value = true
+    }
+
+    fun closeDrawer() {
+        _drawerOpen.value = false
+    }
+
+    fun navigateTo(target: Screen) {
+        _screen.value = target
+        _drawerOpen.value = false
+    }
+
+    // Back arrow: sub-screen -> List, or a filtered List -> unfiltered List.
+    fun goBack() {
+        if (_screen.value != Screen.LIST) {
+            _screen.value = Screen.LIST
+        } else {
+            _filterLabelId.value = null
+        }
+    }
+
+    fun filterByLabel(labelId: String) {
+        _filterLabelId.value = labelId
+        _screen.value = Screen.LIST
+        _drawerOpen.value = false
+    }
+
+    // Drawer's "All items" -- always clears any active filter, regardless
+    // of the current screen (matches the prototype's explicit filter:null).
+    fun goToAllItems() {
+        _filterLabelId.value = null
+        _screen.value = Screen.LIST
+        _drawerOpen.value = false
+    }
+
+    // --- Preferences ---
+
+    val themeMode: StateFlow<ThemeMode> = container.preferencesRepository.themeMode
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ThemeMode.SYSTEM)
+    val groupByLabel: StateFlow<Boolean> = container.preferencesRepository.groupByLabel
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+    val keepQuickAddOpen: StateFlow<Boolean> = container.preferencesRepository.keepQuickAddOpen
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+    val confirmBeforeClearing: StateFlow<Boolean> = container.preferencesRepository.confirmBeforeClearing
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    fun setThemeMode(mode: ThemeMode) {
+        viewModelScope.launch { container.preferencesRepository.setThemeMode(mode) }
+    }
+
+    fun setGroupByLabel(value: Boolean) {
+        viewModelScope.launch { container.preferencesRepository.setGroupByLabel(value) }
+    }
+
+    fun setKeepQuickAddOpen(value: Boolean) {
+        viewModelScope.launch { container.preferencesRepository.setKeepQuickAddOpen(value) }
+    }
+
+    fun setConfirmBeforeClearing(value: Boolean) {
+        viewModelScope.launch { container.preferencesRepository.setConfirmBeforeClearing(value) }
+    }
+
+    // --- List screen ---
+
+    val sections: StateFlow<List<ListSection>> = combine(
+        container.itemRepository.observeActiveItems(),
+        container.labelRepository.observeLabels(),
+        groupByLabel,
+        _filterLabelId,
+    ) { items, labels, grouped, filterLabelId ->
+        buildSections(items, labels, grouped, filterLabelId)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     val labels: StateFlow<List<LabelEntity>> =
         container.labelRepository.observeLabels()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    // Raw/unfiltered/ungrouped, for the drawer's total count and the Labels
+    // screen's per-label active counts, both independent of the List
+    // screen's own filter/group-by state.
+    val activeItems: StateFlow<List<ItemEntity>> =
+        container.itemRepository.observeActiveItems()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     private var undoJob: Job? = null
     private val _undo = MutableStateFlow<UndoState?>(null)
     val undo: StateFlow<UndoState?> = _undo
-
-    private val _quickAdd = MutableStateFlow(QuickAddState())
-    val quickAdd: StateFlow<QuickAddState> = _quickAdd
 
     fun completeItem(item: ItemEntity) {
         undoJob?.cancel()
@@ -92,6 +179,11 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
     fun editTitle(itemId: String, newTitle: String) {
         viewModelScope.launch { container.editTitle(itemId, newTitle) }
     }
+
+    // --- Quick Add ---
+
+    private val _quickAdd = MutableStateFlow(QuickAddState())
+    val quickAdd: StateFlow<QuickAddState> = _quickAdd
 
     fun openQuickAdd() {
         _quickAdd.value = QuickAddState(open = true)
@@ -124,20 +216,67 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
             val result = container.captureItems(state.draft, sticky)
             val newStickyId = (result.newSticky as? LabelRef.Id)?.labelId
             val newEntries = result.items.map { SessionAddEntry(it.id, it.title, it.labelId) }
-            _quickAdd.value = _quickAdd.value.copy(
-                draft = "",
-                stickyLabelId = newStickyId,
-                sessionAdds = (state.sessionAdds + newEntries).takeLast(3),
-            )
+            if (container.preferencesRepository.keepQuickAddOpen.first()) {
+                _quickAdd.value = _quickAdd.value.copy(
+                    draft = "",
+                    stickyLabelId = newStickyId,
+                    sessionAdds = (state.sessionAdds + newEntries).takeLast(3),
+                )
+            } else {
+                _quickAdd.value = QuickAddState(open = false)
+            }
         }
+    }
+
+    // --- Recently Completed ---
+
+    val completedItems: StateFlow<List<ItemEntity>> =
+        container.itemRepository.observeCompletedItems()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun readdCompleted(itemId: String) {
+        viewModelScope.launch { container.readdCompleted(itemId) }
+    }
+
+    fun clearAllCompleted() {
+        viewModelScope.launch { container.itemRepository.tombstoneAllCompleted() }
+    }
+
+    // --- Labels management ---
+
+    fun renameLabel(labelId: String, newName: String, onResult: (RenameLabel.Result) -> Unit) {
+        viewModelScope.launch { onResult(container.renameLabel(labelId, newName)) }
+    }
+
+    fun mergeLabels(sourceLabelId: String, targetLabelId: String) {
+        viewModelScope.launch { container.mergeLabels(sourceLabelId, targetLabelId) }
+    }
+
+    fun deleteLabel(labelId: String) {
+        viewModelScope.launch { container.deleteLabel(labelId) }
     }
 
     // Inbox is always pinned first, even when empty (PRD §7.3) -- a
     // deliberate deviation from the prototype's mockup logic, which only
-    // renders a section once it has at least one item; every other section
-    // requires >=1 active item, matching both the prototype and the PRD.
-    private fun buildSections(items: List<ItemEntity>, labels: List<LabelEntity>): List<ListSection> {
-        val byLabel = items.groupBy { it.labelId }
+    // renders a section once it has at least one item. When ungrouped, a
+    // single "All items" (or the filtered label's name) section is used
+    // instead, matching the prototype's `group` toggle.
+    private fun buildSections(
+        items: List<ItemEntity>,
+        labels: List<LabelEntity>,
+        groupByLabel: Boolean,
+        filterLabelId: String?,
+    ): List<ListSection> {
+        val filtered = if (filterLabelId != null) items.filter { it.labelId == filterLabelId } else items
+
+        if (!groupByLabel) {
+            if (filtered.isEmpty()) return emptyList()
+            val filterLabel = filterLabelId?.let { id -> labels.find { it.id == id } }
+            val name = filterLabel?.name ?: "All items"
+            return listOf(ListSection(filterLabelId, name, filterLabel?.colorIndex, filtered))
+        }
+
+        val byLabel = filtered.groupBy { it.labelId }
         val sections = mutableListOf(ListSection(null, "Inbox", null, byLabel[null].orEmpty()))
         for (label in labels) {
             val labelItems = byLabel[label.id]

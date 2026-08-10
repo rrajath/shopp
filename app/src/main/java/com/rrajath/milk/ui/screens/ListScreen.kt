@@ -5,16 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,11 +23,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.rrajath.milk.data.db.ItemEntity
 import com.rrajath.milk.ui.ListSection
 import com.rrajath.milk.ui.UndoState
+import com.rrajath.milk.ui.components.EmptyState
 import com.rrajath.milk.ui.components.ItemRow
 import com.rrajath.milk.ui.components.SectionHeader
 import com.rrajath.milk.ui.components.UndoToast
@@ -43,6 +39,8 @@ import com.rrajath.milk.ui.theme.ShoppType
 fun ListScreen(
     sections: List<ListSection>,
     undo: UndoState?,
+    emptyTitle: String,
+    emptyBody: String,
     onCompleteItem: (ItemEntity) -> Unit,
     onCommitEdit: (itemId: String, newTitle: String) -> Unit,
     onUndo: () -> Unit,
@@ -52,14 +50,9 @@ fun ListScreen(
     val colors = ShoppTheme.colors
     val hasAnyItems = sections.any { it.items.isNotEmpty() }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(colors.background)
-            .systemBarsPadding(),
-    ) {
+    Box(modifier = modifier.fillMaxSize().background(colors.background)) {
         if (!hasAnyItems) {
-            EmptyState(modifier = Modifier.fillMaxSize())
+            EmptyState(title = emptyTitle, body = emptyBody, modifier = Modifier.fillMaxSize())
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -85,7 +78,13 @@ fun ListScreen(
             }
         }
 
-        AddFab(onClick = onAddClick, modifier = Modifier.align(Alignment.BottomEnd).padding(ShoppDimens.fabOffset))
+        AddFab(
+            onClick = onAddClick,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .navigationBarsPadding()
+                .padding(ShoppDimens.fabOffset),
+        )
 
         if (undo != null) {
             UndoToast(
@@ -93,30 +92,13 @@ fun ListScreen(
                 onUndo = onUndo,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
                     .padding(
                         horizontal = ShoppDimens.toastSideMargin,
                         vertical = ShoppDimens.toastBottomOffset,
                     ),
             )
         }
-    }
-}
-
-@Composable
-private fun EmptyState(modifier: Modifier = Modifier) {
-    val colors = ShoppTheme.colors
-    Column(modifier = modifier.padding(top = 120.dp, start = 40.dp, end = 40.dp)) {
-        Text(
-            text = "Nothing to buy",
-            style = ShoppType.emptyTitle.copy(color = colors.foreground, textAlign = TextAlign.Center),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Spacer(Modifier.height(12.dp))
-        Text(
-            text = "Tap Add, or hold the Quick Settings tile to jot something down without unlocking.",
-            style = ShoppType.emptyBody.copy(color = colors.muted, textAlign = TextAlign.Center),
-            modifier = Modifier.fillMaxWidth(),
-        )
     }
 }
 

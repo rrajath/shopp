@@ -1,9 +1,13 @@
 package com.rrajath.milk
 
 import android.app.Application
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.rrajath.milk.data.db.ShoppDatabase
 import com.rrajath.milk.data.repository.ItemRepository
 import com.rrajath.milk.data.repository.LabelRepository
+import com.rrajath.milk.data.repository.PreferencesRepository
 import com.rrajath.milk.domain.SystemClock
 import com.rrajath.milk.domain.Uuidv7IdGenerator
 import com.rrajath.milk.usecases.CaptureItems
@@ -26,6 +30,7 @@ class AppContainer(app: Application) {
 
     val itemRepository = ItemRepository(database.itemDao(), clock)
     val labelRepository = LabelRepository(database.labelDao(), clock, idGenerator)
+    val preferencesRepository = PreferencesRepository(app.dataStore)
 
     val captureItems = CaptureItems(database, itemRepository, labelRepository, clock, idGenerator)
     val completeItem = CompleteItem(database, itemRepository)
@@ -36,6 +41,8 @@ class AppContainer(app: Application) {
     val deleteLabel = DeleteLabel(database, itemRepository, labelRepository)
     val readdCompleted = ReaddCompleted(database, itemRepository, labelRepository, clock, idGenerator)
 }
+
+private val Application.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class MilkApplication : Application() {
     lateinit var container: AppContainer
