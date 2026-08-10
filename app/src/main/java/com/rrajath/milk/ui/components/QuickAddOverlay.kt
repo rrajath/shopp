@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -77,11 +77,18 @@ fun QuickAddOverlay(
 
         Column(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
+                .align(Alignment.TopCenter)
+                .statusBarsPadding()
+                .padding(
+                    start = ShoppDimens.cardHorizontalMargin,
+                    top = ShoppDimens.cardTopMargin,
+                    end = ShoppDimens.cardHorizontalMargin,
+                )
                 .fillMaxWidth()
+                .widthIn(max = ShoppDimens.cardMaxWidth)
+                .shadow(ShoppDimens.cardElevation, RoundedCornerShape(ShoppDimens.cardCornerRadius))
+                .clip(RoundedCornerShape(ShoppDimens.cardCornerRadius))
                 .background(colors.sheet)
-                .navigationBarsPadding()
-                .imePadding()
                 .padding(
                     horizontal = ShoppDimens.sheetPaddingHorizontal,
                     vertical = ShoppDimens.sheetPaddingTop,

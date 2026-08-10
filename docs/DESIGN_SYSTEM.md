@@ -1,50 +1,52 @@
 # Design System
 
-Source of truth: `internal-docs/design/Shopp Prototype.dc.html`. Every value below is transcribed from that file's `renderVals()`. The PRD's greyscale/near-white/near-black spec (§11) was superseded by the prototype per an explicit product decision (prototype wins for scope + look — see `PROGRESS.md`).
+Original source of truth: `internal-docs/design/Shopp Prototype.dc.html` (still authoritative for typography, spacing, and component shapes). **Color was intentionally rebranded in August 2026** (user request) away from the prototype's warm cream/terracotta palette to a neutral charcoal/white base with a bright accent. See the Color section below, which is now the source of truth for color instead of the prototype file.
 
-Read this file before adding, modifying, or styling any UI element. Don't invent colors, spacing, or components it doesn't cover — extend this doc first, matching the prototype's language.
+Read this file before adding, modifying, or styling any UI element. Don't invent colors, spacing, or components it doesn't cover — extend this doc first, matching its language.
 
 Implementation: `app/src/main/java/com/rrajath/milk/ui/theme/` (`Color.kt`, `Type.kt`, `Theme.kt`, `Dimens.kt`).
 
 ## Color
 
-Two full palettes (light / dark), switched by `ThemeMode` (System/Light/Dark, Settings screen). `System` follows `isSystemInDarkTheme()`.
+Two full palettes (light / dark), switched by `ThemeMode` (System/Light/Dark, Settings screen). `System` follows `isSystemInDarkTheme()`. Light mode: white background + red accent. Dark mode: charcoal background + bright yellow accent. Every other token is re-derived from that base (not left over from the old warm-brown palette).
 
 | Token | Light | Dark | Used for |
 |---|---|---|---|
-| `background` | `#FCFAF7` | `#14110F` | Screen background |
-| `foreground` | `#2A2724` | `#F0EAE4` | Primary text |
-| `muted` | `#8A847C` | `#8E8579` | Secondary text, hints, placeholders |
-| `line` | `#E4DED5` | `#332C27` | Strikethrough color on completed items |
-| `checkboxBorder` | `#B3AEA5` | `#564E48` | Unchecked checkbox ring |
-| `doneCheckboxFill` | `#CFC8BE` | `#4A423C` | Recently Completed's filled checkbox |
-| `sheet` | `#FFFFFF` | `#241D19` | Quick Add sheet background |
-| `menu` | `#FFFFFF` | `#241D19` | Drawer background, suggestions popover |
-| `chipBorder` | `#E2DBD1` | `#4A3E37` | Unselected chip border |
-| `scrim` | `rgba(30,26,23,.42)` | `rgba(0,0,0,.58)` | Backdrop behind sheet/drawer |
-| `toastBackground` | `#2A2724` | `#EFE7E0` | Undo toast |
-| `toastForeground` | `#FCFAF7` | `#241D19` | Undo toast text |
-| `toastAction` | `#E9A98D` | `#8C4A32` | "Undo" label |
-| `accent` | `#8C4A32` | `#E08A63` | FAB, active toggle, sticky chip (Inbox) |
-| `onAccent` | `#FFFFFF` | `#241811` | Text/icons on the accent color |
+| `background` | `#FFFFFF` | `#212121` | Screen background |
+| `foreground` | `#1E1E1E` | `#F2F2F2` | Primary text |
+| `muted` | `#767676` | `#A0A0A0` | Secondary text, hints, placeholders |
+| `line` | `#E4E4E4` | `#3A3A3A` | Strikethrough color on completed items |
+| `checkboxBorder` | `#C4C4C4` | `#5C5C5C` | Unchecked checkbox ring |
+| `doneCheckboxFill` | `#D8D8D8` | `#454545` | Recently Completed's filled checkbox |
+| `sheet` | `#FFFFFF` | `#2A2A2A` | Quick Add card background |
+| `menu` | `#FFFFFF` | `#2A2A2A` | Drawer background, suggestions popover |
+| `chipBorder` | `#DDDDDD` | `#4A4A4A` | Unselected chip border |
+| `scrim` | `rgba(30,30,30,.42)` | `rgba(0,0,0,.6)` | Backdrop behind Quick Add card / drawer |
+| `toastBackground` | `#1E1E1E` | `#F2F2F2` | Undo toast |
+| `toastForeground` | `#FFFFFF` | `#212121` | Undo toast text |
+| `toastAction` | `#FFD400` | `#E53935` | "Undo" label (each theme borrows the *other* theme's accent, since the toast surface itself inverts: dark toast in light mode, light toast in dark mode) |
+| `accent` | `#E53935` | `#FFD400` | FAB, active toggle, sticky chip (Inbox), cursor |
+| `onAccent` | `#FFFFFF` | `#212121` | Text/icons on the accent color |
+| `chipSelectedText` | `#FFFFFF` | `#FFFFFF` | Text on a selected label chip (colored fill) |
+| `onForeground` | `#FFFFFF` | `#212121` | Text on a `foreground`-colored surface, specifically the Inbox chip's selected fill, which uses `foreground` as its background. `chipSelectedText` isn't safe there since both `chipSelectedText` and `foreground` are light in dark mode (this fixed a real light-text-on-light-fill contrast bug) |
 | `press` | `rgba(0,0,0,.04)` | `rgba(255,255,255,.05)` | Row press state |
-| `shadow` | `rgba(42,39,36,.18)` | `rgba(0,0,0,.6)` | All box-shadows |
-| `inboxTint` | `#2A2724` | `#8E8579` | Inbox section header / unlabelled tint (prototype's `color(null)`) |
+| `shadow` | `rgba(30,30,30,.18)` | `rgba(0,0,0,.6)` | All box-shadows |
+| `inboxTint` | `#1E1E1E` | `#A0A0A0` | Inbox section header / unlabelled tint (prototype's `color(null)`) |
 
 Accent is fixed — not user-configurable (matches PRD §8.2's "users cannot pick colors" applied consistently to the one non-label accent use).
 
 ### Label palette
 
-Six colors, cycling (`LabelColorAllocator`: lowest unused index, else `count mod 6`). The PRD's "~10" was superseded by the prototype's actual 6-entry palette.
+Six colors, cycling (`LabelColorAllocator`: lowest unused index, else `count mod 6`). Refreshed alongside the August 2026 rebrand to read cleanly against the new neutral white/charcoal surfaces and to avoid colliding with either theme's accent (no red in the light palette, no yellow in the dark palette).
 
 | Index | Light | Dark |
 |---|---|---|
-| 0 | `#B0442A` | `#E58C6B` |
-| 1 | `#3F6B44` | `#86B889` |
-| 2 | `#3C6382` | `#87ADCB` |
-| 3 | `#7A5C2E` | `#C9A567` |
-| 4 | `#6B4A75` | `#BE9BC7` |
-| 5 | `#2F6B6B` | `#7FBDBD` |
+| 0 | `#1E5FA8` (blue) | `#3D7DD8` (blue) |
+| 1 | `#2E7D32` (green) | `#4CAF50` (green) |
+| 2 | `#6A1B9A` (purple) | `#9C4DCC` (purple) |
+| 3 | `#00695C` (teal) | `#26A69A` (teal) |
+| 4 | `#B45300` (orange) | `#E07B39` (orange) |
+| 5 | `#AD1457` (pink) | `#D6487D` (pink) |
 
 ## Typography
 
@@ -62,24 +64,26 @@ All in `Dimens.kt` (`ShoppDimens`), grouped by the screen/component they belong 
 
 ## Motion
 
-Matches the prototype's CSS keyframes:
-- Sheet in: slide up 14px + fade, ~180ms, `cubic-bezier(.2,0,0,1)`
+Matches the prototype's CSS keyframes, except where noted:
+- Quick Add card in/out: no dedicated transition yet (open/close is driven by state, not animated); the card itself appears/disappears with its parent recomposition.
 - Toast in: slide up 20px + fade, ~200ms, same easing
 - Backdrop fade: ~160ms ease-out
-- Drawer in: slide from -16px + fade, ~200ms, same easing
+- **Drawer in/out: slide the full panel width (from fully off-screen to docked) + independent scrim fade, 220ms** (`AnimatedVisibility` + `slideInHorizontally`/`slideOutHorizontally` on the panel, `fadeIn`/`fadeOut` on the scrim, in `DrawerMenu.kt`). Deliberately larger than the prototype's original 16px micro-slide, since the small offset read as "just appearing" rather than a perceptible slide, which is what was explicitly requested.
 - Row completion: 150ms height+opacity exit (TDD §6.3); reduced-motion becomes an instant removal, and the overlay fade drops its translation (PRD §11 accessibility).
 
 ## Components inventory
 
 - **Row** (`ItemRow`): circular checkbox (19dp, border in `checkboxBorder`, fills `accent` mid-animation), single-line text, optional trailing label tag (Recently Completed only).
-- **Chip** (`LabelChipRow`): pill (`chipCornerRadius = 100.dp`), selected = filled with the label's color (or `foreground` for Inbox) + `onAccent`-ish text, unselected = outlined with `chipBorder` + `muted` text.
+- **Chip** (`LabelChipRow`): pill (`chipCornerRadius = 100.dp`), selected = filled with the label's color (or `foreground` for Inbox, text in `onForeground`) + `chipSelectedText`, unselected = outlined with `chipBorder` + `muted` text.
 - **FAB**: pill-ish rounded rect (not circular), `accent` background, plus-icon + "Add" label, bottom-right offset 20dp.
-- **Sheet** (Quick Add): bottom-anchored, `sheet` background, shadow up, suggestions popover floats above the input when open.
+- **Quick Add card** (`QuickAddOverlay`): compact floating card, **not** a full-width bottom sheet. Top-anchored (`cardTopMargin = 64dp` below the status bar), width capped at `cardMaxWidth = 400dp`, rounded corners (`cardCornerRadius = 20dp`), `sheet` background with shadow. Content-hugging height instead of stretching to the bottom of the screen. Shared identically by the in-app FAB and `CaptureActivity` (Quick Settings tile / lock-screen capture), the same component, so it always renders as a small overlay on top of whatever's behind it, never a full-screen surface.
 - **Toast** (Undo): floating rounded rect above the FAB, `toastBackground`/`toastForeground`, uppercase "Undo" action in `toastAction`.
-- **Drawer**: left-anchored, fixed 290dp width, `menu` background, title in Newsreader 26px.
+- **Drawer**: left-anchored, fixed 290dp width, `menu` background, title in Newsreader 26px. Slides in/out (see Motion).
 - **Toggle** (Settings): custom track+knob (not Material Switch) — track 46×26dp radius 13dp, knob 17dp (on) / 11dp (off), matching the prototype's exact geometry rather than Material3's default switch shape.
 
-## Known deliberate deviations from the PRD
+## Known deliberate deviations from the PRD / original prototype
 
-- Visual system is warm cream/terracotta + serif headers, not PRD §11's near-white/near-black + all-greyscale-except-dots. Prototype wins per the recorded product decision.
+- Color palette was rebranded (August 2026, user request): charcoal + bright yellow (dark) / white + red (light), replacing the prototype's warm cream/terracotta. Typography, spacing, and component shapes are unchanged.
 - Section headers are large serif display text (27px), not PRD §11's "smaller/heavier" micro-header.
+- Quick Add is a compact top-anchored floating card, not the prototype's full-width bottom sheet (user request, to read clearly as an overlay rather than a full-screen surface — see Components inventory).
+- Drawer entrance is a full off-screen slide, not the prototype's 16px micro-slide (user request; see Motion).

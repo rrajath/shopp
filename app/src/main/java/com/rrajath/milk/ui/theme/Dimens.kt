@@ -43,10 +43,15 @@ object ShoppDimens {
     val toastCornerRadius = 14.dp
     val toastGap = 14.dp
 
-    // Quick Add sheet
+    // Quick Add card (compact floating overlay, not a full-width bottom sheet)
     val sheetPaddingHorizontal = 20.dp
     val sheetPaddingTop = 18.dp
     val sheetPaddingBottom = 16.dp
+    val cardTopMargin = 64.dp
+    val cardHorizontalMargin = 20.dp
+    val cardMaxWidth = 400.dp
+    val cardCornerRadius = 20.dp
+    val cardElevation = 16.dp
     val suggestionsCornerRadius = 14.dp
     val suggestionsBottomMargin = 10.dp
     val suggestionRowPaddingHorizontal = 16.dp

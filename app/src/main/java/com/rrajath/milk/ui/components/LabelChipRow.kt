@@ -38,11 +38,15 @@ fun LabelChipRow(
     ) {
         val colors = ShoppTheme.colors
         // Inbox's selected fill is `foreground`, but it never shows a dot
-        // (the prototype's `id && !on` -- only real labels get one).
+        // (the prototype's `id && !on` -- only real labels get one). Its
+        // selected text uses `onForeground`, not `chipSelectedText`, since
+        // the fill is `foreground` itself (light-on-light in dark mode
+        // otherwise).
         Chip(
             name = "Inbox",
             selected = selectedLabelId == null,
             selectedFill = colors.foreground,
+            selectedTextColor = colors.onForeground,
             dotColor = null,
             onClick = { onSelect(null) },
         )
@@ -52,6 +56,7 @@ fun LabelChipRow(
                 name = label.name,
                 selected = selectedLabelId == label.id,
                 selectedFill = color,
+                selectedTextColor = colors.chipSelectedText,
                 dotColor = color,
                 onClick = { onSelect(label.id) },
             )
@@ -60,7 +65,14 @@ fun LabelChipRow(
 }
 
 @Composable
-private fun Chip(name: String, selected: Boolean, selectedFill: Color, dotColor: Color?, onClick: () -> Unit) {
+private fun Chip(
+    name: String,
+    selected: Boolean,
+    selectedFill: Color,
+    selectedTextColor: Color,
+    dotColor: Color?,
+    onClick: () -> Unit,
+) {
     val colors = ShoppTheme.colors
     Row(
         modifier = Modifier
@@ -83,7 +95,7 @@ private fun Chip(name: String, selected: Boolean, selectedFill: Color, dotColor:
         Text(
             text = name,
             style = (if (selected) ShoppType.chipSelected else ShoppType.chipUnselected)
-                .copy(color = if (selected) colors.chipSelectedText else colors.muted),
+                .copy(color = if (selected) selectedTextColor else colors.muted),
         )
     }
 }

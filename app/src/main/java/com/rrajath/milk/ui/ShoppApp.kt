@@ -139,21 +139,20 @@ fun ShoppApp(viewModel: ShoppViewModel) {
             )
         }
 
-        if (drawerOpen) {
-            DrawerMenu(
-                counts = DrawerCounts(
-                    activeCount = activeItems.size,
-                    completedCount = completedItems.size,
-                    labelCount = labels.size,
-                ),
-                currentScreen = screen,
-                isListFiltered = filterLabelId != null,
-                onSelect = { target ->
-                    if (target == Screen.LIST) viewModel.goToAllItems() else viewModel.navigateTo(target)
-                },
-                onDismiss = viewModel::closeDrawer,
-            )
-        }
+        DrawerMenu(
+            visible = drawerOpen,
+            counts = DrawerCounts(
+                activeCount = activeItems.size,
+                completedCount = completedItems.size,
+                labelCount = labels.size,
+            ),
+            currentScreen = screen,
+            isListFiltered = filterLabelId != null,
+            onSelect = { target ->
+                if (target == Screen.LIST) viewModel.goToAllItems() else viewModel.navigateTo(target)
+            },
+            onDismiss = viewModel::closeDrawer,
+        )
     }
 
     if (showClearConfirm) {

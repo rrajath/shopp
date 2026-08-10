@@ -1,5 +1,11 @@
 package com.rrajath.milk.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -28,8 +34,13 @@ import com.rrajath.milk.ui.theme.ShoppType
 
 data class DrawerCounts(val activeCount: Int, val completedCount: Int, val labelCount: Int)
 
+// Slide/fade duration for the drawer opening/closing -- fast enough to feel
+// responsive to a hamburger tap, slow enough to actually read as a slide.
+private const val DrawerAnimationMillis = 220
+
 @Composable
 fun DrawerMenu(
+    visible: Boolean,
     counts: DrawerCounts,
     currentScreen: Screen,
     isListFiltered: Boolean,
@@ -39,56 +50,68 @@ fun DrawerMenu(
 ) {
     val colors = ShoppTheme.colors
     Box(modifier = modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(colors.scrim)
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                    onClick = onDismiss,
-                ),
-        )
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .fillMaxHeight()
-                .width(ShoppDimens.drawerWidth)
-                .background(colors.menu)
-                .padding(top = ShoppDimens.drawerTopPadding),
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(tween(DrawerAnimationMillis)),
+            exit = fadeOut(tween(DrawerAnimationMillis)),
         ) {
-            Text(
-                text = "Shopp",
-                style = ShoppType.drawerTitle.copy(color = colors.foreground),
-                modifier = Modifier.padding(
-                    horizontal = ShoppDimens.drawerTitlePaddingHorizontal,
-                    vertical = ShoppDimens.drawerTitlePaddingBottom,
-                ),
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(colors.scrim)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = onDismiss,
+                    ),
             )
-            MenuItem(
-                name = "All items",
-                count = counts.activeCount,
-                active = currentScreen == Screen.LIST && !isListFiltered,
-                onClick = { onSelect(Screen.LIST) },
-            )
-            MenuItem(
-                name = "Recently completed",
-                count = counts.completedCount,
-                active = currentScreen == Screen.RECENTLY_COMPLETED,
-                onClick = { onSelect(Screen.RECENTLY_COMPLETED) },
-            )
-            MenuItem(
-                name = "Labels",
-                count = counts.labelCount,
-                active = currentScreen == Screen.LABELS,
-                onClick = { onSelect(Screen.LABELS) },
-            )
-            MenuItem(
-                name = "Settings",
-                count = null,
-                active = currentScreen == Screen.SETTINGS,
-                onClick = { onSelect(Screen.SETTINGS) },
-            )
+        }
+        AnimatedVisibility(
+            visible = visible,
+            modifier = Modifier.align(Alignment.CenterStart),
+            enter = slideInHorizontally(tween(DrawerAnimationMillis), initialOffsetX = { -it }),
+            exit = slideOutHorizontally(tween(DrawerAnimationMillis), targetOffsetX = { -it }),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(ShoppDimens.drawerWidth)
+                    .background(colors.menu)
+                    .padding(top = ShoppDimens.drawerTopPadding),
+            ) {
+                Text(
+                    text = "Shopp",
+                    style = ShoppType.drawerTitle.copy(color = colors.foreground),
+                    modifier = Modifier.padding(
+                        horizontal = ShoppDimens.drawerTitlePaddingHorizontal,
+                        vertical = ShoppDimens.drawerTitlePaddingBottom,
+                    ),
+                )
+                MenuItem(
+                    name = "All items",
+                    count = counts.activeCount,
+                    active = currentScreen == Screen.LIST && !isListFiltered,
+                    onClick = { onSelect(Screen.LIST) },
+                )
+                MenuItem(
+                    name = "Recently completed",
+                    count = counts.completedCount,
+                    active = currentScreen == Screen.RECENTLY_COMPLETED,
+                    onClick = { onSelect(Screen.RECENTLY_COMPLETED) },
+                )
+                MenuItem(
+                    name = "Labels",
+                    count = counts.labelCount,
+                    active = currentScreen == Screen.LABELS,
+                    onClick = { onSelect(Screen.LABELS) },
+                )
+                MenuItem(
+                    name = "Settings",
+                    count = null,
+                    active = currentScreen == Screen.SETTINGS,
+                    onClick = { onSelect(Screen.SETTINGS) },
+                )
+            }
         }
     }
 }

@@ -3,9 +3,11 @@ package com.rrajath.milk.ui.theme
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
-// Every value here is transcribed verbatim from
-// internal-docs/design/Shopp Prototype.dc.html's `renderVals()` — see
-// docs/DESIGN_SYSTEM.md. Do not invent new colors; add a token there first.
+// August 2026 rebrand: dark mode is charcoal + bright yellow, light mode is
+// white + red. These values are the source of truth going forward (they
+// intentionally diverge from the original internal-docs/design/Shopp
+// Prototype.dc.html palette) — see docs/DESIGN_SYSTEM.md. Do not invent new
+// colors; add a token there first.
 @Immutable
 data class ShoppColors(
     val background: Color,
@@ -24,6 +26,11 @@ data class ShoppColors(
     val accent: Color,
     val onAccent: Color,
     val chipSelectedText: Color,
+    // Text color for content drawn on a `foreground`-colored surface (e.g.
+    // the Inbox chip's selected fill, which is `foreground` itself) --
+    // `chipSelectedText` alone isn't safe there since it's light in dark
+    // mode, same as `foreground` is light in dark mode.
+    val onForeground: Color,
     val press: Color,
     val shadow: Color,
     // color(null) in the prototype: the Inbox section header / unlabelled tint.
@@ -32,65 +39,67 @@ data class ShoppColors(
 )
 
 private val LightLabelPalette = listOf(
-    Color(0xFFB0442A),
-    Color(0xFF3F6B44),
-    Color(0xFF3C6382),
-    Color(0xFF7A5C2E),
-    Color(0xFF6B4A75),
-    Color(0xFF2F6B6B),
+    Color(0xFF1E5FA8),
+    Color(0xFF2E7D32),
+    Color(0xFF6A1B9A),
+    Color(0xFF00695C),
+    Color(0xFFB45300),
+    Color(0xFFAD1457),
 )
 
 private val DarkLabelPalette = listOf(
-    Color(0xFFE58C6B),
-    Color(0xFF86B889),
-    Color(0xFF87ADCB),
-    Color(0xFFC9A567),
-    Color(0xFFBE9BC7),
-    Color(0xFF7FBDBD),
+    Color(0xFF3D7DD8),
+    Color(0xFF4CAF50),
+    Color(0xFF9C4DCC),
+    Color(0xFF26A69A),
+    Color(0xFFE07B39),
+    Color(0xFFD6487D),
 )
 
 val ShoppLightColors = ShoppColors(
-    background = Color(0xFFFCFAF7),
-    foreground = Color(0xFF2A2724),
-    muted = Color(0xFF8A847C),
-    line = Color(0xFFE4DED5),
-    checkboxBorder = Color(0xFFB3AEA5),
-    doneCheckboxFill = Color(0xFFCFC8BE),
+    background = Color(0xFFFFFFFF),
+    foreground = Color(0xFF1E1E1E),
+    muted = Color(0xFF767676),
+    line = Color(0xFFE4E4E4),
+    checkboxBorder = Color(0xFFC4C4C4),
+    doneCheckboxFill = Color(0xFFD8D8D8),
     sheet = Color(0xFFFFFFFF),
     menu = Color(0xFFFFFFFF),
-    chipBorder = Color(0xFFE2DBD1),
-    scrim = Color(0x6B1E1A17), // rgba(30,26,23,.42)
-    toastBackground = Color(0xFF2A2724),
-    toastForeground = Color(0xFFFCFAF7),
-    toastAction = Color(0xFFE9A98D),
-    accent = Color(0xFF8C4A32),
+    chipBorder = Color(0xFFDDDDDD),
+    scrim = Color(0x6B1E1E1E), // rgba(30,30,30,.42)
+    toastBackground = Color(0xFF1E1E1E),
+    toastForeground = Color(0xFFFFFFFF),
+    toastAction = Color(0xFFFFD400), // dark theme's accent, for contrast on the dark toast surface
+    accent = Color(0xFFE53935),
     onAccent = Color(0xFFFFFFFF),
     chipSelectedText = Color(0xFFFFFFFF),
+    onForeground = Color(0xFFFFFFFF),
     press = Color(0x0A000000), // rgba(0,0,0,.04)
-    shadow = Color(0x2E2A2724), // rgba(42,39,36,.18)
-    inboxTint = Color(0xFF2A2724),
+    shadow = Color(0x2E1E1E1E), // rgba(30,30,30,.18)
+    inboxTint = Color(0xFF1E1E1E),
     labelPalette = LightLabelPalette,
 )
 
 val ShoppDarkColors = ShoppColors(
-    background = Color(0xFF14110F),
-    foreground = Color(0xFFF0EAE4),
-    muted = Color(0xFF8E8579),
-    line = Color(0xFF332C27),
-    checkboxBorder = Color(0xFF564E48),
-    doneCheckboxFill = Color(0xFF4A423C),
-    sheet = Color(0xFF241D19),
-    menu = Color(0xFF241D19),
-    chipBorder = Color(0xFF4A3E37),
-    scrim = Color(0x94000000), // rgba(0,0,0,.58)
-    toastBackground = Color(0xFFEFE7E0),
-    toastForeground = Color(0xFF241D19),
-    toastAction = Color(0xFF8C4A32),
-    accent = Color(0xFFE08A63),
-    onAccent = Color(0xFF241811),
-    chipSelectedText = Color(0xFFF3D9CD),
+    background = Color(0xFF212121),
+    foreground = Color(0xFFF2F2F2),
+    muted = Color(0xFFA0A0A0),
+    line = Color(0xFF3A3A3A),
+    checkboxBorder = Color(0xFF5C5C5C),
+    doneCheckboxFill = Color(0xFF454545),
+    sheet = Color(0xFF2A2A2A),
+    menu = Color(0xFF2A2A2A),
+    chipBorder = Color(0xFF4A4A4A),
+    scrim = Color(0x99000000), // rgba(0,0,0,.6)
+    toastBackground = Color(0xFFF2F2F2),
+    toastForeground = Color(0xFF212121),
+    toastAction = Color(0xFFE53935), // light theme's accent, for contrast on the light toast surface
+    accent = Color(0xFFFFD400),
+    onAccent = Color(0xFF212121),
+    chipSelectedText = Color(0xFFFFFFFF),
+    onForeground = Color(0xFF212121),
     press = Color(0x0DFFFFFF), // rgba(255,255,255,.05)
     shadow = Color(0x99000000), // rgba(0,0,0,.6)
-    inboxTint = Color(0xFF8E8579),
+    inboxTint = Color(0xFFA0A0A0),
     labelPalette = DarkLabelPalette,
 )
