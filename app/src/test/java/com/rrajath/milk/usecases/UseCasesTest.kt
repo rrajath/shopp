@@ -74,7 +74,7 @@ class UseCasesTest {
     @Test
     fun `capture creates items in paste order and updates sticky`() = runBlocking {
         val result = captureItems("carrots\ntomatoes\nonions", LabelRef.None)
-        assertEquals(3, result.itemsAdded)
+        assertEquals(3, result.items.size)
         val active = itemRepository.observeActiveItems().first()
         assertEquals(listOf("carrots", "tomatoes", "onions"), active.map { it.title })
     }

@@ -23,6 +23,7 @@ data class ShoppColors(
     val toastAction: Color,
     val accent: Color,
     val onAccent: Color,
+    val chipSelectedText: Color,
     val press: Color,
     val shadow: Color,
     // color(null) in the prototype: the Inbox section header / unlabelled tint.
@@ -64,6 +65,7 @@ val ShoppLightColors = ShoppColors(
     toastAction = Color(0xFFE9A98D),
     accent = Color(0xFF8C4A32),
     onAccent = Color(0xFFFFFFFF),
+    chipSelectedText = Color(0xFFFFFFFF),
     press = Color(0x0A000000), // rgba(0,0,0,.04)
     shadow = Color(0x2E2A2724), // rgba(42,39,36,.18)
     inboxTint = Color(0xFF2A2724),
@@ -86,6 +88,7 @@ val ShoppDarkColors = ShoppColors(
     toastAction = Color(0xFF8C4A32),
     accent = Color(0xFFE08A63),
     onAccent = Color(0xFF241811),
+    chipSelectedText = Color(0xFFF3D9CD),
     press = Color(0x0DFFFFFF), // rgba(255,255,255,.05)
     shadow = Color(0x99000000), // rgba(0,0,0,.6)
     inboxTint = Color(0xFF8E8579),

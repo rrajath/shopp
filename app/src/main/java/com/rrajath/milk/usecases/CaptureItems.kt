@@ -20,11 +20,11 @@ class CaptureItems(
     private val clock: Clock,
     private val idGenerator: IdGenerator,
 ) {
-    data class Result(val itemsAdded: Int, val newSticky: LabelRef)
+    data class Result(val items: List<ItemEntity>, val newSticky: LabelRef)
 
     suspend operator fun invoke(input: String, sticky: LabelRef): Result {
         val parsed = parseCapture(input, sticky)
-        if (parsed.lines.isEmpty()) return Result(itemsAdded = 0, newSticky = sticky)
+        if (parsed.lines.isEmpty()) return Result(items = emptyList(), newSticky = sticky)
 
         return database.withTransaction {
             val resolvedTokenIds = HashMap<String, String>() // token text -> labelId, memoized per call
@@ -64,7 +64,7 @@ class CaptureItems(
             idPassthroughLabels.forEach { labelRepository.touch(it) }
 
             Result(
-                itemsAdded = items.size,
+                items = items,
                 newSticky = newStickyId?.let { LabelRef.Id(it) } ?: LabelRef.None,
             )
         }
