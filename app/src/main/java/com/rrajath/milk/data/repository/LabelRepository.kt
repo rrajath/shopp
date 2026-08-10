@@ -17,12 +17,27 @@ class LabelRepository(
 
     suspend fun getById(id: String): LabelEntity? = labelDao.getById(id)
 
-    // Resolve-or-create per TDD §4.2. Caller is expected to run this inside
-    // its own transaction when part of a larger write (e.g. captureItems).
+    suspend fun findByFoldedName(nameFolded: String): LabelEntity? =
+        labelDao.findByFoldedName(nameFolded)
+
+    // Resolve-or-create per TDD §4.2, bumping lastUsedAt either way (PRD §5:
+    // "bumped when an item is created with or moved to this label") — this
+    // is the single place that touches a token-derived label, so callers
+    // must not also call touch() on its result within the same transaction
+    // (that would double-write the same row at the same instant and trip
+    // the debug updatedAt-guard trigger).
     suspend fun resolveOrCreate(token: String): LabelEntity {
         val folded = token.foldForMatching()
-        labelDao.findByFoldedName(folded)?.let { return it }
         val now = clock.nowMillis()
+
+        val existing = labelDao.findByFoldedName(folded)
+        if (existing != null) {
+            if (now <= existing.lastUsedAt) return existing // already current, avoid a no-op write
+            val touched = existing.copy(lastUsedAt = now, updatedAt = now)
+            labelDao.update(touched)
+            return touched
+        }
+
         val liveIndices = labelDao.getLiveColorIndices()
         val label = LabelEntity(
             id = idGenerator.newId(),
