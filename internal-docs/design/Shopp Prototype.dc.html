@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=EB+Garamond:wght@400;500&family=Spectral:wght@300;400&family=Bodoni+Moda:opsz,wght@6..96,400&family=Roboto:wght@300;400;500&display=swap"><style>body{margin:0;background:#e9e6e0;font-family:Roboto,system-ui,sans-serif}a{color:#8C4A32}a:hover{color:#6d3826}
+@keyframes shSheet{from{transform:translateY(14px);opacity:.4}to{transform:translateY(0);opacity:1}}
+@keyframes shToast{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes shFade{from{opacity:0}to{opacity:1}}
+@keyframes shDrawer{from{transform:translateX(-16px);opacity:.3}to{transform:translateX(0);opacity:1}}
+.sh-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.sh-scroll::-webkit-scrollbar{display:none}
+.sh-in{all:unset;display:block;width:100%;font:300 18px/1.5 Roboto,system-ui,sans-serif;color:var(--fg);caret-color:var(--accent)}
+.sh-in::placeholder{color:var(--muted)}
+.sh-row:active{background:var(--press)}</style></helmet>
+
+<div style="display:flex;gap:26px;align-items:flex-start;padding:34px 40px">
+<x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" dark="{{ dark }}" keyboard="{{ quickAdd }}" hint-size="428px,908px">
+<div style="{{ shell }}">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 2px;flex:none">
+    <div class="sh-row" onClick="{{ onLeadTap }}" style="width:44px;height:44px;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:0 12px;box-sizing:border-box;border-radius:22px;cursor:pointer">
+      <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+        <div style="height:1.5px;background:var(--fg)"></div>
+        <div style="height:1.5px;background:var(--fg)"></div>
+      </sc-if>
+      <sc-if value="{{ isSub }}">
+        <div style="width:11px;height:11px;border-left:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);transform:rotate(45deg);margin-left:3px"></div>
+      </sc-if>
+    </div>
+    <div style="font:400 18px/1 var(--serif);color:var(--fg);letter-spacing:.04em">{{ title }}</div>
+    <div class="sh-row" onClick="{{ onTrailTap }}" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:22px;cursor:pointer">
+      <sc-if value="{{ showClear }}">
+        <div style="font:400 13px/1 Roboto,system-ui,sans-serif;color:var(--muted)">Clear</div>
+      </sc-if>
+    </div>
+  </div>
+
+  <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+    <div class="sh-scroll" style="flex:1;padding-bottom:110px">
+      <sc-if value="{{ isEmpty }}">
+        <div style="padding:120px 40px 0;text-align:center">
+          <div style="font:400 27px/1.25 var(--serif);color:var(--fg)">{{ emptyTitle }}</div>
+          <div style="font:300 15px/1.55 Roboto,system-ui,sans-serif;color:var(--muted);margin-top:12px">{{ emptyBody }}</div>
+        </div>
+      </sc-if>
+      <sc-for list="{{ sections }}" as="sec" hint-placeholder-count="3">
+        <div style="padding:26px 24px 10px;position:sticky;top:0;background:var(--bg);z-index:2">
+          <span style="{{ sec.headStyle }}">{{ sec.name }}</span>
+        </div>
+        <sc-for list="{{ sec.rows }}" as="row" hint-placeholder-count="3">
+          <div class="sh-row" onClick="{{ row.onTap }}" style="display:flex;align-items:center;gap:16px;padding:12px 24px;min-height:44px;box-sizing:border-box;cursor:pointer">
+            <div style="{{ row.boxStyle }}"><div style="{{ row.checkStyle }}"></div></div>
+            <div style="{{ row.textStyle }}">{{ row.text }}</div>
+          </div>
+        </sc-for>
+      </sc-for>
+    </div>
+    <div class="sh-row" onClick="{{ openAdd }}" style="position:absolute;right:20px;bottom:20px;display:flex;align-items:center;gap:10px;height:56px;padding:0 22px;border-radius:18px;background:var(--accent);box-shadow:0 8px 18px var(--fabShadow);cursor:pointer;z-index:5">
+      <div style="position:relative;width:16px;height:16px">
+        <div style="position:absolute;top:7px;left:0;width:16px;height:2px;background:var(--onAccent)"></div>
+        <div style="position:absolute;left:7px;top:0;height:16px;width:2px;background:var(--onAccent)"></div>
+      </div>
+      <span style="font:500 15px/1 Roboto,system-ui,sans-serif;color:var(--onAccent)">Add</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isCompleted }}">
+    <div class="sh-scroll" style="flex:1;padding-bottom:40px">
+      <sc-if value="{{ noneCompleted }}">
+        <div style="padding:120px 40px 0;text-align:center">
+          <div style="font:400 27px/1.25 var(--serif);color:var(--fg)">Nothing here yet</div>
+          <div style="font:300 15px/1.55 Roboto,system-ui,sans-serif;color:var(--muted);margin-top:12px">Items you tick off stay here for a week.</div>
+        </div>
+      </sc-if>
+      <sc-for list="{{ doneSections }}" as="sec" hint-placeholder-count="2">
+        <div style="padding:26px 24px 10px"><span style="font:400 27px/1 var(--serif);color:var(--fg)">{{ sec.name }}</span></div>
+        <sc-for list="{{ sec.rows }}" as="row" hint-placeholder-count="3">
+          <div class="sh-row" onClick="{{ row.onTap }}" style="display:flex;align-items:center;gap:16px;padding:12px 24px;min-height:44px;box-sizing:border-box;cursor:pointer">
+            <div style="width:19px;height:19px;border-radius:50%;background:var(--doneBox);flex:none;display:flex;align-items:center;justify-content:center">
+              <div style="width:8px;height:4px;border-left:1.5px solid var(--bg);border-bottom:1.5px solid var(--bg);transform:rotate(-45deg) translate(1px,-1px)"></div>
+            </div>
+            <div style="font:300 18px/1.3 Roboto,system-ui,sans-serif;color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)">{{ row.text }}</div>
+            <div style="{{ row.tagStyle }}">{{ row.tag }}</div>
+          </div>
+        </sc-for>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isLabels }}">
+    <div class="sh-scroll" style="flex:1;padding-bottom:40px">
+      <div style="padding:26px 24px 14px"><span style="font:400 27px/1 var(--serif);color:var(--fg)">Labels</span></div>
+      <sc-for list="{{ labelRows }}" as="row" hint-placeholder-count="4">
+        <div class="sh-row" onClick="{{ row.onTap }}" style="display:flex;align-items:center;gap:16px;padding:13px 24px;min-height:44px;box-sizing:border-box;cursor:pointer">
+          <span style="{{ row.dotStyle }}"></span>
+          <div style="font:300 18px/1.3 Roboto,system-ui,sans-serif;color:var(--fg);flex:1">{{ row.name }}</div>
+          <div style="font:300 15px/1 Roboto,system-ui,sans-serif;color:var(--muted)">{{ row.count }}</div>
+        </div>
+      </sc-for>
+      <div style="font:300 13px/1.6 Roboto,system-ui,sans-serif;color:var(--muted);padding:22px 24px 0">Labels are created by typing @name in Quick Add. Tap one to filter the list.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isSettings }}">
+    <div class="sh-scroll" style="flex:1;padding-bottom:40px">
+      <div style="padding:26px 24px 6px"><span style="font:400 27px/1 var(--serif);color:var(--fg)">Settings</span></div>
+      <div style="font:400 12px/1 Roboto,system-ui,sans-serif;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;padding:22px 24px 10px">Appearance</div>
+      <div style="display:flex;gap:8px;padding:0 24px">
+        <div class="sh-row" onClick="{{ setLight }}" style="{{ lightBtn }}">Light</div>
+        <div class="sh-row" onClick="{{ setDark }}" style="{{ darkBtn }}">Dark</div>
+      </div>
+      <div style="font:400 12px/1 Roboto,system-ui,sans-serif;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;padding:30px 24px 4px">Behaviour</div>
+      <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="3">
+        <div class="sh-row" onClick="{{ t.onTap }}" style="display:flex;align-items:center;gap:18px;padding:14px 24px;min-height:44px;box-sizing:border-box;cursor:pointer">
+          <div style="flex:1">
+            <div style="font:300 17px/1.3 Roboto,system-ui,sans-serif;color:var(--fg)">{{ t.name }}</div>
+            <div style="font:300 13px/1.4 Roboto,system-ui,sans-serif;color:var(--muted);margin-top:3px">{{ t.hint }}</div>
+          </div>
+          <div style="{{ t.trackStyle }}"><div style="{{ t.knobStyle }}"></div></div>
+        </div>
+      </sc-for>
+      <div style="font:300 13px/1.6 Roboto,system-ui,sans-serif;color:var(--muted);padding:28px 24px 0">Shopp · 1.0 · placeholder name</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ undo }}">
+    <div style="{{ toastWrap }}">
+      <div style="font:300 15px/1.3 Roboto,system-ui,sans-serif;color:var(--toastFg);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ undoText }}</div>
+      <div class="sh-row" onClick="{{ onUndo }}" style="font:500 14px/1 Roboto,system-ui,sans-serif;color:var(--toastAction);letter-spacing:.06em;text-transform:uppercase;padding:6px 4px;cursor:pointer">Undo</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ quickAdd }}">
+    <div onClick="{{ closeAdd }}" style="position:absolute;inset:0;background:var(--scrim);z-index:20;animation:shFade .16s ease-out"></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;background:var(--sheet);padding:18px 20px 16px;z-index:21;animation:shSheet .18s cubic-bezier(.2,0,0,1);box-shadow:0 -10px 34px var(--sheetShadow)">
+      <sc-if value="{{ hasSuggest }}">
+        <div style="position:absolute;left:20px;right:20px;bottom:100%;margin-bottom:10px;background:var(--menu);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px var(--sheetShadow)">
+          <sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="3">
+            <div class="sh-row" onClick="{{ s.onTap }}" style="{{ s.rowStyle }}">
+              <span style="{{ s.dotStyle }}"></span>
+              <span style="{{ s.textStyle }}">{{ s.name }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-for list="{{ sessionAdds }}" as="a" hint-placeholder-count="0">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 0 10px">
+          <span style="{{ a.dotStyle }}"></span>
+          <span style="font:300 15px/1.3 Roboto,system-ui,sans-serif;color:var(--muted)">{{ a.text }}</span>
+        </div>
+      </sc-for>
+      <input class="sh-in" placeholder="Add an item" value="{{ draft }}" onChange="{{ onDraft }}" onKeyDown="{{ onKey }}" ref="{{ inputRef }}" autoComplete="off" autoCorrect="off" spellCheck="{{ off }}">
+      <div style="display:flex;gap:8px;overflow-x:auto;padding-top:16px" class="sh-scroll">
+        <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4">
+          <div class="sh-row" onClick="{{ c.onTap }}" style="{{ c.style }}">
+            <span style="{{ c.dotStyle }}"></span>{{ c.name }}
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ drawer }}">
+    <div onClick="{{ closeDrawer }}" style="position:absolute;inset:0;background:var(--scrim);z-index:30;animation:shFade .16s ease-out"></div>
+    <div style="position:absolute;left:0;top:0;bottom:0;width:290px;background:var(--menu);z-index:31;padding:26px 0 0;animation:shDrawer .2s cubic-bezier(.2,0,0,1);box-shadow:8px 0 34px var(--sheetShadow)">
+      <div style="padding:0 24px 22px;font:400 26px/1 var(--serif);color:var(--fg);letter-spacing:.02em">Shopp</div>
+      <sc-for list="{{ menu }}" as="m" hint-placeholder-count="4">
+        <div class="sh-row" onClick="{{ m.onTap }}" style="{{ m.style }}">
+          <div style="{{ m.dotStyle }}"></div>
+          <div style="flex:1">{{ m.name }}</div>
+          <div style="font:300 14px/1 Roboto,system-ui,sans-serif;color:var(--muted)">{{ m.count }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+</div>
+</x-import>
+
+<div style="width:300px;padding-top:6px">
+  <div style="font:400 15px/1.3 Newsreader,serif;color:#231f1c">Shopp — working prototype</div>
+  <div style="font:300 13px/1.7 Roboto,system-ui,sans-serif;color:#635c55;margin-top:10px">Tap a row to tick it off; the toast undoes it. The <strong style="font-weight:500">Add</strong> button opens Quick Add — type, press Enter, and it stays open with the label chip stuck. Type <strong style="font-weight:500">@</strong> anywhere to pick a label or create one (try <strong style="font-weight:500">@co</strong>, then <strong style="font-weight:500">@bakery</strong>). The menu holds Recently&nbsp;Completed, Labels and Settings; tapping a label filters the list. Dark mode lives in Settings.</div>
+  <div style="font:300 13px/1.7 Roboto,system-ui,sans-serif;color:#635c55;margin-top:14px">Header serif, accent colour and grouping are Tweaks.</div>
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:800,&quot;height&quot;:1000},&quot;headerFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Newsreader&quot;,&quot;EB Garamond&quot;,&quot;Spectral&quot;,&quot;Bodoni Moda&quot;],&quot;default&quot;:&quot;Newsreader&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Type&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;options&quot;:[&quot;#8C4A32&quot;,&quot;#3F6B44&quot;,&quot;#3C6382&quot;,&quot;#2a2724&quot;],&quot;default&quot;:&quot;#8C4A32&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Colour&quot;}}">
+const PALETTE = [
+  { l: '#B0442A', d: '#E58C6B' }, { l: '#3F6B44', d: '#86B889' },
+  { l: '#3C6382', d: '#87ADCB' }, { l: '#7A5C2E', d: '#C9A567' },
+  { l: '#6B4A75', d: '#BE9BC7' }, { l: '#2F6B6B', d: '#7FBDBD' },
+];
+const SERIFS = {
+  'Newsreader': "Newsreader, serif",
+  'EB Garamond': "'EB Garamond', serif",
+  'Spectral': "Spectral, serif",
+  'Bodoni Moda': "'Bodoni Moda', serif",
+};
+const DAY = 86400000;
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const now = Date.now();
+    let n = 0;
+    const it = (text, label, done, doneAt) => ({ id: 'i' + (++n), text, label, done: !!done, doneAt: doneAt || 0, createdAt: now + n });
+    this.state = {
+      screen: 'list', drawer: false, quickAdd: false, draft: '', sticky: null,
+      filter: null, undo: null, dark: false, group: true, keepOpen: true, confirmClear: false,
+      completing: {}, sessionAdds: [],
+      labels: [
+        { id: 'l1', name: 'costco', c: 0 }, { id: 'l2', name: 'market', c: 1 },
+        { id: 'l3', name: 'pharmacy', c: 2 },
+      ],
+      items: [
+        it('milk', null), it('dish soap', null), it('cat food — the pâté one', null), it('AA batteries', null),
+        it('paper towels', 'l1'), it('rotisserie chicken', 'l1'), it('olive oil, 2L', 'l1'),
+        it('sourdough', 'l2'), it('tomatoes', 'l2'), it('basil', 'l2'),
+        it('ibuprofen', 'l3'),
+        it('coffee beans', 'l1', true, now - 3 * 3600000), it('sponges', null, true, now - 2 * DAY),
+      ],
+    };
+    this.seq = n;
+    this.inputRef = React.createRef();
+    this.timers = [];
+  }
+  componentDidUpdate(_, prev) {
+    if (this.state.quickAdd && !prev.quickAdd && this.inputRef.current) this.inputRef.current.focus();
+  }
+  componentWillUnmount() { this.timers.forEach(clearTimeout); }
+  later(fn, ms) { const t = setTimeout(fn, ms); this.timers.push(t); return t; }
+
+  labelOf(id) { return this.state.labels.find(l => l.id === id) || null; }
+  color(id) {
+    const l = this.labelOf(id);
+    if (!l) return this.state.dark ? '#8E8579' : '#2a2724';
+    const p = PALETTE[l.c % PALETTE.length];
+    return this.state.dark ? p.d : p.l;
+  }
+  accent() {
+    const a = this.props.accent || '#8C4A32';
+    if (!this.state.dark) return a;
+    const map = { '#8C4A32': '#E08A63', '#3F6B44': '#8FC095', '#3C6382': '#8FB6D6', '#2a2724': '#EFE7E0' };
+    return map[a] || a;
+  }
+  showUndo(text, action) {
+    if (this.undoTimer) clearTimeout(this.undoTimer);
+    this.setState({ undo: { text, action } });
+    this.undoTimer = this.later(() => this.setState({ undo: null }), 4200);
+  }
+  complete(id) {
+    if (this.state.completing[id]) return;
+    this.setState(s => ({ completing: { ...s.completing, [id]: true } }));
+    this.later(() => {
+      const item = this.state.items.find(i => i.id === id);
+      this.setState(s => {
+        const c = { ...s.completing }; delete c[id];
+        return { completing: c, items: s.items.map(i => i.id === id ? { ...i, done: true, doneAt: Date.now() } : i) };
+      });
+      if (item) this.showUndo(item.text, () => this.restore(id, false));
+    }, 260);
+  }
+  restore(id, toast) {
+    const item = this.state.items.find(i => i.id === id);
+    this.setState(s => ({ items: s.items.map(i => i.id === id ? { ...i, done: false, doneAt: 0 } : i), undo: toast ? s.undo : null }));
+    if (toast && item) this.showUndo(item.text + ' moved back', () => this.complete(id));
+  }
+  addFromDraft() {
+    const raw = this.state.draft.trim();
+    if (!raw) return;
+    const m = raw.match(/@([\p{L}\p{N}_-]+)/u);
+    let label = this.state.sticky, text = raw, newLabels = null;
+    if (m) {
+      const name = m[1].toLowerCase();
+      text = (raw.slice(0, m.index) + raw.slice(m.index + m[0].length)).replace(/\s+/g, ' ').trim();
+      const found = this.state.labels.find(l => l.name === name);
+      if (found) label = found.id;
+      else {
+        const nl = { id: 'l' + (Date.now() % 100000), name, c: this.state.labels.length };
+        newLabels = [...this.state.labels, nl];
+        label = nl.id;
+      }
+    }
+    if (!text) return;
+    const id = 'i' + (++this.seq);
+    this.setState(s => ({
+      items: [...s.items, { id, text, label, done: false, doneAt: 0, createdAt: Date.now() }],
+      labels: newLabels || s.labels,
+      draft: '', sticky: label,
+      sessionAdds: [...s.sessionAdds, { id, text, label }].slice(-3),
+      quickAdd: s.keepOpen ? true : false,
+    }));
+  }
+  go(screen) { this.setState({ screen, drawer: false, quickAdd: false }); }
+
+  renderVals() {
+    const s = this.state, dark = s.dark, acc = this.accent();
+    const serif = SERIFS[this.props.headerFont] || SERIFS['Newsreader'];
+    const T = dark
+      ? { bg: '#14110F', fg: '#F0EAE4', muted: '#8E8579', line: '#332C27', box: '#564E48', doneBox: '#4A423C', sheet: '#241D19', menu: '#241D19', chipB: '#4A3E37', scrim: 'rgba(0,0,0,.58)', toast: '#EFE7E0', toastFg: '#241D19', press: 'rgba(255,255,255,.05)', shadow: 'rgba(0,0,0,.6)' }
+      : { bg: '#FCFAF7', fg: '#2a2724', muted: '#8a847c', line: '#E4DED5', box: '#b3aea5', doneBox: '#CFC8BE', sheet: '#FFFFFF', menu: '#FFFFFF', chipB: '#E2DBD1', scrim: 'rgba(30,26,23,.42)', toast: '#2a2724', toastFg: '#FCFAF7', press: 'rgba(0,0,0,.04)', shadow: 'rgba(42,39,36,.18)' };
+
+    const shell = {
+      '--bg': T.bg, '--fg': T.fg, '--muted': T.muted, '--line': T.line, '--box': T.box,
+      '--doneBox': T.doneBox, '--sheet': T.sheet, '--menu': T.menu, '--scrim': T.scrim,
+      '--toast': T.toast, '--toastFg': T.toastFg, '--toastAction': dark ? '#8C4A32' : '#E9A98D',
+      '--accent': acc, '--onAccent': dark ? '#241811' : '#FFFFFF', '--press': T.press,
+      '--sheetShadow': T.shadow, '--fabShadow': T.shadow, '--serif': serif,
+      position: 'relative', height: '100%', display: 'flex', flexDirection: 'column',
+      background: T.bg, overflow: 'hidden', fontFamily: 'Roboto, system-ui, sans-serif',
+    };
+
+    const active = s.items.filter(i => !i.done && (s.filter ? i.label === s.filter : true));
+    const sections = [];
+    if (s.group) {
+      const groups = new Map();
+      active.forEach(i => {
+        const k = i.label || '__inbox';
+        if (!groups.has(k)) groups.set(k, []);
+        groups.get(k).push(i);
+      });
+      const order = ['__inbox', ...s.labels.map(l => l.id)];
+      order.forEach(k => {
+        if (!groups.has(k)) return;
+        sections.push({ key: k, name: k === '__inbox' ? 'Inbox' : this.labelOf(k).name, items: groups.get(k) });
+      });
+    } else if (active.length) {
+      sections.push({ key: 'all', name: s.filter ? this.labelOf(s.filter).name : 'All items', items: active });
+    }
+
+    const mkRow = it => {
+      const going = !!s.completing[it.id];
+      return {
+        id: it.id, text: it.text, onTap: () => this.complete(it.id),
+        boxStyle: {
+          width: 19, height: 19, borderRadius: '50%', flex: 'none', boxSizing: 'border-box',
+          border: '1px solid ' + (going ? acc : T.box), background: going ? acc : 'transparent',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'background .18s ease, border-color .18s ease',
+        },
+        checkStyle: {
+          width: 8, height: 4, borderLeft: '1.5px solid ' + (dark ? '#241811' : '#fff'),
+          borderBottom: '1.5px solid ' + (dark ? '#241811' : '#fff'),
+          transform: 'rotate(-45deg) translate(1px,-1px)', opacity: going ? 1 : 0, transition: 'opacity .14s ease .04s',
+        },
+        textStyle: {
+          font: '300 18px/1.3 Roboto, system-ui, sans-serif', color: T.fg,
+          opacity: going ? .38 : 1, textDecoration: going ? 'line-through' : 'none',
+          textDecorationColor: T.line, transition: 'opacity .22s ease',
+        },
+      };
+    };
+
+    const doneItems = s.items.filter(i => i.done).sort((a, b) => b.doneAt - a.doneAt);
+    const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
+    const doneGroups = [{ name: 'Today', rows: [] }, { name: 'Earlier', rows: [] }];
+    doneItems.forEach(i => {
+      const l = this.labelOf(i.label);
+      const row = {
+        id: i.id, text: i.text, onTap: () => this.restore(i.id, true),
+        tag: l ? l.name : '',
+        tagStyle: { font: '300 13px/1 Roboto, system-ui, sans-serif', color: this.color(i.label), flex: 'none' },
+      };
+      (i.doneAt >= dayStart.getTime() ? doneGroups[0] : doneGroups[1]).rows.push(row);
+    });
+
+    const labelRows = s.labels.map(l => ({
+      id: l.id, name: l.name,
+      count: s.items.filter(i => !i.done && i.label === l.id).length,
+      dotStyle: { width: 9, height: 9, borderRadius: '50%', background: this.color(l.id), flex: 'none' },
+      onTap: () => this.setState({ screen: 'list', filter: l.id, drawer: false }),
+    }));
+
+    const chip = (id, name) => {
+      const on = s.sticky === id;
+      return {
+        id, name,
+        onTap: () => this.setState({ sticky: on ? null : id }),
+        style: {
+          flex: 'none', display: 'flex', alignItems: 'center', gap: 7, padding: '8px 14px',
+          borderRadius: 100, cursor: 'pointer', minHeight: 34, boxSizing: 'border-box',
+          font: (on ? '400' : '300') + ' 14px/1 Roboto, system-ui, sans-serif',
+          color: on ? (dark ? '#F3D9CD' : '#FFFFFF') : T.muted,
+          background: on ? (id ? this.color(id) : T.fg) : 'transparent',
+          border: '1px solid ' + (on ? 'transparent' : T.chipB),
+        },
+        dotStyle: id && !on
+          ? { width: 7, height: 7, borderRadius: '50%', background: this.color(id), flex: 'none' }
+          : { display: 'none' },
+      };
+    };
+    const chips = [chip(null, 'Inbox'), ...s.labels.map(l => chip(l.id, l.name))];
+
+    const tok = s.draft.match(/@([\p{L}\p{N}_-]*)$/u);
+    const q = tok ? tok[1].toLowerCase() : null;
+    let suggestions = [];
+    if (q !== null) {
+      const pick = name => () => {
+        const next = s.draft.replace(/@([\p{L}\p{N}_-]*)$/u, '@' + name + ' ');
+        this.setState({ draft: next });
+        if (this.inputRef.current) this.inputRef.current.focus();
+      };
+      suggestions = s.labels.filter(l => l.name.startsWith(q)).map(l => ({
+        id: l.id, name: l.name, onTap: pick(l.name),
+        dotStyle: { width: 8, height: 8, borderRadius: '50%', background: this.color(l.id), flex: 'none' },
+        textStyle: { font: '300 16px/1 Roboto, system-ui, sans-serif', color: T.fg },
+      }));
+      if (q && !s.labels.some(l => l.name === q)) suggestions.push({
+        id: '__new', name: 'create “' + q + '”', onTap: pick(q),
+        dotStyle: { width: 8, height: 8, borderRadius: '50%', border: '1px dashed ' + T.muted, boxSizing: 'border-box', flex: 'none' },
+        textStyle: { font: '300 16px/1 Roboto, system-ui, sans-serif', color: T.muted },
+      });
+      suggestions = suggestions.map((sg, i) => ({
+        ...sg,
+        rowStyle: {
+          display: 'flex', alignItems: 'center', gap: 10, padding: '13px 16px', cursor: 'pointer',
+          minHeight: 44, boxSizing: 'border-box', background: i === 0 ? T.press : 'transparent',
+        },
+      }));
+    }
+    this._acceptTop = suggestions.length ? suggestions[0].onTap : null;
+
+    const menuItem = (name, screen, count) => ({
+      name, count: count === undefined ? '' : count,
+      onTap: () => screen === 'list' ? this.setState({ screen: 'list', filter: null, drawer: false }) : this.go(screen),
+      style: {
+        display: 'flex', alignItems: 'center', gap: 14, padding: '13px 24px', minHeight: 44,
+        boxSizing: 'border-box', cursor: 'pointer',
+        font: '300 17px/1.3 Roboto, system-ui, sans-serif',
+        color: s.screen === screen && !(screen === 'list' && s.filter) ? T.fg : T.muted,
+      },
+      dotStyle: {
+        width: 5, height: 5, borderRadius: '50%', flex: 'none',
+        background: s.screen === screen && !(screen === 'list' && s.filter) ? acc : 'transparent',
+      },
+    });
+
+    const toggle = (name, hint, key) => {
+      const on = s[key];
+      return {
+        name, hint, onTap: () => this.setState({ [key]: !on }),
+        trackStyle: {
+          width: 46, height: 26, borderRadius: 13, flex: 'none', position: 'relative',
+          background: on ? acc : 'transparent', border: '1.5px solid ' + (on ? acc : T.box),
+          boxSizing: 'border-box', transition: 'background .18s ease, border-color .18s ease',
+        },
+        knobStyle: {
+          position: 'absolute', top: on ? 3 : 5, left: on ? 23 : 5,
+          width: on ? 17 : 11, height: on ? 17 : 11, borderRadius: '50%',
+          background: on ? (dark ? '#241811' : '#fff') : T.box,
+          transition: 'all .18s cubic-bezier(.2,0,0,1)',
+        },
+      };
+    };
+
+    const titles = { list: s.filter ? this.labelOf(s.filter).name : 'Shopp', completed: 'Recently completed', labels: 'Labels', settings: 'Settings' };
+    const btn = on => ({
+      flex: 1, textAlign: 'center', padding: '13px 0', borderRadius: 12, cursor: 'pointer',
+      font: '400 15px/1 Roboto, system-ui, sans-serif',
+      color: on ? (dark ? '#241811' : '#fff') : T.muted,
+      background: on ? acc : 'transparent', border: '1px solid ' + (on ? 'transparent' : T.chipB),
+    });
+
+    return {
+      shell, dark, off: false,
+      title: titles[s.screen] || 'Shopp',
+      isList: s.screen === 'list', isSub: s.screen !== 'list',
+      isCompleted: s.screen === 'completed', isLabels: s.screen === 'labels', isSettings: s.screen === 'settings',
+      showClear: s.screen === 'completed' && doneItems.length > 0,
+      onLeadTap: () => s.screen === 'list' ? this.setState({ drawer: true }) : this.setState({ screen: 'list' }),
+      onTrailTap: () => { if (s.screen === 'completed') this.setState(st => ({ items: st.items.filter(i => !i.done) })); },
+      sections: sections.map(sec => ({
+        key: sec.key, name: sec.name,
+        headStyle: { font: '400 27px/1 ' + serif, color: this.color(sec.key === '__inbox' || sec.key === 'all' ? null : sec.key) },
+        rows: sec.items.map(mkRow),
+      })),
+      isEmpty: active.length === 0,
+      emptyTitle: s.filter ? 'Nothing on this list' : 'Nothing to buy',
+      emptyBody: s.filter ? 'Add something with the chip already set to ' + (s.filter ? this.labelOf(s.filter).name : '') + '.' : 'Tap Add, or hold the Quick Settings tile to jot something down without unlocking.',
+      doneSections: doneGroups.filter(g => g.rows.length),
+      noneCompleted: doneItems.length === 0,
+      labelRows,
+      toggles: [
+        toggle('Group by label', 'Off shows one flat list in the order you added.', 'group'),
+        toggle('Keep Quick Add open', 'Enter adds the item and leaves the field ready.', 'keepOpen'),
+        toggle('Confirm before clearing', 'Ask before emptying Recently completed.', 'confirmClear'),
+      ],
+      lightBtn: btn(!dark), darkBtn: btn(dark),
+      setLight: () => this.setState({ dark: false }), setDark: () => this.setState({ dark: true }),
+      menu: [
+        menuItem('All items', 'list', active.length),
+        menuItem('Recently completed', 'completed', doneItems.length),
+        menuItem('Labels', 'labels', s.labels.length),
+        menuItem('Settings', 'settings'),
+      ],
+      drawer: s.drawer, closeDrawer: () => this.setState({ drawer: false }),
+      quickAdd: s.quickAdd,
+      openAdd: () => this.setState({ quickAdd: true, sessionAdds: [], draft: '' }),
+      closeAdd: () => this.setState({ quickAdd: false, draft: '' }),
+      draft: s.draft, inputRef: this.inputRef,
+      onDraft: e => this.setState({ draft: e.target.value }),
+      onKey: e => {
+        if (e.key === 'Enter' || e.key === 'Tab') {
+          if (this._acceptTop) { e.preventDefault(); const fn = this._acceptTop; this._acceptTop = null; fn(); return; }
+          if (e.key === 'Enter') { e.preventDefault(); this.addFromDraft(); }
+        }
+        if (e.key === 'Escape') this.setState({ quickAdd: false });
+      },
+      chips, suggestions, hasSuggest: suggestions.length > 0,
+      sessionAdds: s.sessionAdds.map(a => ({
+        id: a.id, text: a.text,
+        dotStyle: { width: 6, height: 6, borderRadius: '50%', flex: 'none', background: this.color(a.label) },
+      })),
+      undo: !!s.undo, undoText: s.undo ? s.undo.text : '',
+      onUndo: () => { if (s.undo) { const fn = s.undo.action; this.setState({ undo: null }); fn(); } },
+      toastWrap: {
+        position: 'absolute', left: 16, right: 16, bottom: 88, zIndex: 15,
+        display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px',
+        borderRadius: 14, background: T.toast, boxShadow: '0 8px 24px ' + T.shadow,
+        animation: 'shToast .2s cubic-bezier(.2,0,0,1)',
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
