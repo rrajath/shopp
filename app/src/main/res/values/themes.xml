@@ -2,4 +2,14 @@
 <resources>
 
     <style name="Theme.Shopp" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- CaptureActivity (TDD §7.2): translucent so it reads as an overlay,
+         not a full app launch, over the lock screen or whatever was showing. -->
+    <style name="Theme.Shopp.Capture" parent="Theme.Shopp">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+    </style>
 </resources>

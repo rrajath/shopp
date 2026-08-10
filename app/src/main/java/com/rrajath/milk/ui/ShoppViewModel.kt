@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.rrajath.milk.AppContainer
 import com.rrajath.milk.data.db.ItemEntity
 import com.rrajath.milk.data.db.LabelEntity
-import com.rrajath.milk.domain.LabelRef
 import com.rrajath.milk.ui.theme.ThemeMode
 import com.rrajath.milk.usecases.RenameLabel
 import kotlinx.coroutines.Job
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -31,29 +29,6 @@ data class ListSection(
 )
 
 data class UndoState(val itemId: String, val title: String)
-
-data class SessionAddEntry(val id: String, val text: String, val labelId: String?)
-
-data class QuickAddState(
-    val open: Boolean = false,
-    val draft: String = "",
-    val stickyLabelId: String? = null, // null = Inbox
-    val sessionAdds: List<SessionAddEntry> = emptyList(),
-)
-
-// A line containing only a token sets sticky and yields no item, so the
-// same regex parseCapture uses to find the trailing token is reused here to
-// detect "is the user mid-typing a label" (prototype's own approach: only
-// the END of the draft is checked, not full caret-aware detection).
-private val TRAILING_TOKEN_REGEX = Regex("@([\\p{L}\\p{N}_-]*)$")
-
-// Pure, so the caller can compute it reactively (e.g. remember(draft, labels))
-// instead of reading ViewModel state snapshots outside of collectAsState.
-fun quickAddSuggestions(draft: String, labels: List<LabelEntity>): List<LabelEntity> {
-    val query = TRAILING_TOKEN_REGEX.find(draft)?.groupValues?.get(1) ?: return emptyList()
-    val folded = query.lowercase()
-    return labels.filter { it.nameFolded.startsWith(folded) }
-}
 
 class ShoppViewModel(private val container: AppContainer) : ViewModel() {
 
@@ -180,53 +155,17 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch { container.editTitle(itemId, newTitle) }
     }
 
-    // --- Quick Add ---
+    // --- Quick Add (shared controller -- see QuickAddController for why) ---
 
-    private val _quickAdd = MutableStateFlow(QuickAddState())
-    val quickAdd: StateFlow<QuickAddState> = _quickAdd
+    private val quickAddController = QuickAddController(viewModelScope, container)
+    val quickAdd: StateFlow<QuickAddState> = quickAddController.state
 
-    fun openQuickAdd() {
-        _quickAdd.value = QuickAddState(open = true)
-    }
-
-    // Sticky resets to Inbox on close (TDD §5.2 -- lives only in this
-    // ephemeral state, never persisted).
-    fun closeQuickAdd() {
-        _quickAdd.value = QuickAddState(open = false)
-    }
-
-    fun updateQuickAddDraft(text: String) {
-        _quickAdd.value = _quickAdd.value.copy(draft = text)
-    }
-
-    fun selectStickyChip(labelId: String?) {
-        _quickAdd.value = _quickAdd.value.copy(stickyLabelId = labelId)
-    }
-
-    fun acceptSuggestion(labelName: String) {
-        val next = _quickAdd.value.draft.replace(TRAILING_TOKEN_REGEX, "@$labelName ")
-        _quickAdd.value = _quickAdd.value.copy(draft = next)
-    }
-
-    fun submitQuickAdd() {
-        val state = _quickAdd.value
-        if (state.draft.isBlank()) return
-        viewModelScope.launch {
-            val sticky = state.stickyLabelId?.let { LabelRef.Id(it) } ?: LabelRef.None
-            val result = container.captureItems(state.draft, sticky)
-            val newStickyId = (result.newSticky as? LabelRef.Id)?.labelId
-            val newEntries = result.items.map { SessionAddEntry(it.id, it.title, it.labelId) }
-            if (container.preferencesRepository.keepQuickAddOpen.first()) {
-                _quickAdd.value = _quickAdd.value.copy(
-                    draft = "",
-                    stickyLabelId = newStickyId,
-                    sessionAdds = (state.sessionAdds + newEntries).takeLast(3),
-                )
-            } else {
-                _quickAdd.value = QuickAddState(open = false)
-            }
-        }
-    }
+    fun openQuickAdd() = quickAddController.open()
+    fun closeQuickAdd() = quickAddController.close()
+    fun updateQuickAddDraft(text: String) = quickAddController.updateDraft(text)
+    fun selectStickyChip(labelId: String?) = quickAddController.selectStickyChip(labelId)
+    fun acceptSuggestion(labelName: String) = quickAddController.acceptSuggestion(labelName)
+    fun submitQuickAdd() = quickAddController.submit()
 
     // --- Recently Completed ---
 

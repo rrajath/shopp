@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Shopp</string>
+    <string name="tile_quick_add_label">Add to Shopp</string>
 </resources>
