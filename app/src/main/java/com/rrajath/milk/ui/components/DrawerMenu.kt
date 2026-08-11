@@ -1,11 +1,5 @@
 package com.rrajath.milk.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,21 +21,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.rrajath.milk.ui.Screen
 import com.rrajath.milk.ui.theme.ShoppDimens
 import com.rrajath.milk.ui.theme.ShoppTheme
 import com.rrajath.milk.ui.theme.ShoppType
+import kotlin.math.roundToInt
 
 data class DrawerCounts(val activeCount: Int, val completedCount: Int, val labelCount: Int)
 
-// Slide/fade duration for the drawer opening/closing -- fast enough to feel
-// responsive to a hamburger tap, slow enough to actually read as a slide.
-private const val DrawerAnimationMillis = 220
-
+/**
+ * Renders based on a continuous open-progress (0f closed .. 1f fully docked)
+ * rather than a boolean, so it can track a drag 1:1 as the finger moves --
+ * the caller (ShoppApp) owns the [Animatable] driving [progress], snapping it
+ * during a drag and animating it to settle (tap-driven open/close, or a
+ * drag released past/before the halfway point).
+ */
 @Composable
 fun DrawerMenu(
-    visible: Boolean,
+    progress: Float,
     counts: DrawerCounts,
     currentScreen: Screen,
     isListFiltered: Boolean,
@@ -48,70 +49,63 @@ fun DrawerMenu(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    if (progress <= 0f) return
+
     val colors = ShoppTheme.colors
+    val drawerWidthPx = with(LocalDensity.current) { ShoppDimens.drawerWidth.toPx() }
+
     Box(modifier = modifier.fillMaxSize()) {
-        AnimatedVisibility(
-            visible = visible,
-            enter = fadeIn(tween(DrawerAnimationMillis)),
-            exit = fadeOut(tween(DrawerAnimationMillis)),
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colors.scrim.copy(alpha = colors.scrim.alpha * progress))
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = onDismiss,
+                ),
+        )
+        Column(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .fillMaxHeight()
+                .width(ShoppDimens.drawerWidth)
+                .offset { IntOffset((-(1f - progress) * drawerWidthPx).roundToInt(), 0) }
+                .background(colors.menu)
+                .padding(top = ShoppDimens.drawerTopPadding),
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(colors.scrim)
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
-                        onClick = onDismiss,
-                    ),
+            Text(
+                text = "Shopp",
+                style = ShoppType.drawerTitle.copy(color = colors.foreground),
+                modifier = Modifier.padding(
+                    horizontal = ShoppDimens.drawerTitlePaddingHorizontal,
+                    vertical = ShoppDimens.drawerTitlePaddingBottom,
+                ),
             )
-        }
-        AnimatedVisibility(
-            visible = visible,
-            modifier = Modifier.align(Alignment.CenterStart),
-            enter = slideInHorizontally(tween(DrawerAnimationMillis), initialOffsetX = { -it }),
-            exit = slideOutHorizontally(tween(DrawerAnimationMillis), targetOffsetX = { -it }),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .width(ShoppDimens.drawerWidth)
-                    .background(colors.menu)
-                    .padding(top = ShoppDimens.drawerTopPadding),
-            ) {
-                Text(
-                    text = "Shopp",
-                    style = ShoppType.drawerTitle.copy(color = colors.foreground),
-                    modifier = Modifier.padding(
-                        horizontal = ShoppDimens.drawerTitlePaddingHorizontal,
-                        vertical = ShoppDimens.drawerTitlePaddingBottom,
-                    ),
-                )
-                MenuItem(
-                    name = "All items",
-                    count = counts.activeCount,
-                    active = currentScreen == Screen.LIST && !isListFiltered,
-                    onClick = { onSelect(Screen.LIST) },
-                )
-                MenuItem(
-                    name = "Recently completed",
-                    count = counts.completedCount,
-                    active = currentScreen == Screen.RECENTLY_COMPLETED,
-                    onClick = { onSelect(Screen.RECENTLY_COMPLETED) },
-                )
-                MenuItem(
-                    name = "Labels",
-                    count = counts.labelCount,
-                    active = currentScreen == Screen.LABELS,
-                    onClick = { onSelect(Screen.LABELS) },
-                )
-                MenuItem(
-                    name = "Settings",
-                    count = null,
-                    active = currentScreen == Screen.SETTINGS,
-                    onClick = { onSelect(Screen.SETTINGS) },
-                )
-            }
+            MenuItem(
+                name = "All items",
+                count = counts.activeCount,
+                active = currentScreen == Screen.LIST && !isListFiltered,
+                onClick = { onSelect(Screen.LIST) },
+            )
+            MenuItem(
+                name = "Recently completed",
+                count = counts.completedCount,
+                active = currentScreen == Screen.RECENTLY_COMPLETED,
+                onClick = { onSelect(Screen.RECENTLY_COMPLETED) },
+            )
+            MenuItem(
+                name = "Labels",
+                count = counts.labelCount,
+                active = currentScreen == Screen.LABELS,
+                onClick = { onSelect(Screen.LABELS) },
+            )
+            MenuItem(
+                name = "Settings",
+                count = null,
+                active = currentScreen == Screen.SETTINGS,
+                onClick = { onSelect(Screen.SETTINGS) },
+            )
         }
     }
 }

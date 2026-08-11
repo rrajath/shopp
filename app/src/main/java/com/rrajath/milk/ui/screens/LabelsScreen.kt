@@ -1,5 +1,6 @@
 package com.rrajath.milk.ui.screens
 
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -22,6 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import com.rrajath.milk.data.db.LabelEntity
 import com.rrajath.milk.ui.components.EmptyState
@@ -44,11 +47,20 @@ fun LabelsScreen(
     modifier: Modifier = Modifier,
 ) {
     val colors = ShoppTheme.colors
+    val haptics = LocalHapticFeedback.current
     // Derived from the live `labels` list (not a snapshot captured at
     // long-press time) so a color change made in the sheet is reflected
     // back into it immediately -- see LabelManagementSheet's swatch picker.
     var managingLabelId by remember { mutableStateOf<String?>(null) }
-    val managingLabel = managingLabelId?.let { id -> labels.find { it.id == id } }
+    val liveManagingLabel = managingLabelId?.let { id -> labels.find { it.id == id } }
+
+    // Keeps the last-known label around through the sheet's slide-down exit
+    // (managingLabelId is already null by then, but the composable needs to
+    // stay mounted -- with content -- until the animation finishes).
+    var sheetLabel by remember { mutableStateOf<LabelEntity?>(null) }
+    if (liveManagingLabel != null) sheetLabel = liveManagingLabel
+    val sheetVisibleState = remember { MutableTransitionState(false) }
+    sheetVisibleState.targetState = managingLabelId != null
 
     Box(modifier = modifier.fillMaxSize().background(colors.background)) {
         if (labels.isEmpty()) {
@@ -65,7 +77,10 @@ fun LabelsScreen(
                             label = label,
                             count = activeCounts[label.id] ?: 0,
                             onTap = { onFilter(label.id) },
-                            onLongPress = { managingLabelId = label.id },
+                            onLongPress = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                managingLabelId = label.id
+                            },
                         )
                     }
                 }
@@ -82,16 +97,19 @@ fun LabelsScreen(
         }
     }
 
-    managingLabel?.let { label ->
-        LabelManagementSheet(
-            label = label,
-            allLabels = labels,
-            onDismiss = { managingLabelId = null },
-            onRename = { newName, onResult -> onRename(label.id, newName, onResult) },
-            onColorChange = { colorIndex -> onColorChange(label.id, colorIndex) },
-            onMerge = { targetId -> onMerge(label.id, targetId); managingLabelId = null },
-            onDelete = { onDelete(label.id); managingLabelId = null },
-        )
+    sheetLabel?.let { label ->
+        if (sheetVisibleState.targetState || !sheetVisibleState.isIdle) {
+            LabelManagementSheet(
+                visibleState = sheetVisibleState,
+                label = label,
+                allLabels = labels,
+                onDismiss = { managingLabelId = null },
+                onRename = { newName, onResult -> onRename(label.id, newName, onResult) },
+                onColorChange = { colorIndex -> onColorChange(label.id, colorIndex) },
+                onMerge = { targetId -> onMerge(label.id, targetId); managingLabelId = null },
+                onDelete = { onDelete(label.id); managingLabelId = null },
+            )
+        }
     }
 }
 

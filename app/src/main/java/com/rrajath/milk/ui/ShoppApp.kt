@@ -1,18 +1,23 @@
 package com.rrajath.milk.ui
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import com.rrajath.milk.ui.components.ConfirmDialog
 import com.rrajath.milk.ui.components.DrawerCounts
 import com.rrajath.milk.ui.components.DrawerMenu
@@ -22,7 +27,9 @@ import com.rrajath.milk.ui.screens.LabelsScreen
 import com.rrajath.milk.ui.screens.ListScreen
 import com.rrajath.milk.ui.screens.RecentlyCompletedScreen
 import com.rrajath.milk.ui.screens.SettingsScreen
+import com.rrajath.milk.ui.theme.ShoppDimens
 import com.rrajath.milk.ui.theme.ShoppTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun ShoppApp(viewModel: ShoppViewModel) {
@@ -42,6 +49,29 @@ fun ShoppApp(viewModel: ShoppViewModel) {
     val themeMode by viewModel.themeMode.collectAsState()
 
     var showClearConfirm by remember { mutableStateOf(false) }
+
+    // Drawer open-progress (0f closed .. 1f docked), separate from the
+    // boolean `drawerOpen` so a swipe can track the finger 1:1 instead of
+    // only animating on release. Tap-driven open/close (hamburger, drawer
+    // item, scrim, back) still goes through `drawerOpen` and settles here
+    // via the effect below; a drag snaps this directly and settles itself
+    // on release (see onDrawerDragEnd).
+    val drawerProgress = remember { Animatable(if (drawerOpen) 1f else 0f) }
+    val scope = rememberCoroutineScope()
+    val drawerWidthPx = with(LocalDensity.current) { ShoppDimens.drawerWidth.toPx() }
+    LaunchedEffect(drawerOpen) {
+        drawerProgress.animateTo(if (drawerOpen) 1f else 0f, tween(220))
+    }
+    val onDrawerDrag: (Float) -> Unit = { deltaPx ->
+        scope.launch {
+            drawerProgress.snapTo((drawerProgress.value + deltaPx / drawerWidthPx).coerceIn(0f, 1f))
+        }
+    }
+    val onDrawerDragEnd: () -> Unit = {
+        val opening = drawerProgress.value > 0.5f
+        scope.launch { drawerProgress.animateTo(if (opening) 1f else 0f, tween(180)) }
+        if (opening) viewModel.openDrawer() else viewModel.closeDrawer()
+    }
 
     val filterLabel = filterLabelId?.let { id -> labels.find { it.id == id } }
     val title = when (screen) {
@@ -88,7 +118,8 @@ fun ShoppApp(viewModel: ShoppViewModel) {
                         onCommitEdit = viewModel::editTitle,
                         onUndo = viewModel::undoLastComplete,
                         onAddClick = viewModel::openQuickAdd,
-                        onSwipeRightOpenDrawer = viewModel::openDrawer,
+                        onDrawerDrag = onDrawerDrag,
+                        onDrawerDragEnd = onDrawerDragEnd,
                     )
 
                     Screen.RECENTLY_COMPLETED -> RecentlyCompletedScreen(
@@ -145,7 +176,7 @@ fun ShoppApp(viewModel: ShoppViewModel) {
         }
 
         DrawerMenu(
-            visible = drawerOpen,
+            progress = drawerProgress.value,
             counts = DrawerCounts(
                 activeCount = activeItems.size,
                 completedCount = completedItems.size,

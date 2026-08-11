@@ -25,8 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 import com.rrajath.milk.data.db.ItemEntity
 import com.rrajath.milk.ui.ListSection
 import com.rrajath.milk.ui.UndoState
@@ -37,11 +35,6 @@ import com.rrajath.milk.ui.components.UndoToast
 import com.rrajath.milk.ui.theme.ShoppDimens
 import com.rrajath.milk.ui.theme.ShoppTheme
 import com.rrajath.milk.ui.theme.ShoppType
-
-// Minimum rightward drag distance before a swipe-from-anywhere gesture opens
-// the drawer -- large enough to not misfire during normal vertical scrolling
-// or item taps.
-private val SwipeOpenDrawerThreshold = 80.dp
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -54,24 +47,21 @@ fun ListScreen(
     onCommitEdit: (itemId: String, newTitle: String) -> Unit,
     onUndo: () -> Unit,
     onAddClick: () -> Unit,
-    onSwipeRightOpenDrawer: () -> Unit,
+    onDrawerDrag: (Float) -> Unit,
+    onDrawerDragEnd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = ShoppTheme.colors
     val hasAnyItems = sections.any { it.items.isNotEmpty() }
-    val density = LocalDensity.current
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(colors.background)
-            .pointerInput(onSwipeRightOpenDrawer) {
-                val thresholdPx = with(density) { SwipeOpenDrawerThreshold.toPx() }
-                var dragTotal = 0f
+            .pointerInput(onDrawerDrag, onDrawerDragEnd) {
                 detectHorizontalDragGestures(
-                    onDragStart = { dragTotal = 0f },
-                    onHorizontalDrag = { _, dragAmount -> dragTotal += dragAmount },
-                    onDragEnd = { if (dragTotal > thresholdPx) onSwipeRightOpenDrawer() },
+                    onDragEnd = onDrawerDragEnd,
+                    onHorizontalDrag = { _, dragAmount -> onDrawerDrag(dragAmount) },
                 )
             },
     ) {

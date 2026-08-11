@@ -1,5 +1,12 @@
 package com.rrajath.milk.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,8 +43,12 @@ import com.rrajath.milk.usecases.RenameLabel
 
 private enum class SheetMode { MENU, RENAME, MERGE, DELETE }
 
+// Matches DrawerMenu's slide/fade duration for consistency.
+private const val SheetAnimationMillis = 220
+
 @Composable
 fun LabelManagementSheet(
+    visibleState: MutableTransitionState<Boolean>,
     label: LabelEntity,
     allLabels: List<LabelEntity>,
     onDismiss: () -> Unit,
@@ -53,24 +64,35 @@ fun LabelManagementSheet(
     var nameTaken by remember(label.id) { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(colors.scrim)
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                    onClick = onDismiss,
-                ),
-        )
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .background(colors.sheet)
-                .navigationBarsPadding()
-                .padding(horizontal = ShoppDimens.sheetPaddingHorizontal, vertical = ShoppDimens.sheetPaddingTop),
+        AnimatedVisibility(
+            visibleState = visibleState,
+            enter = fadeIn(tween(SheetAnimationMillis)),
+            exit = fadeOut(tween(SheetAnimationMillis)),
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(colors.scrim)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = onDismiss,
+                    ),
+            )
+        }
+        AnimatedVisibility(
+            visibleState = visibleState,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enter = slideInVertically(tween(SheetAnimationMillis)) { it },
+            exit = slideOutVertically(tween(SheetAnimationMillis)) { it },
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(colors.sheet)
+                    .navigationBarsPadding()
+                    .padding(horizontal = ShoppDimens.sheetPaddingHorizontal, vertical = ShoppDimens.sheetPaddingTop),
+            ) {
             Text(text = label.name, style = ShoppType.labelName.copy(color = colors.muted))
             Box(Modifier.size(1.dp, ShoppDimens.chipRowPaddingTop))
 
@@ -147,6 +169,7 @@ fun LabelManagementSheet(
                     SheetActions(confirmLabel = "Delete", onCancel = { mode = SheetMode.MENU }, onConfirm = onDelete)
                 }
             }
+        }
         }
     }
 }
