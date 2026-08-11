@@ -161,15 +161,20 @@ fun ShoppApp(viewModel: ShoppViewModel) {
 
         if (quickAdd.open) {
             val suggestions = remember(quickAdd.draft, labels) { quickAddSuggestions(quickAdd.draft, labels) }
+            val titleSuggestions = remember(quickAdd.draft, completedItems) {
+                itemTitleSuggestions(quickAdd.draft, completedItems)
+            }
             QuickAddOverlay(
                 draft = quickAdd.draft,
                 stickyLabelId = quickAdd.stickyLabelId,
                 labels = labels,
                 suggestions = suggestions,
+                titleSuggestions = titleSuggestions,
                 sessionAdds = quickAdd.sessionAdds,
                 onDraftChange = viewModel::updateQuickAddDraft,
                 onSelectSticky = viewModel::selectStickyChip,
                 onAcceptSuggestion = viewModel::acceptSuggestion,
+                onAcceptTitleSuggestion = viewModel::acceptTitleSuggestion,
                 onSubmit = viewModel::submitQuickAdd,
                 onDismiss = viewModel::closeQuickAdd,
             )

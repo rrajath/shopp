@@ -36,10 +36,13 @@ interface ItemDao {
     suspend fun reassignLabel(sourceLabelId: String, targetLabelId: String?, now: Long)
 
     // "Everything after the hundredth" — LIMIT -1 OFFSET 100 is SQLite's
-    // idiom for an unbounded limit with an offset.
+    // idiom for an unbounded limit with an offset. A hard DELETE (not a
+    // tombstone) per PRD-equivalent user request: rows beyond the cap are
+    // gone, not just hidden -- there's no "recover an old completed item"
+    // feature that would need them kept around.
     @Query(
         """
-        UPDATE items SET deletedAt = :now, updatedAt = :now
+        DELETE FROM items
         WHERE id IN (
           SELECT id FROM items
           WHERE deletedAt IS NULL AND state = 'completed'
@@ -48,7 +51,7 @@ interface ItemDao {
         )
         """
     )
-    suspend fun trimCompletedBeyond100(now: Long)
+    suspend fun trimCompletedBeyond100()
 
     @Query("UPDATE items SET deletedAt = :now, updatedAt = :now WHERE deletedAt IS NULL AND state = 'completed'")
     suspend fun tombstoneAllCompleted(now: Long)

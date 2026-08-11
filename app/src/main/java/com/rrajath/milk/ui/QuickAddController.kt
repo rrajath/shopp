@@ -1,8 +1,10 @@
 package com.rrajath.milk.ui
 
 import com.rrajath.milk.AppContainer
+import com.rrajath.milk.data.db.ItemEntity
 import com.rrajath.milk.data.db.LabelEntity
 import com.rrajath.milk.domain.LabelRef
+import com.rrajath.milk.domain.foldForMatching
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,6 +32,33 @@ fun quickAddSuggestions(draft: String, labels: List<LabelEntity>): List<LabelEnt
     val query = TRAILING_TOKEN_REGEX.find(draft)?.groupValues?.get(1) ?: return emptyList()
     val folded = query.lowercase()
     return labels.filter { it.nameFolded.startsWith(folded) }
+}
+
+private const val MIN_TITLE_SUGGESTION_LENGTH = 2
+private const val MAX_TITLE_SUGGESTIONS = 5
+
+// Autocomplete from purchase history (Recently Completed), so re-buying
+// something typed the same way before is one tap. Matches the line
+// currently being typed (the draft may hold several pasted lines) against
+// distinct past titles, most-recently-completed first. Mutually exclusive
+// with quickAddSuggestions -- skipped while mid-typing a `@label` token,
+// since that popover takes the same slot in QuickAddOverlay.
+fun itemTitleSuggestions(draft: String, completedItems: List<ItemEntity>): List<String> {
+    if (TRAILING_TOKEN_REGEX.containsMatchIn(draft)) return emptyList()
+    val currentLine = draft.substringAfterLast('\n').trim()
+    if (currentLine.length < MIN_TITLE_SUGGESTION_LENGTH) return emptyList()
+
+    val folded = currentLine.foldForMatching()
+    val seen = HashSet<String>()
+    val results = mutableListOf<String>()
+    for (item in completedItems) {
+        val itemFolded = item.title.foldForMatching()
+        if (itemFolded == folded || !itemFolded.startsWith(folded)) continue
+        if (!seen.add(itemFolded)) continue
+        results += item.title
+        if (results.size >= MAX_TITLE_SUGGESTIONS) break
+    }
+    return results
 }
 
 /**
@@ -67,6 +96,15 @@ class QuickAddController(
 
     fun acceptSuggestion(labelName: String) {
         val next = _state.value.draft.replace(TRAILING_TOKEN_REGEX, "@$labelName ")
+        _state.value = _state.value.copy(draft = next)
+    }
+
+    // Replaces just the line currently being typed (the draft may hold
+    // earlier pasted lines already) with the picked title.
+    fun acceptTitleSuggestion(title: String) {
+        val current = _state.value.draft
+        val lastNewline = current.lastIndexOf('\n')
+        val next = if (lastNewline == -1) title else current.substring(0, lastNewline + 1) + title
         _state.value = _state.value.copy(draft = next)
     }
 

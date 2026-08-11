@@ -56,10 +56,12 @@ fun QuickAddOverlay(
     stickyLabelId: String?,
     labels: List<LabelEntity>,
     suggestions: List<LabelEntity>,
+    titleSuggestions: List<String>,
     sessionAdds: List<SessionAddEntry>,
     onDraftChange: (String) -> Unit,
     onSelectSticky: (String?) -> Unit,
     onAcceptSuggestion: (String) -> Unit,
+    onAcceptTitleSuggestion: (String) -> Unit,
     onSubmit: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -100,6 +102,8 @@ fun QuickAddOverlay(
         ) {
             if (suggestions.isNotEmpty()) {
                 SuggestionsPopover(suggestions = suggestions, onAccept = onAcceptSuggestion)
+            } else if (titleSuggestions.isNotEmpty()) {
+                TitleSuggestionsPopover(suggestions = titleSuggestions, onAccept = onAcceptTitleSuggestion)
             }
 
             sessionAdds.forEach { entry ->
@@ -177,6 +181,38 @@ private fun SuggestionsPopover(suggestions: List<LabelEntity>, onAccept: (String
             ) {
                 Box(modifier = Modifier.size(8.dp).background(color, CircleShape))
                 Text(text = label.name, style = ShoppType.suggestionText.copy(color = colors.foreground))
+            }
+        }
+    }
+}
+
+// Autocomplete from purchase history (Recently Completed) -- see
+// itemTitleSuggestions. Deliberately plain (no colored dot) to read as
+// distinct from the label-suggestion popover it shares a slot with.
+@Composable
+private fun TitleSuggestionsPopover(suggestions: List<String>, onAccept: (String) -> Unit) {
+    val colors = ShoppTheme.colors
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = ShoppDimens.suggestionsBottomMargin)
+            .shadow(4.dp, RoundedCornerShape(ShoppDimens.suggestionsCornerRadius))
+            .clip(RoundedCornerShape(ShoppDimens.suggestionsCornerRadius))
+            .background(colors.menu),
+    ) {
+        suggestions.forEachIndexed { index, title ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onAccept(title) }
+                    .background(if (index == 0) colors.press else androidx.compose.ui.graphics.Color.Transparent)
+                    .padding(
+                        horizontal = ShoppDimens.suggestionRowPaddingHorizontal,
+                        vertical = ShoppDimens.suggestionRowPaddingVertical,
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = title, style = ShoppType.suggestionText.copy(color = colors.foreground))
             }
         }
     }

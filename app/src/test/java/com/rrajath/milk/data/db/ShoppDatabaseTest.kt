@@ -98,7 +98,7 @@ class ShoppDatabaseTest {
     }
 
     @Test
-    fun `trim keeps at most 100 live completed items`() = runBlocking {
+    fun `trim keeps at most 100 live completed items, hard-deleting the rest`() = runBlocking {
         val base = 1_000L
         val items = (1..105).map { i ->
             ItemEntity(
@@ -107,12 +107,14 @@ class ShoppDatabaseTest {
             )
         }
         db.itemDao().insertAll(items)
-        db.itemDao().trimCompletedBeyond100(base + 1000)
+        db.itemDao().trimCompletedBeyond100()
 
         val remaining = db.itemDao().observeCompletedItems().first()
         assertEquals(100, remaining.size)
         // The 5 oldest completions (i1..i5) should be the ones trimmed.
         assertEquals("i105", remaining.first().id)
         assertNull(remaining.find { it.id == "i1" })
+        // Hard-deleted, not tombstoned -- the row shouldn't exist at all.
+        assertNull(db.itemDao().getById("i1"))
     }
 }

@@ -165,6 +165,7 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
     fun updateQuickAddDraft(text: String) = quickAddController.updateDraft(text)
     fun selectStickyChip(labelId: String?) = quickAddController.selectStickyChip(labelId)
     fun acceptSuggestion(labelName: String) = quickAddController.acceptSuggestion(labelName)
+    fun acceptTitleSuggestion(title: String) = quickAddController.acceptTitleSuggestion(title)
     fun submitQuickAdd() = quickAddController.submit()
 
     // --- Recently Completed ---

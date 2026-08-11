@@ -41,7 +41,7 @@ class ItemRepository(
     }
 
     suspend fun trimCompletedBeyond100() {
-        itemDao.trimCompletedBeyond100(clock.nowMillis())
+        itemDao.trimCompletedBeyond100()
     }
 
     suspend fun tombstoneAllCompleted() {

@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.rrajath.milk.MilkApplication
 import com.rrajath.milk.ui.components.QuickAddOverlay
+import com.rrajath.milk.ui.itemTitleSuggestions
 import com.rrajath.milk.ui.quickAddSuggestions
 import com.rrajath.milk.ui.theme.ShoppTheme
 import com.rrajath.milk.ui.theme.ThemeMode
@@ -42,6 +43,7 @@ class CaptureActivity : ComponentActivity() {
                 .collectAsState(initial = ThemeMode.SYSTEM)
             val quickAdd by viewModel.quickAdd.collectAsState()
             val labels by viewModel.labels.collectAsState()
+            val completedItems by viewModel.completedItems.collectAsState()
 
             // Closing Quick Add here means "done" -- there's no List screen
             // to fall back to, so finish the activity entirely.
@@ -53,15 +55,20 @@ class CaptureActivity : ComponentActivity() {
                 val suggestions = remember(quickAdd.draft, labels) {
                     quickAddSuggestions(quickAdd.draft, labels)
                 }
+                val titleSuggestions = remember(quickAdd.draft, completedItems) {
+                    itemTitleSuggestions(quickAdd.draft, completedItems)
+                }
                 QuickAddOverlay(
                     draft = quickAdd.draft,
                     stickyLabelId = quickAdd.stickyLabelId,
                     labels = labels,
                     suggestions = suggestions,
+                    titleSuggestions = titleSuggestions,
                     sessionAdds = quickAdd.sessionAdds,
                     onDraftChange = viewModel::updateDraft,
                     onSelectSticky = viewModel::selectStickyChip,
                     onAcceptSuggestion = viewModel::acceptSuggestion,
+                    onAcceptTitleSuggestion = viewModel::acceptTitleSuggestion,
                     onSubmit = viewModel::submit,
                     onDismiss = viewModel::close,
                 )

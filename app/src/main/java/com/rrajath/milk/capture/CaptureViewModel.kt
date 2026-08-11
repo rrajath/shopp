@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.rrajath.milk.AppContainer
+import com.rrajath.milk.data.db.ItemEntity
 import com.rrajath.milk.data.db.LabelEntity
 import com.rrajath.milk.ui.QuickAddController
 import com.rrajath.milk.ui.QuickAddState
@@ -23,12 +24,17 @@ class CaptureViewModel(container: AppContainer) : ViewModel() {
         container.labelRepository.observeLabels()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    val completedItems: StateFlow<List<ItemEntity>> =
+        container.itemRepository.observeCompletedItems()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     private val controller = QuickAddController(viewModelScope, container, initiallyOpen = true)
     val quickAdd: StateFlow<QuickAddState> = controller.state
 
     fun updateDraft(text: String) = controller.updateDraft(text)
     fun selectStickyChip(labelId: String?) = controller.selectStickyChip(labelId)
     fun acceptSuggestion(labelName: String) = controller.acceptSuggestion(labelName)
+    fun acceptTitleSuggestion(title: String) = controller.acceptTitleSuggestion(title)
     fun submit() = controller.submit()
     fun close() = controller.close()
 
