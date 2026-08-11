@@ -38,12 +38,17 @@ fun LabelsScreen(
     activeCounts: Map<String, Int>,
     onFilter: (String) -> Unit,
     onRename: (labelId: String, newName: String, onResult: (RenameLabel.Result) -> Unit) -> Unit,
+    onColorChange: (labelId: String, colorIndex: Int) -> Unit,
     onMerge: (sourceLabelId: String, targetLabelId: String) -> Unit,
     onDelete: (labelId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = ShoppTheme.colors
-    var managingLabel by remember { mutableStateOf<LabelEntity?>(null) }
+    // Derived from the live `labels` list (not a snapshot captured at
+    // long-press time) so a color change made in the sheet is reflected
+    // back into it immediately -- see LabelManagementSheet's swatch picker.
+    var managingLabelId by remember { mutableStateOf<String?>(null) }
+    val managingLabel = managingLabelId?.let { id -> labels.find { it.id == id } }
 
     Box(modifier = modifier.fillMaxSize().background(colors.background)) {
         if (labels.isEmpty()) {
@@ -60,12 +65,12 @@ fun LabelsScreen(
                             label = label,
                             count = activeCounts[label.id] ?: 0,
                             onTap = { onFilter(label.id) },
-                            onLongPress = { managingLabel = label },
+                            onLongPress = { managingLabelId = label.id },
                         )
                     }
                 }
                 Text(
-                    text = "Labels are created by typing @name in Quick Add. Tap one to filter the list. Long-press to rename, merge, or delete.",
+                    text = "Labels are created by typing @name in Quick Add. Tap one to filter the list. Long-press to edit, merge, or delete.",
                     style = ShoppType.footerNote.copy(color = colors.muted),
                     textAlign = TextAlign.Start,
                     modifier = Modifier.padding(
@@ -81,10 +86,11 @@ fun LabelsScreen(
         LabelManagementSheet(
             label = label,
             allLabels = labels,
-            onDismiss = { managingLabel = null },
+            onDismiss = { managingLabelId = null },
             onRename = { newName, onResult -> onRename(label.id, newName, onResult) },
-            onMerge = { targetId -> onMerge(label.id, targetId); managingLabel = null },
-            onDelete = { onDelete(label.id); managingLabel = null },
+            onColorChange = { colorIndex -> onColorChange(label.id, colorIndex) },
+            onMerge = { targetId -> onMerge(label.id, targetId); managingLabelId = null },
+            onDelete = { onDelete(label.id); managingLabelId = null },
         )
     }
 }

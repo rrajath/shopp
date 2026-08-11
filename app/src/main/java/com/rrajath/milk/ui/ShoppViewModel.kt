@@ -28,7 +28,7 @@ data class ListSection(
     val items: List<ItemEntity>,
 )
 
-data class UndoState(val itemId: String, val title: String)
+data class UndoState(val itemId: String, val text: String)
 
 class ShoppViewModel(private val container: AppContainer) : ViewModel() {
 
@@ -173,8 +173,32 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
         container.itemRepository.observeCompletedItems()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    fun readdCompleted(itemId: String) {
-        viewModelScope.launch { container.readdCompleted(itemId) }
+    private var readdUndoJob: Job? = null
+    private val _readdUndo = MutableStateFlow<UndoState?>(null)
+    val readdUndo: StateFlow<UndoState?> = _readdUndo
+
+    fun readdCompleted(item: ItemEntity) {
+        readdUndoJob?.cancel()
+        viewModelScope.launch {
+            val groupName = item.labelId?.let { id -> labels.value.find { it.id == id }?.name } ?: "Inbox"
+            container.readdCompleted(item.id)
+            _readdUndo.value = UndoState(item.id, "Added to $groupName")
+            readdUndoJob = launch {
+                delay(UNDO_WINDOW_MS)
+                _readdUndo.value = null
+            }
+        }
+    }
+
+    // Undoing a readd puts the item back into Recently Completed via the
+    // normal complete flow -- it re-enters at "just now" rather than its
+    // original completedAt, an acceptable simplification within the short
+    // undo window.
+    fun undoReadd() {
+        val state = _readdUndo.value ?: return
+        readdUndoJob?.cancel()
+        _readdUndo.value = null
+        viewModelScope.launch { container.completeItem(state.itemId) }
     }
 
     fun clearAllCompleted() {
@@ -185,6 +209,10 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
 
     fun renameLabel(labelId: String, newName: String, onResult: (RenameLabel.Result) -> Unit) {
         viewModelScope.launch { onResult(container.renameLabel(labelId, newName)) }
+    }
+
+    fun setLabelColor(labelId: String, colorIndex: Int) {
+        viewModelScope.launch { container.setLabelColor(labelId, colorIndex) }
     }
 
     fun mergeLabels(sourceLabelId: String, targetLabelId: String) {

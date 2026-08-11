@@ -17,6 +17,7 @@ import com.rrajath.milk.usecases.EditTitle
 import com.rrajath.milk.usecases.MergeLabels
 import com.rrajath.milk.usecases.ReaddCompleted
 import com.rrajath.milk.usecases.RenameLabel
+import com.rrajath.milk.usecases.SetLabelColor
 import com.rrajath.milk.usecases.UndoComplete
 
 // Manual DI container. MainActivity and CaptureActivity both read this off
@@ -37,9 +38,10 @@ class AppContainer(app: Application) {
     val undoComplete = UndoComplete(database, itemRepository)
     val editTitle = EditTitle(database, itemRepository, labelRepository)
     val renameLabel = RenameLabel(database, labelRepository)
+    val setLabelColor = SetLabelColor(database, labelRepository)
     val mergeLabels = MergeLabels(database, itemRepository, labelRepository)
     val deleteLabel = DeleteLabel(database, itemRepository, labelRepository)
-    val readdCompleted = ReaddCompleted(database, itemRepository, labelRepository, clock, idGenerator)
+    val readdCompleted = ReaddCompleted(database, itemRepository, labelRepository)
 }
 
 private val Application.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")

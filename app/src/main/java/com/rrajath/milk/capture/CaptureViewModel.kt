@@ -31,6 +31,10 @@ class CaptureViewModel(container: AppContainer) : ViewModel() {
     fun acceptSuggestion(labelName: String) = controller.acceptSuggestion(labelName)
     fun submit() = controller.submit()
     fun close() = controller.close()
+
+    // Re-opens Quick Add on a fresh tile tap that gets delivered to this
+    // same (singleTask) instance via onNewIntent -- see CaptureActivity.
+    fun reopen() = controller.open()
 }
 
 class CaptureViewModelFactory(private val container: AppContainer) : ViewModelProvider.Factory {

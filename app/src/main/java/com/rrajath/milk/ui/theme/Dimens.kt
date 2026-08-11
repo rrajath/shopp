@@ -47,7 +47,7 @@ object ShoppDimens {
     val sheetPaddingHorizontal = 20.dp
     val sheetPaddingTop = 18.dp
     val sheetPaddingBottom = 16.dp
-    val cardTopMargin = 64.dp
+    val cardBottomMargin = 20.dp
     val cardHorizontalMargin = 20.dp
     val cardMaxWidth = 400.dp
     val cardCornerRadius = 20.dp
@@ -83,6 +83,10 @@ object ShoppDimens {
     val labelRowGap = 16.dp
     val labelDotSize = 9.dp
     val labelHintPaddingTop = 22.dp
+    val labelColorSwatchSize = 32.dp
+    val labelColorSwatchGap = 12.dp
+    val labelColorGridPaddingTop = 10.dp
+    val labelColorSwatchSelectedBorderWidth = 2.dp
 
     // Settings
     val settingsSectionLabelPaddingTop = 22.dp

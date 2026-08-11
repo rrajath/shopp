@@ -38,22 +38,45 @@ data class ShoppColors(
     val labelPalette: List<Color>,
 )
 
+// August 2026: expanded from 6 to 15 (user request, for the Labels "Edit"
+// color picker) -- muted/pleasant rather than bright, index-parallel across
+// light/dark like the original 6 (same hue family per index, light mode
+// deepened for contrast on white, dark mode lightened for contrast on
+// charcoal). See docs/DESIGN_SYSTEM.md.
 private val LightLabelPalette = listOf(
-    Color(0xFF1E5FA8),
-    Color(0xFF2E7D32),
-    Color(0xFF6A1B9A),
-    Color(0xFF00695C),
-    Color(0xFFB45300),
-    Color(0xFFAD1457),
+    Color(0xFFB15D66), // dusty rose
+    Color(0xFFB35A38), // terracotta
+    Color(0xFFA67C1E), // mustard
+    Color(0xFF6E7A3D), // olive
+    Color(0xFF4C7A4A), // sage
+    Color(0xFF3D8A75), // seafoam
+    Color(0xFF2E7A78), // teal
+    Color(0xFF3E689A), // steel blue
+    Color(0xFF5259AD), // periwinkle
+    Color(0xFF7455A0), // lavender
+    Color(0xFF8C4F80), // mauve
+    Color(0xFFB36A46), // dusty peach
+    Color(0xFF556072), // slate
+    Color(0xFF71624F), // warm gray
+    Color(0xFF99503B), // clay
 )
 
 private val DarkLabelPalette = listOf(
-    Color(0xFF3D7DD8),
-    Color(0xFF4CAF50),
-    Color(0xFF9C4DCC),
-    Color(0xFF26A69A),
-    Color(0xFFE07B39),
-    Color(0xFFD6487D),
+    Color(0xFFD98D96), // dusty rose
+    Color(0xFFE0916A), // terracotta
+    Color(0xFFD9AC4E), // mustard
+    Color(0xFFA8B571), // olive
+    Color(0xFF8FBF86), // sage
+    Color(0xFF7FD1B9), // seafoam
+    Color(0xFF6FBDBA), // teal
+    Color(0xFF7FAAD6), // steel blue
+    Color(0xFF9BA3E8), // periwinkle
+    Color(0xFFB99CDB), // lavender
+    Color(0xFFCB9AC0), // mauve
+    Color(0xFFE3AE8B), // dusty peach
+    Color(0xFF9FADC2), // slate
+    Color(0xFFBBA98E), // warm gray
+    Color(0xFFD68F73), // clay
 )
 
 val ShoppLightColors = ShoppColors(
@@ -81,7 +104,7 @@ val ShoppLightColors = ShoppColors(
 )
 
 val ShoppDarkColors = ShoppColors(
-    background = Color(0xFF212121),
+    background = Color(0xFF0F1723),
     foreground = Color(0xFFF2F2F2),
     muted = Color(0xFFA0A0A0),
     line = Color(0xFF3A3A3A),
@@ -94,7 +117,7 @@ val ShoppDarkColors = ShoppColors(
     toastBackground = Color(0xFFF2F2F2),
     toastForeground = Color(0xFF212121),
     toastAction = Color(0xFFE53935), // light theme's accent, for contrast on the light toast surface
-    accent = Color(0xFFFFD400),
+    accent = Color(0xFFE0C069),
     onAccent = Color(0xFF212121),
     chipSelectedText = Color(0xFFFFFFFF),
     onForeground = Color(0xFF212121),

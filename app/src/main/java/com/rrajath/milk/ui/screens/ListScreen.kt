@@ -3,6 +3,7 @@ package com.rrajath.milk.ui.screens
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,6 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import com.rrajath.milk.data.db.ItemEntity
 import com.rrajath.milk.ui.ListSection
 import com.rrajath.milk.ui.UndoState
@@ -33,6 +37,11 @@ import com.rrajath.milk.ui.components.UndoToast
 import com.rrajath.milk.ui.theme.ShoppDimens
 import com.rrajath.milk.ui.theme.ShoppTheme
 import com.rrajath.milk.ui.theme.ShoppType
+
+// Minimum rightward drag distance before a swipe-from-anywhere gesture opens
+// the drawer -- large enough to not misfire during normal vertical scrolling
+// or item taps.
+private val SwipeOpenDrawerThreshold = 80.dp
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -45,12 +54,27 @@ fun ListScreen(
     onCommitEdit: (itemId: String, newTitle: String) -> Unit,
     onUndo: () -> Unit,
     onAddClick: () -> Unit,
+    onSwipeRightOpenDrawer: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = ShoppTheme.colors
     val hasAnyItems = sections.any { it.items.isNotEmpty() }
+    val density = LocalDensity.current
 
-    Box(modifier = modifier.fillMaxSize().background(colors.background)) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(colors.background)
+            .pointerInput(onSwipeRightOpenDrawer) {
+                val thresholdPx = with(density) { SwipeOpenDrawerThreshold.toPx() }
+                var dragTotal = 0f
+                detectHorizontalDragGestures(
+                    onDragStart = { dragTotal = 0f },
+                    onHorizontalDrag = { _, dragAmount -> dragTotal += dragAmount },
+                    onDragEnd = { if (dragTotal > thresholdPx) onSwipeRightOpenDrawer() },
+                )
+            },
+    ) {
         if (!hasAnyItems) {
             EmptyState(title = emptyTitle, body = emptyBody, modifier = Modifier.fillMaxSize())
         } else {
@@ -88,7 +112,7 @@ fun ListScreen(
 
         if (undo != null) {
             UndoToast(
-                text = undo.title,
+                text = undo.text,
                 onUndo = onUndo,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

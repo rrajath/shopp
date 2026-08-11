@@ -63,7 +63,7 @@ class UseCasesTest {
         renameLabel = RenameLabel(db, labelRepository)
         mergeLabels = MergeLabels(db, itemRepository, labelRepository)
         deleteLabel = DeleteLabel(db, itemRepository, labelRepository)
-        readdCompleted = ReaddCompleted(db, itemRepository, labelRepository, clock, idGenerator)
+        readdCompleted = ReaddCompleted(db, itemRepository, labelRepository)
     }
 
     @After
@@ -193,7 +193,7 @@ class UseCasesTest {
     }
 
     @Test
-    fun `readd completed inserts a new item, leaving the original completed row untouched`() = runBlocking {
+    fun `readd completed flips the same row back to active, removing it from Recently Completed`() = runBlocking {
         captureItems("milk @costco", LabelRef.None)
         val item = itemRepository.observeActiveItems().first().first()
         clock.advance(100)
@@ -206,10 +206,10 @@ class UseCasesTest {
         assertEquals(1, active.size)
         assertEquals("milk", active.first().title)
         assertNotNull(active.first().labelId)
-        assertTrue(active.first().id != item.id)
+        assertEquals(item.id, active.first().id)
 
         val completed = itemRepository.observeCompletedItems().first()
-        assertEquals(1, completed.size)
+        assertEquals(0, completed.size)
     }
 
     @Test

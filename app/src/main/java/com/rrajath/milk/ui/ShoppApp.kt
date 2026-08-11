@@ -33,6 +33,7 @@ fun ShoppApp(viewModel: ShoppViewModel) {
     val labels by viewModel.labels.collectAsState()
     val activeItems by viewModel.activeItems.collectAsState()
     val undo by viewModel.undo.collectAsState()
+    val readdUndo by viewModel.readdUndo.collectAsState()
     val quickAdd by viewModel.quickAdd.collectAsState()
     val completedItems by viewModel.completedItems.collectAsState()
     val groupByLabel by viewModel.groupByLabel.collectAsState()
@@ -87,12 +88,15 @@ fun ShoppApp(viewModel: ShoppViewModel) {
                         onCommitEdit = viewModel::editTitle,
                         onUndo = viewModel::undoLastComplete,
                         onAddClick = viewModel::openQuickAdd,
+                        onSwipeRightOpenDrawer = viewModel::openDrawer,
                     )
 
                     Screen.RECENTLY_COMPLETED -> RecentlyCompletedScreen(
                         completedItems = completedItems,
                         labels = labels,
+                        readdUndo = readdUndo,
                         onReadd = viewModel::readdCompleted,
+                        onUndoReadd = viewModel::undoReadd,
                     )
 
                     Screen.LABELS -> {
@@ -104,6 +108,7 @@ fun ShoppApp(viewModel: ShoppViewModel) {
                             activeCounts = activeCounts,
                             onFilter = viewModel::filterByLabel,
                             onRename = viewModel::renameLabel,
+                            onColorChange = viewModel::setLabelColor,
                             onMerge = viewModel::mergeLabels,
                             onDelete = viewModel::deleteLabel,
                         )

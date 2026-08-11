@@ -1,6 +1,7 @@
 package com.rrajath.milk.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.rrajath.milk.data.db.LabelEntity
@@ -40,6 +42,7 @@ fun LabelManagementSheet(
     allLabels: List<LabelEntity>,
     onDismiss: () -> Unit,
     onRename: (String, (RenameLabel.Result) -> Unit) -> Unit,
+    onColorChange: (Int) -> Unit,
     onMerge: (targetLabelId: String) -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
@@ -73,7 +76,7 @@ fun LabelManagementSheet(
 
             when (mode) {
                 SheetMode.MENU -> {
-                    ManagementRow("Rename") { mode = SheetMode.RENAME }
+                    ManagementRow("Edit") { mode = SheetMode.RENAME }
                     ManagementRow("Merge into another label") { mode = SheetMode.MERGE }
                     ManagementRow("Delete", emphasize = true) { mode = SheetMode.DELETE }
                 }
@@ -95,6 +98,14 @@ fun LabelManagementSheet(
                     if (nameTaken) {
                         Text(text = "That name is already used", style = ShoppType.toggleHint.copy(color = colors.accent))
                     }
+                    Box(Modifier.size(1.dp, ShoppDimens.chipRowPaddingTop))
+                    Text(text = "Color", style = ShoppType.toggleName.copy(color = colors.muted))
+                    Box(Modifier.size(1.dp, ShoppDimens.labelColorGridPaddingTop))
+                    ColorSwatchGrid(
+                        palette = colors.labelPalette,
+                        selectedIndex = label.colorIndex,
+                        onSelect = onColorChange,
+                    )
                     SheetActions(
                         confirmLabel = "Save",
                         onCancel = { mode = SheetMode.MENU },
@@ -134,6 +145,39 @@ fun LabelManagementSheet(
                         style = ShoppType.toggleName.copy(color = colors.foreground),
                     )
                     SheetActions(confirmLabel = "Delete", onCancel = { mode = SheetMode.MENU }, onConfirm = onDelete)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ColorSwatchGrid(palette: List<androidx.compose.ui.graphics.Color>, selectedIndex: Int, onSelect: (Int) -> Unit) {
+    val colors = ShoppTheme.colors
+    Column(verticalArrangement = Arrangement.spacedBy(ShoppDimens.labelColorSwatchGap)) {
+        palette.chunked(5).forEachIndexed { rowIndex, rowColors ->
+            Row(horizontalArrangement = Arrangement.spacedBy(ShoppDimens.labelColorSwatchGap)) {
+                rowColors.forEachIndexed { columnIndex, swatchColor ->
+                    val index = rowIndex * 5 + columnIndex
+                    val selected = index == selectedIndex
+                    Box(
+                        modifier = Modifier
+                            .size(ShoppDimens.labelColorSwatchSize)
+                            .clip(CircleShape)
+                            .background(swatchColor)
+                            .then(
+                                if (selected) {
+                                    Modifier.border(
+                                        ShoppDimens.labelColorSwatchSelectedBorderWidth,
+                                        colors.foreground,
+                                        CircleShape,
+                                    )
+                                } else {
+                                    Modifier
+                                },
+                            )
+                            .clickable { onSelect(index) },
+                    )
                 }
             }
         }

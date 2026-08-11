@@ -37,16 +37,27 @@ Accent is fixed — not user-configurable (matches PRD §8.2's "users cannot pic
 
 ### Label palette
 
-Six colors, cycling (`LabelColorAllocator`: lowest unused index, else `count mod 6`). Refreshed alongside the August 2026 rebrand to read cleanly against the new neutral white/charcoal surfaces and to avoid colliding with either theme's accent (no red in the light palette, no yellow in the dark palette).
+Fifteen colors, cycling (`LabelColorAllocator`: lowest unused index, else `count mod 15`). Expanded from the original 6 in August 2026 (user request, alongside the Labels "Edit" color picker — see Components inventory) to muted/pleasant tones rather than bright/saturated ones. Each index is a single hue family: light mode uses a deepened shade (for contrast on white/charcoal-adjacent text use, e.g. section headers and label tags), dark mode a lightened shade of the same hue (for contrast on the dark surface) — same pattern as the original 6.
 
-| Index | Light | Dark |
-|---|---|---|
-| 0 | `#1E5FA8` (blue) | `#3D7DD8` (blue) |
-| 1 | `#2E7D32` (green) | `#4CAF50` (green) |
-| 2 | `#6A1B9A` (purple) | `#9C4DCC` (purple) |
-| 3 | `#00695C` (teal) | `#26A69A` (teal) |
-| 4 | `#B45300` (orange) | `#E07B39` (orange) |
-| 5 | `#AD1457` (pink) | `#D6487D` (pink) |
+| Index | Light | Dark | Hue |
+|---|---|---|---|
+| 0 | `#B15D66` | `#D98D96` | dusty rose |
+| 1 | `#B35A38` | `#E0916A` | terracotta |
+| 2 | `#A67C1E` | `#D9AC4E` | mustard |
+| 3 | `#6E7A3D` | `#A8B571` | olive |
+| 4 | `#4C7A4A` | `#8FBF86` | sage |
+| 5 | `#3D8A75` | `#7FD1B9` | seafoam |
+| 6 | `#2E7A78` | `#6FBDBA` | teal |
+| 7 | `#3E689A` | `#7FAAD6` | steel blue |
+| 8 | `#5259AD` | `#9BA3E8` | periwinkle |
+| 9 | `#7455A0` | `#B99CDB` | lavender |
+| 10 | `#8C4F80` | `#CB9AC0` | mauve |
+| 11 | `#B36A46` | `#E3AE8B` | dusty peach |
+| 12 | `#556072` | `#9FADC2` | slate |
+| 13 | `#71624F` | `#BBA98E` | warm gray |
+| 14 | `#99503B` | `#D68F73` | clay |
+
+Users can now also pick a label's color explicitly via the Labels screen's "Edit" sheet (a 5-per-row swatch grid of the table above), rather than only ever getting the auto-allocated one.
 
 ## Typography
 
@@ -69,6 +80,7 @@ Matches the prototype's CSS keyframes, except where noted:
 - Toast in: slide up 20px + fade, ~200ms, same easing
 - Backdrop fade: ~160ms ease-out
 - **Drawer in/out: slide the full panel width (from fully off-screen to docked) + independent scrim fade, 220ms** (`AnimatedVisibility` + `slideInHorizontally`/`slideOutHorizontally` on the panel, `fadeIn`/`fadeOut` on the scrim, in `DrawerMenu.kt`). Deliberately larger than the prototype's original 16px micro-slide, since the small offset read as "just appearing" rather than a perceptible slide, which is what was explicitly requested.
+- **Swipe-right-to-open** (List screen only, August 2026 user request): a rightward drag starting anywhere on the List screen opens the drawer once it exceeds an 80dp threshold, in addition to the hamburger tap. Implemented with `detectHorizontalDragGestures` in `ListScreen.kt` rather than a `ModalNavigationDrawer`'s built-in edge-swipe, to keep the hand-rolled `DrawerMenu` component.
 - Row completion: 150ms height+opacity exit (TDD §6.3); reduced-motion becomes an instant removal, and the overlay fade drops its translation (PRD §11 accessibility).
 
 ## Components inventory
@@ -76,14 +88,16 @@ Matches the prototype's CSS keyframes, except where noted:
 - **Row** (`ItemRow`): circular checkbox (19dp, border in `checkboxBorder`, fills `accent` mid-animation), single-line text, optional trailing label tag (Recently Completed only).
 - **Chip** (`LabelChipRow`): pill (`chipCornerRadius = 100.dp`), selected = filled with the label's color (or `foreground` for Inbox, text in `onForeground`) + `chipSelectedText`, unselected = outlined with `chipBorder` + `muted` text.
 - **FAB**: pill-ish rounded rect (not circular), `accent` background, plus-icon + "Add" label, bottom-right offset 20dp.
-- **Quick Add card** (`QuickAddOverlay`): compact floating card, **not** a full-width bottom sheet. Top-anchored (`cardTopMargin = 64dp` below the status bar), width capped at `cardMaxWidth = 400dp`, rounded corners (`cardCornerRadius = 20dp`), `sheet` background with shadow. Content-hugging height instead of stretching to the bottom of the screen. Shared identically by the in-app FAB and `CaptureActivity` (Quick Settings tile / lock-screen capture), the same component, so it always renders as a small overlay on top of whatever's behind it, never a full-screen surface.
-- **Toast** (Undo): floating rounded rect above the FAB, `toastBackground`/`toastForeground`, uppercase "Undo" action in `toastAction`.
-- **Drawer**: left-anchored, fixed 290dp width, `menu` background, title in Newsreader 26px. Slides in/out (see Motion).
+- **Quick Add card** (`QuickAddOverlay`): compact floating card, **not** a full-width bottom sheet. **Bottom-anchored, directly above the keyboard** (August 2026 user request — was top-anchored below the status bar, which put it far from the IME; now `.windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))` with `cardBottomMargin = 20dp`), width capped at `cardMaxWidth = 400dp`, rounded corners (`cardCornerRadius = 20dp`), `sheet` background with shadow. Content-hugging height instead of stretching to the bottom of the screen. Shared identically by the in-app FAB and `CaptureActivity` (Quick Settings tile / lock-screen capture), the same component, so it always renders as a small overlay on top of whatever's behind it, never a full-screen surface.
+- **Toast** (Undo): floating rounded rect above the FAB, `toastBackground`/`toastForeground`, uppercase "Undo" action in `toastAction`. Also used in Recently Completed (August 2026) to confirm re-adding an item (e.g. "Added to Groceries") with an Undo action that re-completes it; positioned bottom-center without the FAB's extra clearance since that screen has no FAB.
+- **Drawer**: left-anchored, fixed 290dp width, `menu` background, title in Newsreader 26px. Slides in/out (see Motion). Opens via hamburger tap or a right-swipe anywhere on the List screen (see Motion).
+- **Label Edit sheet** (`LabelManagementSheet`, August 2026): the Labels screen's long-press menu item was renamed "Rename" → "Edit" and now combines the name text field with a 15-swatch color grid (5 per row, `labelColorSwatchSize = 32dp` circles, selected swatch ringed with `foreground` at `labelColorSwatchSelectedBorderWidth = 2dp`). Color taps apply immediately (no separate save step); the name still requires "Save" to commit (collision-checked, same as before).
 - **Toggle** (Settings): custom track+knob (not Material Switch) — track 46×26dp radius 13dp, knob 17dp (on) / 11dp (off), matching the prototype's exact geometry rather than Material3's default switch shape.
 
 ## Known deliberate deviations from the PRD / original prototype
 
 - Color palette was rebranded (August 2026, user request): charcoal + bright yellow (dark) / white + red (light), replacing the prototype's warm cream/terracotta. Typography, spacing, and component shapes are unchanged.
 - Section headers are large serif display text (27px), not PRD §11's "smaller/heavier" micro-header.
-- Quick Add is a compact top-anchored floating card, not the prototype's full-width bottom sheet (user request, to read clearly as an overlay rather than a full-screen surface — see Components inventory).
-- Drawer entrance is a full off-screen slide, not the prototype's 16px micro-slide (user request; see Motion).
+- Quick Add is a compact floating card, not the prototype's full-width bottom sheet (user request, to read clearly as an overlay rather than a full-screen surface — see Components inventory). Originally top-anchored; changed to bottom-anchored above the keyboard in August 2026 (user request).
+- Drawer entrance is a full off-screen slide, not the prototype's 16px micro-slide (user request; see Motion). Also opens via right-swipe in addition to the hamburger tap (August 2026 user request).
+- Label colors were originally auto-allocated only, with no user picker and a 6-color palette; expanded to 15 muted colors with an explicit picker in the Labels "Edit" sheet (August 2026 user request — see Label palette, Components inventory).

@@ -60,6 +60,10 @@ class LabelRepository(
         )
     }
 
+    suspend fun setColor(label: LabelEntity, colorIndex: Int) {
+        labelDao.update(label.copy(colorIndex = colorIndex, updatedAt = clock.nowMillis()))
+    }
+
     suspend fun touch(id: String) {
         labelDao.touch(id, clock.nowMillis())
     }

@@ -1,5 +1,6 @@
 package com.rrajath.milk.capture
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -66,6 +67,18 @@ class CaptureActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    // launchMode="singleTask" reuses this instance instead of creating a new
+    // one, but without this override a tile tap that arrives while a prior
+    // instance is mid-`finish()` (e.g. right after a submit) is silently
+    // absorbed -- the intent is delivered, but nothing reopens Quick Add, so
+    // the tap appears to do nothing (reported as "needs ~3 attempts").
+    // Reopening here makes every tile tap reliably show the overlay.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        viewModel.reopen()
     }
 
     // showWhenLocked/turnScreenOn is what makes "usable without unlocking"
