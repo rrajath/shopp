@@ -4,7 +4,7 @@ Original source of truth: `internal-docs/design/Shopp Prototype.dc.html` (still 
 
 Read this file before adding, modifying, or styling any UI element. Don't invent colors, spacing, or components it doesn't cover — extend this doc first, matching its language.
 
-Implementation: `app/src/main/java/com/rrajath/milk/ui/theme/` (`Color.kt`, `Type.kt`, `Theme.kt`, `Dimens.kt`).
+Implementation: `app/src/main/java/com/rrajath/shopp/ui/theme/` (`Color.kt`, `Type.kt`, `Theme.kt`, `Dimens.kt`).
 
 ## Color
 

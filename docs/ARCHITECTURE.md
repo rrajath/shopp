@@ -15,8 +15,8 @@ Everything else — the schema, UUIDv7 ordering, the parser's exact token-matchi
 ## Package layout
 
 ```
-com.rrajath.milk/
-├─ MilkApplication.kt        Manual DI container (AppContainer): db, clock, idGen,
+com.rrajath.shopp/
+├─ ShoppApplication.kt       Manual DI container (AppContainer): db, clock, idGen,
 │                             repositories, use cases — built once, shared by both Activities
 ├─ MainActivity.kt           Hosts ShoppApp, the in-app root composable
 ├─ capture/
@@ -48,7 +48,7 @@ A debug-only trigger (gated on `BuildConfig.DEBUG`) enforces that `updated_at` i
 
 **IDs.** UUIDv7 with the monotonic-counter variant (RFC 9562 §6.2). This matters for one specific case: pasting several lines into Quick Add at once creates multiple items inside a single transaction, often within the same millisecond — the counter variant guarantees they still sort in paste order.
 
-**Single connection pool, no cross-process concerns.** `MainActivity` and `CaptureActivity` both read `AppContainer` off the same `MilkApplication` instance, so they share one `ShoppDatabase` singleton. The TDD's multi-process concurrency section (§7.5) doesn't apply here — there is exactly one process and one Room instance, so the "does the tile write reach the main app" question is answered by construction rather than by a sync protocol.
+**Single connection pool, no cross-process concerns.** `MainActivity` and `CaptureActivity` both read `AppContainer` off the same `ShoppApplication` instance, so they share one `ShoppDatabase` singleton. The TDD's multi-process concurrency section (§7.5) doesn't apply here — there is exactly one process and one Room instance, so the "does the tile write reach the main app" question is answered by construction rather than by a sync protocol.
 
 ## Domain and use cases
 
@@ -60,7 +60,7 @@ Each use case in `usecases/` corresponds to one row in TDD §4.3 and wraps its w
 
 ## UI and state
 
-**Manual DI, no Hilt/Dagger.** `AppContainer` is a plain class instantiated once in `MilkApplication.onCreate()`. At this project's size, a DI framework would add annotation processing and indirection without solving a problem manual construction doesn't already solve cleanly.
+**Manual DI, no Hilt/Dagger.** `AppContainer` is a plain class instantiated once in `ShoppApplication.onCreate()`. At this project's size, a DI framework would add annotation processing and indirection without solving a problem manual construction doesn't already solve cleanly.
 
 **`ShoppViewModel`** holds the in-app screen/drawer/undo/list state. Section grouping happens in Kotlin over a single Room `Flow` (`combine(observeActiveItems, observeLabels, ...)`), matching the TDD's "one pass, already in render order" approach — items are ordered `(label_id IS NOT NULL), created_at ASC, id ASC` so Inbox items lead and everything else follows in label-then-creation order.
 
