@@ -46,5 +46,4 @@ jobs:
           APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
           gh release create "$TAG" "$APK_PATH" \
             --title "$TAG" \
-            --prerelease \
             --generate-notes
