@@ -64,9 +64,11 @@ Release builds are signed with a local keystore that is never committed to git. 
 
 Both `keystore.properties` and `app/keystore/` are gitignored. If `keystore.properties` is missing, `assembleRelease` still builds but produces an unsigned APK.
 
+The release build type has R8 minification and resource shrinking enabled (`isMinifyEnabled`/`isShrinkResources`), which cuts the APK from ~12 MB down to ~1.6 MB. The debug build type stays unminified for fast iteration and readable stack traces.
+
 **Automated releases**
 
-`.github/workflows/release.yml` builds a signed release APK and publishes a GitHub Release (tagged `v0.1-<run number>`, marked as a prerelease) on every push to `main`. It needs four repository secrets under Settings > Secrets and variables > Actions:
+`.github/workflows/release.yml` builds a signed release APK and publishes a GitHub Release (tagged `v0.1-<run number>`) on every push to `main`. It needs four repository secrets under Settings > Secrets and variables > Actions:
 
 | Secret | Value |
 | --- | --- |
