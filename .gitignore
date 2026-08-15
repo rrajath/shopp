@@ -17,3 +17,7 @@ local.properties
 PROGRESS.md
 .idea
 .serena
+
+# Release signing (never commit)
+/keystore.properties
+/app/keystore/

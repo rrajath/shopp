@@ -49,6 +49,30 @@ Or open the project in Android Studio and run the `app` configuration.
 ./gradlew :app:testDebugUnitTest
 ```
 
+**Release builds**
+
+Release builds are signed with a local keystore that is never committed to git. To build `assembleRelease` on a new machine:
+
+1. Generate a keystore (skip if you already have one):
+   ```sh
+   keytool -genkeypair -v -keystore app/keystore/shopp-release.jks -alias shopp -keyalg RSA -keysize 2048 -validity 10000
+   ```
+2. Copy `keystore.properties.example` to `keystore.properties` at the project root and fill in the values (`storeFile` is relative to the project root, e.g. `app/keystore/shopp-release.jks`).
+3. Build: `./gradlew :app:assembleRelease`
+
+Both `keystore.properties` and `app/keystore/` are gitignored. If `keystore.properties` is missing, `assembleRelease` still builds but produces an unsigned APK.
+
+**Automated releases**
+
+`.github/workflows/release.yml` builds a signed release APK and publishes a GitHub Release (tagged `v0.1-<run number>`, marked as a prerelease) on every push to `main`. It needs four repository secrets under Settings > Secrets and variables > Actions:
+
+| Secret | Value |
+| --- | --- |
+| `RELEASE_KEYSTORE_BASE64` | `base64 -i app/keystore/shopp-release.jks` output |
+| `RELEASE_KEYSTORE_PASSWORD` | `storePassword` from `keystore.properties` |
+| `RELEASE_KEY_PASSWORD` | `keyPassword` from `keystore.properties` |
+| `RELEASE_KEY_ALIAS` | `keyAlias` from `keystore.properties` |
+
 **Try the Quick Settings tile**
 
 Pull down the notification shade twice to reach Quick Settings, tap the pencil/edit icon, and drag the "Add to Shopp" tile into your active tiles. Long-pressing (or tapping, depending on Android version) it opens the capture sheet without unlocking the phone.
