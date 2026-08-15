@@ -43,6 +43,8 @@ Shopping lists fail at the moment they're needed most: standing in an aisle, or 
 
 Or open the project in Android Studio and run the `app` configuration.
 
+The debug build installs as a separate app ("Shopp Debug", package `com.rrajath.shopp.debug`) alongside a release build (`com.rrajath.shopp`), so both can be on the same device at once.
+
 **Run tests**
 
 ```sh
