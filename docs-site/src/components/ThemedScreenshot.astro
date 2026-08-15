@@ -1,0 +1,34 @@
+---
+interface Props {
+  name: string;
+  alt: string;
+  caption?: string;
+}
+const { name, alt, caption } = Astro.props;
+---
+<figure class="screenshot">
+  <img class="light-only" src={`/screenshots/light/${name}.png`} alt={alt} loading="lazy" />
+  <img class="dark-only" src={`/screenshots/dark/${name}.png`} alt={alt} loading="lazy" />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  figure.screenshot {
+    margin: 1.5rem 0;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--shopp-line, var(--sl-color-gray-5));
+    box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.25);
+  }
+  figure.screenshot img {
+    width: 100%;
+    display: block;
+  }
+  figcaption {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-3);
+    border-top: 1px solid var(--shopp-line, var(--sl-color-gray-5));
+    background: var(--sl-color-gray-6);
+  }
+</style>

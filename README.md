@@ -2,6 +2,19 @@
 
 A fast, native Android shopping list app. Type an item, tag it with `@label` to route it into a section, tap to check it off, and add items from the lock screen through a Quick Settings tile without unlocking the phone.
 
+Free and open source. **[Download the latest release](https://github.com/rrajath/shopp/releases/latest)** · [Full documentation](docs-site/) · Requires Android 8.0 (API 26) or newer.
+
+## Screenshots
+
+| | Light | Dark |
+|---|---|---|
+| **List** | ![The list screen, light theme](screenshots/light/list.png) | ![The list screen, dark theme](screenshots/dark/list.png) |
+| **Quick Add** | ![The Quick Add overlay, light theme](screenshots/light/quickadd.png) | ![The Quick Add overlay, dark theme](screenshots/dark/quickadd.png) |
+| **Labels** | ![The Labels screen, light theme](screenshots/light/labels.png) | ![The Labels screen, dark theme](screenshots/dark/labels.png) |
+| **Settings** | ![The Settings screen, light theme](screenshots/light/settings.png) | ![The Settings screen, dark theme](screenshots/dark/settings.png) |
+
+More screens (autocomplete, merging labels, Recently Completed, and the Quick Settings tile capture surface) are in [`screenshots/`](screenshots/) and in the [documentation site](docs-site/).
+
 ## Purpose
 
 Shopp implements the product requirements in `internal-docs/shopping-list-prd.md` and the technical design in `internal-docs/shopping-list-tdd.md`, adapted to a pure native Android stack (see [Architecture](docs/ARCHITECTURE.md) for why). The visual design and screen scope follow the prototype at `internal-docs/design/Shopp Prototype.dc.html`, which takes precedence over the PRD where the two disagree.
@@ -16,14 +29,14 @@ Shopping lists fail at the moment they're needed most: standing in an aisle, or 
 
 ## Features
 
-- **Quick Add** — a bottom-sheet capture surface with autofocus, multi-line paste support, inline `@label` tagging with autocomplete, a sticky label chip that persists across consecutive adds, and a small "just added" list for confidence.
+- **Quick Add** — a compact floating capture overlay (anchored above the keyboard, not a full-width bottom sheet) with autofocus, multi-line paste support, inline `@label` tagging with autocomplete, a sticky label chip that persists across consecutive adds, and title suggestions drawn from your Recently Completed history for items you buy on a cycle.
 - **Quick Settings tile** — add items without unlocking the phone or opening the app; the tile launches a translucent activity over the lock screen that shares the exact same capture component and database as the in-app flow.
 - **Sectioned list** — items group by label (Inbox always shown first), with sticky section headers while scrolling; grouping can be turned off in Settings for one flat list.
 - **Tap-to-complete with undo** — completing an item is a real, immediate write; a toast with a 4-second undo window follows, and a new completion during that window commits the previous one and starts a fresh timer.
 - **Inline edit** — tap an item's title to edit it in place, with the text caret placed at the exact point you tapped.
 - **URL linkification** — a URL typed into a title becomes a tappable link without entering edit mode.
 - **Recently Completed** — a reverse-chronological log of completed items, grouped by day, with tap-to-re-add and a Clear action (optionally confirmed).
-- **Labels management** — rename, merge, or delete labels via a long-press sheet; deleting a label moves its items to Inbox rather than deleting them, merging reassigns items then removes the source label, both atomically.
+- **Labels management** — rename, recolor (pick from a 15-color palette, or let it auto-allocate), merge, or delete labels via a long-press sheet; deleting a label moves its items to Inbox rather than deleting them, merging reassigns items then removes the source label, both atomically.
 - **Settings** — System/Light/Dark appearance, and three behavior toggles (group by label, keep Quick Add open after submit, confirm before clearing Recently Completed).
 
 ## Setup
@@ -81,9 +94,16 @@ The release build type has R8 minification and resource shrinking enabled (`isMi
 
 Pull down the notification shade twice to reach Quick Settings, tap the pencil/edit icon, and drag the "Add to Shopp" tile into your active tiles. Long-pressing (or tapping, depending on Android version) it opens the capture sheet without unlocking the phone.
 
-## Project layout
+## Architecture
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full package breakdown and the reasoning behind key decisions (Room over raw SQLite, manual DI instead of Hilt, why there's no cross-language "parser kernel," etc.), and [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) for the color/type/spacing tokens and component inventory.
+Shopp is a single Kotlin + Jetpack Compose Gradle module (`:app`) — no multiplatform tooling, no backend, no network calls. Everything lives in one on-device Room (SQLite) database:
+
+- **UI**: Jetpack Compose screens (`ui/screens/`) driven by `ShoppViewModel`, with manual dependency injection (`AppContainer`, built once in `ShoppApplication`) instead of Hilt/Dagger.
+- **Domain/use cases**: pure Kotlin (`domain/`, `usecases/`) — the `@label` capture parser, UUIDv7 generation, label color allocation, and one class per mutation (capture, complete, undo, merge, delete, etc.), each wrapped in a single Room transaction.
+- **Data**: Room entities and DAOs (`data/db/`, `data/repository/`) implementing the schema from the technical design doc — UUID primary keys, `updated_at` on every row, and soft deletes (tombstones) everywhere, so the app is sync-ready even though v1 has no accounts or sync.
+- **Capture surface**: the Android Quick Settings tile (`capture/QuickAddTileService.kt`, `CaptureActivity.kt`) opens the *exact same* Quick Add UI and controller as the in-app FAB, sharing the same `AppContainer` and database connection — not a separate, simplified implementation that could drift out of sync.
+
+The product requirements and technical design docs (`internal-docs/`) originally specified a cross-platform React Native + iOS + web build with native "capture kernels." The shipped app is pure native Android instead, which removes that plan's biggest engineering risk (keeping a capture parser in sync across three languages) by construction — see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full package breakdown and the reasoning behind every deviation from those documents, and [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) for the color/type/spacing tokens and component inventory.
 
 ## Status
 

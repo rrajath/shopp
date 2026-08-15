@@ -1,0 +1,42 @@
+---
+title: Quick Add
+description: A compact overlay that stays open, keeps the keyboard up, and remembers your label.
+---
+
+import ThemedScreenshot from '../../../components/ThemedScreenshot.astro';
+
+<ThemedScreenshot name="quickadd" alt="The Quick Add overlay with multi-line text typed and a label chip selected" caption="Quick Add — text grows by line, the sticky label chip stays selected between submits." />
+
+The most important surface in the app, and it holds exactly two things: a text input that grows as you type, and one scrollable row of label chips ordered by last use, with Inbox leading. No date picker, no quantity stepper, no priority, no note field.
+
+Submitting commits the item(s) and, when **Keep Quick Add open** is on in Settings, leaves everything else in place — the overlay open, the keyboard raised, the label still selected. That stickiness is what makes staying open worth anything: a run of items to one store costs one tag, typed once.
+
+**Newline is the only separator.** Pasting or typing:
+
+```
+carrots
+tomatoes
+onions
+```
+
+...and submitting creates three separate items, in the order given, all carrying the current label. Blank lines and stray whitespace are stripped, and a submit that yields nothing is a no-op. Commas, semicolons, "and", bullet characters, and numbered prefixes are **not** parsed — `carrots, 2lb organic bag` is one item, titled exactly that.
+
+## Label syntax
+
+Typing `@` opens a live-filtered dropdown of existing labels. Enter or a tap completes the highlighted suggestion.
+
+On submit, the **first** `@token` on a line is pulled out of the title and used as that line's label — overriding the chip selection and becoming the new sticky choice. A token that matches nothing (case-insensitively) creates the label automatically, with the next unused color from the fixed palette. Any further `@token`s on the same line stay as literal text — an item has exactly zero or one label, a hard constraint the sectioned list depends on.
+
+`@` only starts a label token after a word boundary — start of line, or preceded by whitespace — so `order from shop@costco.com` stays a plain title and never creates a label named `costco.com`.
+
+## Title suggestions
+
+As you type a line that isn't mid-`@token` and is at least two characters long, Shopp also suggests titles from your history of completed items — most recently completed first — in the same popover slot as the label dropdown. Tapping a suggestion replaces the line with the full remembered title, `@label` and all.
+
+| | |
+|---|---|
+| **Open** | Overlay up, input focused, keyboard raised — fast enough to feel instant. |
+| **Submit** | Items committed, input cleared. Overlay stays open and the label persists if "Keep Quick Add open" is on in [Settings](/docs/settings/). |
+| **Sticky label** | Holds until changed. Resets to Inbox when the overlay closes. |
+| **Dismiss** | Tap outside, back gesture. Uncommitted text is discarded. |
+| **Not parsed** | Commas, semicolons, "and", bullet characters, numbered prefixes. |

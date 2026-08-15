@@ -1,0 +1,22 @@
+---
+title: Capture from outside the app
+description: Add an item from the lock screen, without opening the app.
+---
+
+import ThemedScreenshot from '../../../components/ThemedScreenshot.astro';
+
+<ThemedScreenshot name="tile" alt="The Quick Settings tile's capture overlay, floating over whatever screen was active underneath" caption="The tile's capture overlay, floating over whatever was on screen (Settings, in this capture). It opens the same way over the lock screen, without unlocking first." />
+
+Shopp ships an Android **Quick Settings tile** — the same "Add to Shopp" tile you can drag into your active tiles from the notification shade's edit screen. Tapping it opens a translucent capture surface directly over whatever's on screen, including the **lock screen**, with no need to unlock first.
+
+This is deliberately **the same component and the same code path** as the in-app Quick Add — not a separate, simplified capture form that might drift out of sync with it. Both the in-app FAB and the tile's capture surface construct the identical Quick Add controller against the identical app container, so an item captured from a locked phone is written through the exact same use case, into the exact same on-device database, that the main app reads from.
+
+| | |
+|---|---|
+| **Trigger** | Pull down Quick Settings twice → tap the "Add to Shopp" tile. |
+| **Surface** | A translucent activity, shown over the lock screen where the OS allows it — no unlock required. |
+| **Component** | The same Quick Add overlay used by the in-app FAB: same sticky label, same stay-open behavior. |
+| **Storage** | Writes directly to the same on-device database the main app reads — nothing waits for the app to be open. |
+| **Security** | The capture surface can only be launched by Shopp's own tile — it isn't exported to other apps. |
+
+There's no separate share-sheet integration or widget in the current build — the Quick Settings tile is the one external capture surface Shopp ships today.

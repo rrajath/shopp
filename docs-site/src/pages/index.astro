@@ -1,0 +1,188 @@
+---
+import PhoneFrame from '../components/PhoneFrame.astro';
+import ThemedScreenshot from '../components/ThemedScreenshot.astro';
+import '../styles/custom.css';
+import '../styles/landing.css';
+
+const RELEASES_URL = 'https://github.com/rrajath/shopp/releases/latest';
+const REPO_URL = 'https://github.com/rrajath/shopp';
+const DOCS_URL = '/docs/';
+
+const HOW_IT_WORKS = [
+  {
+    title: 'The overlay stays open',
+    body: 'Submit an item and, with Keep Quick Add open on, the sheet stays up, the keyboard stays raised, and the label you picked stays selected. Six items to @costco costs six lines of typing and one tag.',
+  },
+  {
+    title: 'One line, one item',
+    body: 'Newline is the only separator. Paste six lines, get six items in the order you gave them. "carrots, 2lb organic bag" stays a single item, because that is what you typed — no parsing, no preview, no rules to remember.',
+  },
+  {
+    title: 'Check off without thinking',
+    body: 'One tap. No confirmation. The row leaves the list and a four-second undo sits at the bottom of the screen, so a mis-tap costs nothing and never sends you to another screen.',
+  },
+  {
+    title: 'Labels you never create',
+    body: 'Type @farmers and the label exists, with a colour picked for you. The store you are actively adding to floats to the top of the list. There is no "new label" button anywhere in the app.',
+  },
+];
+
+const CUT = ['Quantities as data', 'Recipes', 'Meal planning', 'Price tracking', 'Barcode scanning', 'Sharing', 'Reminders', 'Location triggers', 'Search', 'Manual reordering', 'Nested lists', 'Attachments', 'Item photos', 'Drag and drop', 'Multi-select', 'Comma splitting'];
+---
+
+<html lang="en" data-theme-root>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shopp — a shopping list that isn't a filing cabinet</title>
+  <meta name="description" content="Shopp is a fast, native Android shopping list app. Put things on fast, take things off fast — and nothing else." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <script is:inline>
+    (function () {
+      const stored = localStorage.getItem('starlight-theme') || 'auto';
+      const theme = stored === 'auto'
+        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : stored;
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
+</head>
+<body>
+  <div class="page">
+
+    <nav class="nav">
+      <span class="nav-brand">Shopp</span>
+      <a href="#how">How it works</a>
+      <a href="#cut">What it won't do</a>
+      <a href={DOCS_URL}>Docs</a>
+      <button class="btn btn-ghost" data-theme-toggle type="button" aria-label="Toggle color theme">
+        <span class="theme-icon-light">☀︎</span><span class="theme-icon-dark">☾</span>
+      </button>
+      <a class="btn btn-primary" href="#get">Get Shopp</a>
+    </nav>
+
+    <div class="shell">
+
+      <section class="hero">
+        <div class="hero-blob" aria-hidden="true"></div>
+        <div class="hero-copy">
+          <h1>
+            <span class="block">A shopping list is a</span>
+            <span class="block accent">conveyor belt,</span>
+            <span class="block">not a filing cabinet.</span>
+          </h1>
+          <p class="lede">Shopp earns exactly two capabilities: put things on fast, take things off fast. Items live for hours, not months. There is nothing to organise, nothing to configure and nothing to learn.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary btn-lg" href="#get">Get Shopp — free</a>
+            <a class="btn btn-secondary btn-lg" href={DOCS_URL}>Read the docs</a>
+          </div>
+          <p class="fine-print">Android. No account. Works offline.</p>
+        </div>
+        <div class="hero-visual">
+          <PhoneFrame name="list" alt="The Shopp list screen, showing Inbox and label sections" />
+          <p class="caption">The list screen — add an item, then tap a circle to check it off.</p>
+        </div>
+      </section>
+
+      <section class="stats" aria-label="Shopp, by the numbers">
+        <div class="stat-circle stat-a">
+          <p class="stat-num">3s</p>
+          <p class="stat-label">Locked phone to item saved</p>
+        </div>
+        <div class="stat-circle stat-b">
+          <p class="stat-num">1</p>
+          <p class="stat-label">Tag typed for a run of six</p>
+        </div>
+        <div class="stat-circle stat-c">
+          <p class="stat-num">4s</p>
+          <p class="stat-label">To undo any check-off</p>
+        </div>
+        <div class="stat-circle stat-d">
+          <p class="stat-num">0</p>
+          <p class="stat-label">Setup before it's useful</p>
+        </div>
+      </section>
+
+      <section id="how" class="how">
+        <span class="kicker">How it works</span>
+        {HOW_IT_WORKS.map((item) => (
+          <div class="how-row">
+            <h2><span class="dot" aria-hidden="true"></span>{item.title}</h2>
+            <p set:html={item.body.replace(/@(\w[\w-]*)/g, '<code>@$1</code>')} />
+          </div>
+        ))}
+      </section>
+
+      <section class="capture-anywhere">
+        <div>
+          <span class="kicker">Capture anywhere</span>
+          <h2>Add milk without opening the app</h2>
+          <p>An Android Quick Settings tile opens the exact same Quick Add overlay — same sticky label, same stay-open behaviour — directly over whatever's on screen, including the lock screen. No unlock required.</p>
+          <div class="tag-row">
+            <span class="tag tag-accent">Quick Settings tile</span>
+            <span class="tag tag-neutral">Same component as in-app</span>
+            <span class="tag tag-neutral">Works over the lock screen</span>
+          </div>
+        </div>
+        <div class="capture-visual">
+          <PhoneFrame name="quickadd" alt="The Quick Add capture overlay, keyboard up" />
+        </div>
+      </section>
+
+      <section id="cut" class="cut-section">
+        <div class="cut-card">
+          <span class="kicker">Cut on purpose</span>
+          <h2>What Shopp will not do</h2>
+          <p>Every one of these was considered and rejected. Organising, annotating and rearranging are filing-cabinet behaviours; each would cost more than it returns.</p>
+          <div class="cut-list">
+            {CUT.map((c) => <span class="cut-chip">{c}</span>)}
+          </div>
+          <p class="fine-print">The reasoning for each is written down in the <a class="q" href={`${DOCS_URL}cut-from-v1/`}>documentation</a>, so it doesn't quietly come back.</p>
+        </div>
+      </section>
+
+      <section class="pull-quote">
+        <blockquote>"A shopping list is a conveyor belt, not a filing cabinet. Items are created in a burst, consumed in a burst, and destroyed."</blockquote>
+        <p class="attribution">— The product principle behind every decision in Shopp</p>
+      </section>
+
+      <section id="get" class="get-shopp">
+        <div class="get-card">
+          <h3>Shopp 0.1 — Android</h3>
+          <p>Local-first and fully functional with no account. Free, open source, and installed straight from a GitHub release — no store required.</p>
+          <div class="get-actions">
+            <a class="btn btn-primary btn-lg" href={RELEASES_URL} rel="noopener">Download latest release</a>
+            <a class="btn btn-secondary btn-lg" href={REPO_URL} rel="noopener">View source on GitHub</a>
+          </div>
+          <p class="fine-print">Requires Android 8.0 (API 26) or newer.</p>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span class="footer-brand">Shopp</span>
+        <a class="q" href={DOCS_URL}>Documentation</a>
+        <a class="q" href="#cut">What it won't do</a>
+        <a class="q" href={REPO_URL} rel="noopener">GitHub</a>
+        <a class="q" href={RELEASES_URL} rel="noopener">Releases</a>
+        <span class="footer-version">v0.1 · Android</span>
+      </footer>
+
+    </div>
+  </div>
+
+  <script is:inline>
+    function shoppSetTheme(theme) {
+      localStorage.setItem('starlight-theme', theme);
+      document.documentElement.dataset.theme = theme === 'auto'
+        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : theme;
+    }
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-theme-toggle]');
+      if (!btn) return;
+      const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+      shoppSetTheme(current === 'dark' ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>

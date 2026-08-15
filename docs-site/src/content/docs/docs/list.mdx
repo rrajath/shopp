@@ -1,0 +1,27 @@
+---
+title: The list screen
+description: One line per item, grouped by label, Inbox pinned first.
+---
+
+import ThemedScreenshot from '../../../components/ThemedScreenshot.astro';
+
+<ThemedScreenshot name="list" alt="The list screen with Inbox pinned first and label sections below" caption="The list screen — Inbox pinned first, then sections ordered by which store you're actively adding to." />
+
+One line per item: a checkbox on the left, the title filling the rest. No subtitle, no metadata, no chevron, no trailing actions. Rows aren't divided by rules — whitespace does the separating.
+
+Items are grouped by label under sticky headers. **Inbox is pinned first**, even when it's seen no recent activity, because it's the fast path for untagged capture. Every other section follows in order of last use, so the store you're actively adding to floats to the top. A section with no active items isn't drawn at all — its label still exists in autocomplete and in Settings.
+
+URLs inside a title render as tappable links. Tapping the link opens it; tapping anywhere else on the row starts editing, with the cursor placed exactly where you tapped and the keyboard raised.
+
+| | |
+|---|---|
+| **Ordering** | `created_at` ascending. Items append to the end — no sort menu, no drag handle, no manual reordering. |
+| **Editing** | Commits on blur or Enter. Editing never changes an item's position. |
+| **Complete** | One tap on the checkbox. The row animates out; a four-second undo toast restores it to its original position. |
+| **Long press** | Nothing. No multi-select, no drag. |
+| **Grouping** | Can be turned off in [Settings](/docs/settings/) for one flat list, ordered by creation time. |
+| **Empty state** | A single line of text. No illustration, no carousel, no sample items. |
+
+## Why there's no drag-and-drop
+
+Reassigning an item to a different section is done by editing its title to include a new `@token` — the same mechanism that created the label in the first place. That's the sanctioned way to fix a mis-tag, and it's the reason drag-and-drop between sections was cut: it would be expensive to build correctly on top of sticky headers and collides with long-press, to fix a problem editing the title already solves in one step. See [Cut from v1](/docs/cut-from-v1/) for the full list of rejected features.

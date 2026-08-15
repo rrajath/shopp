@@ -1,0 +1,13 @@
+---
+interface Props {
+  name: string;
+  alt: string;
+}
+const { name, alt } = Astro.props;
+---
+<div class="phone-frame">
+  <div class="screenshot-inner">
+    <img class="light-only" src={`/screenshots/light/${name}.png`} alt={alt} loading="lazy" />
+    <img class="dark-only" src={`/screenshots/dark/${name}.png`} alt={alt} loading="lazy" />
+  </div>
+</div>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/organic-d8f72542-dad0-4f4c-a02e-0568db33d9b1/styles.css">
+<script src="_ds/organic-d8f72542-dad0-4f4c-a02e-0568db33d9b1/_ds_bundle.js"></script>
+<style>
+html { scroll-behavior: smooth; }
+body { margin: 0; text-wrap: pretty; overflow-x: clip; }
+a.q { color: var(--color-accent-700); text-decoration: none; }
+a.q:hover { color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
+@keyframes beltRun { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (max-width: 940px) { .cols2 { grid-template-columns: minmax(0, 1fr) !important; } .cols2 > *:last-child { justify-self: start !important; } }
+</style>
+</helmet>
+
+<div style="background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); font-size: 15px; line-height: 1.55; min-height: 100vh;">
+
+  <nav class="nav" style="padding: 18px clamp(20px, 5vw, 72px); max-width: 1320px; margin: 0 auto; gap: 26px; position: relative; z-index: 3;">
+    <span class="nav-brand" style="font-size: 21px; letter-spacing: -0.02em;">Shopp</span>
+    <a href="#how">How it works</a>
+    <a href="#cut">What it won't do</a>
+    <a href="Shopp%20Docs.dc.html">Docs</a>
+    <a class="btn btn-primary" href="#get" style="text-decoration: none;">Get Shopp</a>
+  </nav>
+
+  <div style="max-width: 1180px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 72px);">
+
+    <sc-if value="{{ heroSlab }}" hint-placeholder-val="{{ true }}">
+      <section class="cols2" style="position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 56px; align-items: center; padding: 84px 0 56px;">
+        <div style="position: absolute; right: -140px; top: -180px; width: 420px; height: 420px; border-radius: 50%; background: var(--color-accent-2-200); z-index: 0; pointer-events: none;"></div>
+        <div style="position: relative; z-index: 1;">
+          <h1 style="font-family: var(--font-heading); font-size: clamp(40px, 5.4vw, 68px); line-height: 1.08; letter-spacing: -0.015em; margin: 0 0 0 -0.028em;">
+            <span style="display: block;">A shopping list is a</span>
+            <span style="display: block; color: var(--color-accent-700);">conveyor belt,</span>
+            <span style="display: block;">not a filing cabinet.</span>
+          </h1>
+          <p style="font-size: 17.5px; line-height: 28px; max-width: 46ch; margin: 32px 0 0;">Shopp earns exactly two capabilities: put things on fast, take things off fast. Items live for hours, not months. There is nothing to organise, nothing to configure and nothing to learn.</p>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px;">
+            <a class="btn btn-primary" href="#get" style="text-decoration: none; padding: 12px 22px; font-size: 15px;">Get Shopp — free</a>
+            <a class="btn btn-secondary" href="Shopp%20Docs.dc.html" style="text-decoration: none; padding: 12px 22px; font-size: 15px;">Read the docs</a>
+          </div>
+          <p style="font-size: 13px; color: color-mix(in srgb, var(--color-text) 70%, transparent); margin: 18px 0 0;">Android, iOS and web. No account. Works offline.</p>
+        </div>
+        <div style="position: relative; z-index: 1;">
+          <dc-import name="ShoppApp" live="{{ true }}" mode="list" hint-size="340px,700px"></dc-import>
+          <p style="font-size: 12.5px; color: color-mix(in srgb, var(--color-text) 70%, transparent); margin: 16px 0 0; text-align: center;">Live — add an item, then tap a circle to check it off.</p>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ heroBelt }}" hint-placeholder-val="{{ false }}">
+      <section style="padding: 76px 0 0;">
+        <h1 style="font-family: var(--font-heading); font-size: clamp(40px, 7.4vw, 96px); line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 0 -0.028em; max-width: 20ch;">
+          <span style="display: block;">On fast.</span>
+          <span style="display: block; color: var(--color-accent-700);">Off faster.</span>
+        </h1>
+        <div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-end; margin-top: 34px;">
+          <p style="font-size: 17.5px; line-height: 28px; max-width: 44ch; margin: 0;">A shopping list is a conveyor belt, not a filing cabinet. Shopp does the two things that matter and refuses the rest.</p>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a class="btn btn-primary" href="#get" style="text-decoration: none; padding: 12px 22px; font-size: 15px;">Get Shopp — free</a>
+            <a class="btn btn-secondary" href="Shopp%20Docs.dc.html" style="text-decoration: none; padding: 12px 22px; font-size: 15px;">Read the docs</a>
+          </div>
+        </div>
+      </section>
+      <section style="position: relative; margin: 48px 0 0; border-radius: 56px; background: var(--color-accent-2-200); overflow: hidden; padding: 40px 0 0;">
+        <div style="overflow: hidden; padding-bottom: 30px;">
+          <div style="display: flex; gap: 12px; width: max-content; animation: beltRun 34s linear infinite;">
+            <sc-for list="{{ beltItems }}" as="b" hint-placeholder-count="12">
+              <span style="font-size: 15px; padding: 10px 20px; border-radius: 999px; background: var(--color-neutral-100); white-space: nowrap; box-shadow: var(--shadow-sm);">{{ b }}</span>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: center; margin-bottom: -300px;">
+          <dc-import name="ShoppApp" live="{{ true }}" mode="list" hint-size="340px,700px"></dc-import>
+        </div>
+      </section>
+      <div style="height: 320px;"></div>
+    </sc-if>
+
+    <sc-if value="{{ heroSeeds }}" hint-placeholder-val="{{ false }}">
+      <section style="position: relative; padding: 80px 0 40px;">
+        <div style="position: absolute; left: 46%; top: 10px; width: 300px; height: 300px; border-radius: 50%; background: var(--color-accent-100); z-index: 0;"></div>
+        <div style="position: absolute; left: 70%; top: 220px; width: 200px; height: 200px; border-radius: 50%; background: var(--color-accent-2-200); z-index: 0;"></div>
+        <div style="position: relative; z-index: 1; max-width: 22ch;">
+          <h1 style="font-family: var(--font-heading); font-size: clamp(40px, 6.4vw, 82px); line-height: 1.06; letter-spacing: -0.02em; margin: 0 0 0 -0.028em;">
+            <span style="display: block;">Two taps</span>
+            <span style="display: block; color: var(--color-accent-700);">and it's</span>
+            <span style="display: block;">on the list.</span>
+          </h1>
+        </div>
+        <p style="position: relative; z-index: 1; font-size: 17.5px; line-height: 28px; max-width: 44ch; margin: 30px 0 0;">A shopping list is a conveyor belt, not a filing cabinet. Items are created in a burst, consumed in a burst, and destroyed. Shopp is built for exactly that shape.</p>
+        <div style="position: relative; z-index: 1; display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px;">
+          <a class="btn btn-primary" href="#get" style="text-decoration: none; padding: 12px 22px; font-size: 15px;">Get Shopp — free</a>
+          <a class="btn btn-secondary" href="Shopp%20Docs.dc.html" style="text-decoration: none; padding: 12px 22px; font-size: 15px;">Read the docs</a>
+        </div>
+        <div style="position: relative; z-index: 1; display: flex; justify-content: flex-end; margin-top: -60px;">
+          <dc-import name="ShoppApp" live="{{ true }}" mode="list" hint-size="340px,700px"></dc-import>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ seedStats }}" hint-placeholder-val="{{ true }}">
+      <section style="position: relative; min-height: 420px; padding: 42px 0 56px;" aria-label="Shopp, by the numbers">
+        <div style="display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; align-items: center;">
+          <div style="width: 236px; aspect-ratio: 1; border-radius: 50%; background: var(--color-accent-100); display: grid; place-content: center; text-align: center; padding: 26px;">
+            <p style="font-family: var(--font-heading); font-size: 46px; line-height: 56px; margin: 0; color: var(--color-accent-700);">3s</p>
+            <p style="font-size: 13px; line-height: 18px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin: 12px 0 0; max-width: 17ch; color: color-mix(in srgb, var(--color-text) 70%, transparent);">Locked phone to item saved</p>
+          </div>
+          <div style="width: 196px; aspect-ratio: 1; border-radius: 50%; background: var(--color-accent-2-300); display: grid; place-content: center; text-align: center; padding: 22px; transform: translateY(34px);">
+            <p style="font-family: var(--font-heading); font-size: 42px; line-height: 52px; margin: 0; color: var(--color-accent-2-800);">1</p>
+            <p style="font-size: 13px; line-height: 18px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin: 10px 0 0; max-width: 15ch; color: color-mix(in srgb, var(--color-text) 70%, transparent);">Tag typed for a run of six</p>
+          </div>
+          <div style="width: 214px; aspect-ratio: 1; border-radius: 50%; background: var(--color-accent-200); display: grid; place-content: center; text-align: center; padding: 24px; transform: translateY(-18px);">
+            <p style="font-family: var(--font-heading); font-size: 44px; line-height: 54px; margin: 0; color: var(--color-accent-700);">4s</p>
+            <p style="font-size: 13px; line-height: 18px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin: 11px 0 0; max-width: 16ch; color: color-mix(in srgb, var(--color-text) 70%, transparent);">To undo any check-off</p>
+          </div>
+          <div style="width: 176px; aspect-ratio: 1; border-radius: 50%; background: var(--color-accent-2-100); display: grid; place-content: center; text-align: center; padding: 20px; transform: translateY(28px);">
+            <p style="font-family: var(--font-heading); font-size: 40px; line-height: 50px; margin: 0; color: var(--color-accent-2-700);">0</p>
+            <p style="font-size: 13px; line-height: 18px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin: 10px 0 0; max-width: 15ch; color: color-mix(in srgb, var(--color-text) 70%, transparent);">Setup before it's useful</p>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ rowStats }}" hint-placeholder-val="{{ false }}">
+      <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 28px; padding: 42px 0 62px;" aria-label="Shopp, by the numbers">
+        <div><p style="font-family: var(--font-heading); font-size: 46px; line-height: 56px; margin: 0; color: var(--color-accent-700);">3s</p><p style="font-size: 13px; line-height: 18px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin: 10px 0 0; color: color-mix(in srgb, var(--color-text) 70%, transparent);">Locked phone to item saved</p></div>
+        <div><p style="font-family: var(--font-heading); font-size: 46px; line-height: 56px; margin: 0; color: var(--color-accent-2-700);">1</p><p style="font-size: 13px; line-height: 18px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin: 10px 0 0; color: color-mix(in srgb, var(--color-text) 70%, transparent);">Tag typed for a run of six</p></div>
+        <div><p style="font-family: var(--font-heading); font-size: 46px; line-height: 56px; margin: 0; color: var(--color-accent-700);">4s</p><p style="font-size: 13px; line-height: 18px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin: 10px 0 0; color: color-mix(in srgb, var(--color-text) 70%, transparent);">To undo any check-off</p></div>
+        <div><p style="font-family: var(--font-heading); font-size: 46px; line-height: 56px; margin: 0; color: var(--color-accent-2-700);">0</p><p style="font-size: 13px; line-height: 18px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin: 10px 0 0; color: color-mix(in srgb, var(--color-text) 70%, transparent);">Setup before it's useful</p></div>
+      </section>
+    </sc-if>
+
+    <section id="how" style="padding: 42px 0 28px;">
+      <span style="display: block; font-size: 13px; line-height: 14px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; color: var(--color-accent-700); margin: 0 0 34px;">How it works</span>
+
+      <div style="display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 28px clamp(24px, 4vw, 72px); align-items: baseline; padding: 22px 0;">
+        <h2 style="position: relative; font-family: var(--font-heading); font-size: 27px; line-height: 30px; margin: 0;">
+          <span style="position: absolute; left: -36px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-accent);"></span>
+          The overlay stays open
+        </h2>
+        <p style="font-size: 15.5px; line-height: 28px; margin: 0; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">Submit an item and the sheet stays up, the keyboard stays raised, and the label you picked stays selected. Six items to <code style="font-family: var(--font-body); color: var(--color-accent-700);">@costco</code> costs six lines of typing and one tag. Tap outside to leave.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 28px clamp(24px, 4vw, 72px); align-items: baseline; padding: 22px 0;">
+        <h2 style="position: relative; font-family: var(--font-heading); font-size: 27px; line-height: 30px; margin: 0;">
+          <span style="position: absolute; left: -36px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-accent);"></span>
+          One line, one item
+        </h2>
+        <p style="font-size: 15.5px; line-height: 28px; margin: 0; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">Newline is the only separator. Paste six lines, get six items in the order you gave them. “carrots, 2lb organic bag” stays a single item, because that is what you typed — no parsing, no preview, no rules to remember.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 28px clamp(24px, 4vw, 72px); align-items: baseline; padding: 22px 0;">
+        <h2 style="position: relative; font-family: var(--font-heading); font-size: 27px; line-height: 30px; margin: 0;">
+          <span style="position: absolute; left: -36px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-accent);"></span>
+          Check off without thinking
+        </h2>
+        <p style="font-size: 15.5px; line-height: 28px; margin: 0; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">One tap. No confirmation. The row leaves the list and a four-second undo sits at the bottom of the screen, so a mis-tap costs nothing and never sends you to another screen.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 28px clamp(24px, 4vw, 72px); align-items: baseline; padding: 22px 0;">
+        <h2 style="position: relative; font-family: var(--font-heading); font-size: 27px; line-height: 30px; margin: 0;">
+          <span style="position: absolute; left: -36px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-accent);"></span>
+          Labels you never create
+        </h2>
+        <p style="font-size: 15.5px; line-height: 28px; margin: 0; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">Type <code style="font-family: var(--font-body); color: var(--color-accent-700);">@farmers</code> and the label exists, with a colour picked for you. The store you are actively adding to floats to the top of the list. There is no “new label” button anywhere in the app.</p>
+      </div>
+    </section>
+
+    <section class="cols2" style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 34px clamp(24px, 5vw, 84px); align-items: center; padding: 56px 0 62px;">
+      <div>
+        <span style="display: block; font-size: 13px; line-height: 14px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; color: var(--color-accent-700); margin: 0 0 20px;">Capture anywhere</span>
+        <h2 style="font-family: var(--font-heading); font-size: 33px; line-height: 42px; margin: 0;">Add milk without opening the app</h2>
+        <p style="font-size: 15.5px; line-height: 28px; margin: 24px 0 0; max-width: 48ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">A Quick Settings tile on Android, a Control Center control on iOS, a lock-screen widget and a Shortcuts intent. Each one opens the same overlay, with the same sticky label and the same stay-open behaviour — from the lock screen, where the platform allows it.</p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 22px;">
+          <span class="tag tag-accent">Android tile</span>
+          <span class="tag tag-accent">iOS control</span>
+          <span class="tag tag-accent-2">Lock screen widget</span>
+          <span class="tag tag-accent-2">Shortcuts &amp; Siri</span>
+          <span class="tag tag-neutral">Installable PWA</span>
+        </div>
+      </div>
+      <div style="justify-self: end;">
+        <dc-import name="ShoppApp" mode="tile" hint-size="340px,700px"></dc-import>
+      </div>
+    </section>
+
+    <sc-if value="{{ showCut }}" hint-placeholder-val="{{ true }}">
+      <section id="cut" style="padding: 0 0 62px;">
+        <div style="background: var(--color-surface); border-radius: 56px; padding: 52px clamp(26px, 4vw, 64px);">
+          <span style="display: block; font-size: 13px; line-height: 14px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; color: var(--color-accent-700); margin: 0 0 18px;">Cut on purpose</span>
+          <h2 style="font-family: var(--font-heading); font-size: 33px; line-height: 42px; margin: 0; max-width: 26ch;">What Shopp will not do</h2>
+          <p style="font-size: 15.5px; line-height: 28px; margin: 22px 0 26px; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">Every one of these was considered and rejected. Organising, annotating and rearranging are filing-cabinet behaviours; each would cost more than it returns.</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 9px;">
+            <sc-for list="{{ cutItems }}" as="c" hint-placeholder-count="16">
+              <span style="font-size: 13.5px; padding: 7px 15px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent); color: color-mix(in srgb, var(--color-text) 62%, transparent); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--color-accent) 70%, transparent); text-decoration-thickness: 1.5px;">{{ c }}</span>
+            </sc-for>
+          </div>
+          <p style="font-size: 13.5px; line-height: 24px; margin: 28px 0 0; color: color-mix(in srgb, var(--color-text) 70%, transparent);">The reasoning for each is written down in the <a class="q" href="Shopp%20Docs.dc.html">documentation</a>, so it does not quietly come back.</p>
+        </div>
+      </section>
+    </sc-if>
+
+    <section style="padding: 0 0 62px;">
+      <blockquote style="font-family: var(--font-heading); font-size: clamp(25px, 2.7vw, 34px); line-height: 42px; max-width: 32ch; margin: 0; text-indent: -0.559em;">“I stopped keeping a list in Notes because I kept tidying it. There is nothing here to tidy.”</blockquote>
+      <p style="font-size: 15.5px; line-height: 28px; margin: 34px 0 0; text-indent: -1.347em; color: color-mix(in srgb, var(--color-text) 70%, transparent);">— From the first round of testing</p>
+    </section>
+
+    <section id="get" style="padding: 0 0 56px;">
+      <div style="background: var(--color-accent-2-100); border-radius: 56px; padding: 52px clamp(26px, 4vw, 64px);">
+        <h3 style="font-family: var(--font-heading); font-size: 27px; line-height: 30px; margin: 0;">Shopp 1.0 — Android, iOS and the web</h3>
+        <p style="font-size: 15.5px; line-height: 28px; margin: 20px 0 0; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">Local-first and fully functional signed out. Accounts and sync arrive in 2.0, and are opt-in when they do.</p>
+        <div style="display: flex; gap: 12px; align-items: stretch; max-width: 480px; margin-top: 28px; flex-wrap: wrap;">
+          <input class="input" type="email" placeholder="you@example.com" aria-label="Email address" style="flex: 1; min-width: 200px; min-height: 42px;" />
+          <a class="btn btn-primary" href="#get" style="text-decoration: none; min-height: 42px; padding-inline: 22px;">Send me the link</a>
+        </div>
+      </div>
+    </section>
+
+    <footer style="display: flex; flex-wrap: wrap; gap: 22px; align-items: baseline; padding: 0 0 56px; font-size: 13px; line-height: 28px; color: color-mix(in srgb, var(--color-text) 70%, transparent);">
+      <span style="font-family: var(--font-heading); font-size: 17px; color: var(--color-text);">Shopp</span>
+      <a class="q" href="Shopp%20Docs.dc.html">Documentation</a>
+      <a class="q" href="#cut">What it won't do</a>
+      <span style="margin-left: auto;">v1.0 · MVP scope frozen</span>
+    </footer>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;heroVariant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;slab&quot;,&quot;belt&quot;,&quot;seeds&quot;],&quot;default&quot;:&quot;slab&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;statsShape&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;seeds&quot;,&quot;row&quot;],&quot;default&quot;:&quot;seeds&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Layout&quot;},&quot;showCutList&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+const CUT = ['Quantities as data','Recipes','Meal planning','Price tracking','Barcode scanning','Sharing','Reminders','Location triggers','Search','Manual reordering','Nested lists','Attachments','Item photos','Drag and drop','Multi-select','Custom label colours','Notes per item','Comma splitting'];
+const BELT = ['milk','AA batteries','carrots','tomatoes','onions','olive oil, 2L tin','sourdough','apricots','picture hooks','coffee filters','paper towels','tinned tomatoes'];
+
+class Component extends DCLogic {
+  renderVals() {
+    const hero = this.props.heroVariant ?? 'slab';
+    const stats = this.props.statsShape ?? 'seeds';
+    return {
+      heroSlab: hero === 'slab',
+      heroBelt: hero === 'belt',
+      heroSeeds: hero === 'seeds',
+      seedStats: stats === 'seeds',
+      rowStats: stats === 'row',
+      showCut: this.props.showCutList ?? true,
+      cutItems: CUT,
+      beltItems: BELT.concat(BELT)
+    };
+  }
+}
+
+</script>
+</body>
+</html>

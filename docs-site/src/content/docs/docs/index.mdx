@@ -1,0 +1,35 @@
+---
+title: How Shopp behaves
+description: Every screen, gesture, and rule in Shopp 1.0 for Android.
+---
+
+import { Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Android · version 1.0" variant="note" /> <Badge text="MVP scope frozen" variant="tip" />
+
+Shopp is a fast, native Android shopping list app. This section documents every screen, gesture, and rule in the current build. Where the wording is ambiguous, the product's tiebreaker is the same one written into the [PRD](https://github.com/rrajath/shopp/blob/main/internal-docs/shopping-list-prd.md):
+
+> A shopping list is a conveyor belt, not a filing cabinet.
+
+Items have a lifespan measured in hours or days. They're created in a burst, consumed in a burst, and destroyed. Shopp earns exactly two capabilities: put things on fast, take things off fast.
+
+Three screens, two entities, no configuration required. The app is fully functional the moment it's installed and stays fully functional with no account, no sign-in, and no network connection — it's entirely local-first, reading and writing a database on the device itself.
+
+<CardGrid>
+	<Card title="The list" icon="list-format">
+		Grouped by label, Inbox pinned first. [Read more →](/docs/list/)
+	</Card>
+	<Card title="Quick Add" icon="add-document">
+		The most important surface in the app. [Read more →](/docs/quick-add/)
+	</Card>
+	<Card title="Labels" icon="pencil">
+		Created only by typing `@name`. [Read more →](/docs/labels/)
+	</Card>
+	<Card title="Capture anywhere" icon="rocket">
+		Add an item without unlocking your phone. [Read more →](/docs/capture/)
+	</Card>
+</CardGrid>
+
+## Source of truth
+
+This documentation is generated from the shipped Android app (`app/src/main/java/com/rrajath/shopp/`), cross-checked against the [product requirements](https://github.com/rrajath/shopp/blob/main/internal-docs/shopping-list-prd.md) and [technical design](https://github.com/rrajath/shopp/blob/main/internal-docs/shopping-list-tdd.md) documents. Those two documents describe an original cross-platform (Android + iOS + web) plan; the app that actually shipped is **pure native Android**, one Kotlin/Compose codebase with no other platform surface. Wherever the original documents and the shipped app disagree, this documentation follows the app — see the [architecture notes](https://github.com/rrajath/shopp/blob/main/docs/ARCHITECTURE.md) in the repository for why that substitution was made and what it simplified.

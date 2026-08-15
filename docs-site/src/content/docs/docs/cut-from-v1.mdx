@@ -1,0 +1,18 @@
+---
+title: Cut from v1, and why
+description: Recorded so these don't quietly return during implementation.
+---
+
+Every one of these was considered and rejected. Organizing, annotating, and rearranging are filing-cabinet behaviors; each would have cost more than it returned. Recorded here so they don't quietly come back.
+
+| Cut | Rationale |
+|---|---|
+| **Notes field per item** | Quantity, brand, and links all fit in the free-text title. A second field forces expand/collapse state, taller rows, and a second edit mode — it breaks the one-line row that defines the look. |
+| **Drag and drop between sections** | Expensive to build correctly on top of sticky headers, collides with long-press, and solves a weekly four-second problem already solved by editing the `@token`. |
+| **Long-press multi-select** | Duplicates the job of drag-and-drop. Bulk complete is already cheap — five taps beats long-press, then a menu, then finding the action. |
+| **Cycling label button** | O(n) taps. Fine at three labels, a slot machine at eight. The chip row is O(1) in the same pixel budget. |
+| **Comma splitting** | Genuinely ambiguous — `carrots, 2lb organic bag`. Newline-only needs no preview UI and no explanation. |
+| **Daily purge job** | Unreliable to run reliably in the background on Android. Trimming opportunistically on write (see [Recently Completed](/docs/recently-completed/)) is sufficient and needs no scheduler. |
+| **Custom label colors** *(revisited)* | Originally cut as "an override for a system that already works." Later reintroduced as an explicit picker on the label edit sheet — see [Labels](/docs/labels/) — once it was clear people wanted to pick a specific color, not just get a consistent one. |
+| **Three-day expiry** | Shorter than the weekly grocery cycle, so it would routinely show an empty screen. Replaced by the 100-item cap. |
+| **iOS and web** | The original [technical design](https://github.com/rrajath/shopp/blob/main/internal-docs/shopping-list-tdd.md) planned a React Native + web build with native "capture kernels." The shipped app is native Android only — see the [architecture notes](https://github.com/rrajath/shopp/blob/main/docs/ARCHITECTURE.md) for why building the whole app natively removed more risk than it added. |

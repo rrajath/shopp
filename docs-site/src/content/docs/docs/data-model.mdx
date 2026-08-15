@@ -1,0 +1,35 @@
+---
+title: Data model
+description: Two entities. UUID keys and updated_at on every row, soft deletes everywhere.
+---
+
+Two entities, stored in a local Room (SQLite) database on the device — there's no server and no network call anywhere in the app. Client-generated UUID keys and `updated_at` on every row, and soft deletes everywhere: all three are cheap now and expensive to retrofit later, so they're there from the first migration.
+
+### `items`
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | UUID | Client-generated, UUIDv7 so paste order is preserved even when several items share a millisecond |
+| `title` | text | The entire user-visible content of the item |
+| `label_id` | UUID? | Nullable — null means Inbox |
+| `state` | enum | `active` \| `completed` |
+| `created_at` | timestamp | Also the sort key within a section |
+| `updated_at` | timestamp | Bumped on any field change |
+| `completed_at` | timestamp? | Set when the item is completed |
+| `deleted_at` | timestamp? | Tombstone — see below |
+
+### `labels`
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | UUID | Client-generated, UUIDv7 |
+| `name` | text | Without the `@`, case-insensitive unique |
+| `color_index` | int | Index into the fixed palette |
+| `created_at` | timestamp | |
+| `updated_at` | timestamp | |
+| `last_used_at` | timestamp | Bumped when an item is created with or moved to this label — drives section order in the [list](/docs/list/) |
+| `deleted_at` | timestamp? | Tombstone |
+
+### Why soft deletes
+
+Every delete in the app — including the [100-item trim](/docs/recently-completed/) on Recently Completed — sets `deleted_at` rather than removing the row. Reads filter `deleted_at IS NULL` everywhere. Nothing in the current app depends on this (there's no sync or multi-device story yet), but it's the one structural decision that would be genuinely expensive to add after the fact if that ever changes, so it shipped in version 1.0 rather than being deferred.

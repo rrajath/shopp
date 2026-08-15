@@ -21,3 +21,4 @@ PROGRESS.md
 # Release signing (never commit)
 /keystore.properties
 /app/keystore/
+internal-docs

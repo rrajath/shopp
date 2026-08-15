@@ -1,0 +1,152 @@
+/*
+ * Design tokens transcribed 1:1 from docs/DESIGN_SYSTEM.md (the app's real
+ * theme: app/src/main/java/com/rrajath/shopp/ui/theme/Color.kt), not the
+ * unrecoverable prototype stylesheet. Light = white + red accent, dark =
+ * charcoal + yellow accent. Keep this file in sync if the app's palette
+ * changes.
+ */
+
+@font-face {
+  font-family: 'Newsreader';
+  src: url('/fonts/newsreader-variable.ttf') format('truetype-variations');
+  font-weight: 300 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --shopp-font-heading: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --shopp-font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Light theme (default) */
+  --shopp-bg: #ffffff;
+  --shopp-fg: #1e1e1e;
+  --shopp-muted: #767676;
+  --shopp-line: #e4e4e4;
+  --shopp-surface: #f7f7f7;
+  --shopp-accent: #e53935;
+  --shopp-accent-strong: #c62828;
+  --shopp-on-accent: #ffffff;
+  --shopp-accent-tint: #fdecea;
+  --shopp-accent-2-tint: #fff4d6;
+  --shopp-accent-2: #a67c1e;
+  --shopp-chip-border: #dddddd;
+  --shopp-shadow: rgba(30, 30, 30, 0.14);
+}
+
+:root[data-theme='dark'] {
+  --shopp-bg: #212121;
+  --shopp-fg: #f2f2f2;
+  --shopp-muted: #a0a0a0;
+  --shopp-line: #3a3a3a;
+  --shopp-surface: #2a2a2a;
+  --shopp-accent: #ffd400;
+  --shopp-accent-strong: #ffe066;
+  --shopp-on-accent: #212121;
+  --shopp-accent-tint: #3a341a;
+  --shopp-accent-2-tint: #34302a;
+  --shopp-accent-2: #d9ac4e;
+  --shopp-chip-border: #4a4a4a;
+  --shopp-shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* Starlight theme variable overrides so the docs section matches the app */
+:root {
+  --sl-font: var(--shopp-font-body);
+  --sl-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --sl-color-accent-low: #fdecea;
+  --sl-color-accent: #e53935;
+  --sl-color-accent-high: #c62828;
+  --sl-color-white: #1e1e1e;
+  --sl-color-gray-1: #f7f7f7;
+  --sl-color-gray-2: #e4e4e4;
+  --sl-color-gray-3: #c4c4c4;
+  --sl-color-gray-4: #767676;
+  --sl-color-gray-5: #4a4a4a;
+  --sl-color-gray-6: #2a2a2a;
+  --sl-color-black: #ffffff;
+}
+
+:root[data-theme='dark'] {
+  --sl-color-accent-low: #3a341a;
+  --sl-color-accent: #ffd400;
+  --sl-color-accent-high: #ffe066;
+  --sl-color-white: #f2f2f2;
+  --sl-color-gray-1: #f2f2f2;
+  --sl-color-gray-2: #3a3a3a;
+  --sl-color-gray-3: #4a4a4a;
+  --sl-color-gray-4: #a0a0a0;
+  --sl-color-gray-5: #2a2a2a;
+  --sl-color-gray-6: #212121;
+  --sl-color-gray-7: #1a1a1a;
+  --sl-color-black: #212121;
+}
+
+:root[data-theme='dark'] h1,
+:root[data-theme='dark'] .site-title,
+:root[data-theme='dark'] [data-theme='dark'] a[aria-current='page'] {
+  color: var(--sl-color-white);
+}
+
+h1,
+h2,
+h3,
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3 {
+  font-family: var(--shopp-font-heading);
+  letter-spacing: -0.01em;
+}
+
+/* Shared building blocks used by the custom landing page (src/pages/index.astro) */
+
+.screenshot {
+  margin: 0;
+  display: inline-block;
+}
+
+.screenshot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.screenshot.light-only img,
+img.light-only {
+  display: block;
+}
+.screenshot.dark-only img,
+img.dark-only {
+  display: none;
+}
+:root[data-theme='dark'] .screenshot.light-only img,
+:root[data-theme='dark'] img.light-only {
+  display: none;
+}
+:root[data-theme='dark'] .screenshot.dark-only img,
+:root[data-theme='dark'] img.dark-only {
+  display: block;
+}
+
+.phone-frame {
+  position: relative;
+  width: min(300px, 78vw);
+  border-radius: 34px;
+  padding: 10px;
+  background: var(--shopp-fg);
+  box-shadow: 0 30px 60px -20px var(--shopp-shadow), 0 8px 20px -8px var(--shopp-shadow);
+}
+
+.phone-frame .screenshot-inner {
+  border-radius: 25px;
+  overflow: hidden;
+  background: var(--shopp-bg);
+  aspect-ratio: 340 / 700;
+}
+
+.phone-frame .screenshot-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}

@@ -1,0 +1,27 @@
+---
+title: Labels by typing
+description: Labels exist because you typed @something. There is no create-label button.
+---
+
+import ThemedScreenshot from '../../../components/ThemedScreenshot.astro';
+
+<ThemedScreenshot name="autocomplete" alt="Quick Add with @ typed, showing the label autocomplete dropdown" caption="Typing @co filters existing labels live; an unmatched token would create one." />
+
+Labels are only ever created implicitly, by typing an `@token` that doesn't already exist. **There is no "create label" button anywhere in the app**, including Settings — see [Quick Add](/docs/quick-add/) for the exact matching and extraction rules.
+
+Reached from the hamburger drawer, the Labels screen lists every label that exists — including ones with no active items right now — and lets you rename, edit its color, merge it into another label, or delete it via a long-press sheet.
+
+## Color
+
+A fixed palette ships with the app. A new label takes the lowest-index color not currently held by a live label; once the palette is exhausted, it cycles. Color shows up as a small dot or a section header tint — a scanning aid, not decoration. You can also open a label's edit sheet and pick its color explicitly from the same palette, if the auto-allocated one isn't the one you want.
+
+## Managing a label
+
+| Operation | Behavior |
+|---|---|
+| **Rename** | Updates the label everywhere. No items move. |
+| **Edit color** | Applies immediately from the fixed palette; no separate save step. |
+| **Merge** | Reassigns every item from a source label to a target label, then removes the source. See [Merging a mistyped label](/docs/merging-labels/). |
+| **Delete** | The label is removed; its items are **never** deleted with it — they move to Inbox instead. Confirmed first. |
+
+Reorder isn't offered anywhere in the app — section order in the list is always derived from which label you used most recently, not a manual sequence.

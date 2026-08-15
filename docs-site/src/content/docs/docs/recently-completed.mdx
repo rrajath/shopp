@@ -1,0 +1,16 @@
+---
+title: Recently Completed
+description: A short-term, reverse-chronological log of what you've checked off — not a permanent archive.
+---
+
+import ThemedScreenshot from '../../../components/ThemedScreenshot.astro';
+
+<ThemedScreenshot name="recently-completed" alt="The Recently Completed screen listing recently checked-off items" caption="Recently Completed — reverse-chronological, tap any entry to add it straight back to the list." />
+
+Reached from the hamburger drawer: a reverse-chronological list of completed items, grouped under two headers — **Today** and **Earlier** — each internally newest-first. No filtering, no search — this screen is a short-term buffer, not an archive.
+
+**Retention is a count cap, not a time window.** The most recent 100 completed items are kept; older entries are trimmed opportunistically whenever an item is completed, not on a schedule. A cap was chosen over a time-based expiry because grocery cycles run weekly — a short time window would routinely show an empty screen — and a count cap never surprises you with content disappearing mid-look.
+
+**Tapping an entry re-adds it** to the active list with its original label, appended to the end — the screen's real job is a one-tap re-add for anything you buy on a recurring basis. The entry stays in Recently Completed after you do this.
+
+If **Confirm before clearing** is on in [Settings](/docs/settings/), a Clear action on this screen asks before emptying it; otherwise it clears immediately. There's no permanent history beyond what's shown here.

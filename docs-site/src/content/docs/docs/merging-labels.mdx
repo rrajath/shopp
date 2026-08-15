@@ -1,0 +1,21 @@
+---
+title: Merging a mistyped label
+description: The real failure mode is @costco and @costo.
+---
+
+import ThemedScreenshot from '../../../components/ThemedScreenshot.astro';
+
+<ThemedScreenshot name="merge" alt="The label edit sheet with a merge target picker open" caption="Merge picks a target label; the source label is removed, its items are not." />
+
+Because labels are created implicitly by typing, the real failure mode isn't a bad label — it's two labels for the same store: `@costco` and `@costo`. Merge exists specifically for this.
+
+Long-press a label on the [Labels screen](/docs/labels/) and choose Merge. Pick a target from the remaining labels; every item on the source label is reassigned to the target, and the source label is then removed — **items are never deleted along with a label.**
+
+A merge is recorded as *reassignment, then removal* rather than as a rename. That distinction doesn't change anything about how it behaves today, but it's the shape that keeps two clients from disagreeing about history if this app ever syncs across devices.
+
+| | |
+|---|---|
+| **Source** | The label being merged away. Removed once its items are reassigned. |
+| **Target** | Chosen from the remaining labels. |
+| **Items** | All reassigned to the target. None deleted. |
+| **After** | The source disappears from autocomplete and from the Labels screen. |
