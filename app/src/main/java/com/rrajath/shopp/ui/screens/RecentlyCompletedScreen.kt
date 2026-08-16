@@ -85,7 +85,7 @@ fun RecentlyCompletedScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .navigationBarsPadding()
-                    .padding(horizontal = ShoppDimens.toastSideMargin, vertical = ShoppDimens.toastSideMargin),
+                    .padding(bottom = ShoppDimens.toastBottomOffsetNoFab),
             )
         }
     }
@@ -111,7 +111,7 @@ private fun CompletedRow(item: ItemEntity, labels: List<LabelEntity>, onReadd: (
                 imageVector = Icons.Filled.Check,
                 contentDescription = null,
                 tint = colors.background,
-                modifier = Modifier.size(10.dp),
+                modifier = Modifier.size(12.dp),
             )
         }
         Text(

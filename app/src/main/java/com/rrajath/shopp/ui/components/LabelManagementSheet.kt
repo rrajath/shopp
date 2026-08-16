@@ -53,7 +53,6 @@ fun LabelManagementSheet(
     allLabels: List<LabelEntity>,
     onDismiss: () -> Unit,
     onRename: (String, (RenameLabel.Result) -> Unit) -> Unit,
-    onColorChange: (Int) -> Unit,
     onMerge: (targetLabelId: String) -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
@@ -120,14 +119,6 @@ fun LabelManagementSheet(
                     if (nameTaken) {
                         Text(text = "That name is already used", style = ShoppType.toggleHint.copy(color = colors.accent))
                     }
-                    Box(Modifier.size(1.dp, ShoppDimens.chipRowPaddingTop))
-                    Text(text = "Color", style = ShoppType.toggleName.copy(color = colors.muted))
-                    Box(Modifier.size(1.dp, ShoppDimens.labelColorGridPaddingTop))
-                    ColorSwatchGrid(
-                        palette = colors.labelPalette,
-                        selectedIndex = label.colorIndex,
-                        onSelect = onColorChange,
-                    )
                     SheetActions(
                         confirmLabel = "Save",
                         onCancel = { mode = SheetMode.MENU },
@@ -140,25 +131,30 @@ fun LabelManagementSheet(
                 }
 
                 SheetMode.MERGE -> {
+                    var mergeTarget by remember(label.id) { mutableStateOf<String?>(null) }
                     Text(
                         text = "Merge \"${label.name}\" into:",
                         style = ShoppType.toggleName.copy(color = colors.foreground),
                     )
                     allLabels.filter { it.id != label.id }.forEach { target ->
-                        val color = colors.labelPalette[target.colorIndex % colors.labelPalette.size]
+                        val selected = mergeTarget == target.id
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onMerge(target.id) }
-                                .padding(vertical = ShoppDimens.labelRowPaddingVertical),
+                                .clickable { mergeTarget = target.id }
+                                .padding(vertical = ShoppDimens.mergeTargetRowPaddingVertical),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(ShoppDimens.labelRowGap),
+                            horizontalArrangement = Arrangement.spacedBy(ShoppDimens.mergeTargetRowGap),
                         ) {
-                            Box(Modifier.size(ShoppDimens.labelDotSize).background(color, CircleShape))
-                            Text(text = target.name, style = ShoppType.labelName.copy(color = colors.foreground))
+                            MergeRadio(selected = selected)
+                            Text(text = target.name, style = ShoppType.mergeTargetLabel.copy(color = colors.foreground))
                         }
                     }
-                    SheetActions(confirmLabel = null, onCancel = { mode = SheetMode.MENU }, onConfirm = {})
+                    SheetActions(
+                        confirmLabel = "Merge",
+                        onCancel = { mode = SheetMode.MENU },
+                        onConfirm = { mergeTarget?.let(onMerge) },
+                    )
                 }
 
                 SheetMode.DELETE -> {
@@ -174,36 +170,31 @@ fun LabelManagementSheet(
     }
 }
 
+// Radio circle for the merge target picker: outline when unselected,
+// accent-filled with an inset ring (punched-out center in the sheet's own
+// background) when selected -- matches internal-docs/website/
+// ShoppApp.dc.html's merge dialog exactly (`box-shadow: inset 0 0 0 4px
+// var(--color-surface)` there, done here with a nested inner circle).
 @Composable
-private fun ColorSwatchGrid(palette: List<androidx.compose.ui.graphics.Color>, selectedIndex: Int, onSelect: (Int) -> Unit) {
+private fun MergeRadio(selected: Boolean) {
     val colors = ShoppTheme.colors
-    Column(verticalArrangement = Arrangement.spacedBy(ShoppDimens.labelColorSwatchGap)) {
-        palette.chunked(5).forEachIndexed { rowIndex, rowColors ->
-            Row(horizontalArrangement = Arrangement.spacedBy(ShoppDimens.labelColorSwatchGap)) {
-                rowColors.forEachIndexed { columnIndex, swatchColor ->
-                    val index = rowIndex * 5 + columnIndex
-                    val selected = index == selectedIndex
-                    Box(
-                        modifier = Modifier
-                            .size(ShoppDimens.labelColorSwatchSize)
-                            .clip(CircleShape)
-                            .background(swatchColor)
-                            .then(
-                                if (selected) {
-                                    Modifier.border(
-                                        ShoppDimens.labelColorSwatchSelectedBorderWidth,
-                                        colors.foreground,
-                                        CircleShape,
-                                    )
-                                } else {
-                                    Modifier
-                                },
-                            )
-                            .clickable { onSelect(index) },
-                    )
-                }
-            }
+    if (selected) {
+        Box(
+            modifier = Modifier.size(ShoppDimens.mergeRadioSize).background(colors.accent, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(ShoppDimens.mergeRadioSize - ShoppDimens.mergeRadioInsetRingWidth * 2)
+                    .background(colors.sheet, CircleShape),
+            )
         }
+    } else {
+        Box(
+            modifier = Modifier
+                .size(ShoppDimens.mergeRadioSize)
+                .border(ShoppDimens.mergeRadioBorderWidth, colors.line, CircleShape),
+        )
     }
 }
 
@@ -220,6 +211,10 @@ private fun ManagementRow(name: String, emphasize: Boolean = false, onClick: () 
     )
 }
 
+// Cancel/Merge in ShoppApp.dc.html's merge dialog use `font-family:
+// var(--font-heading)` (Caprasimo), like the shared `.btn` class -- not the
+// body font, hence the dedicated dialogActionLabel style rather than
+// settingsButtonLabel (which is Figtree, for the Theme segmented control).
 @Composable
 private fun SheetActions(confirmLabel: String?, onCancel: () -> Unit, onConfirm: () -> Unit) {
     val colors = ShoppTheme.colors
@@ -229,13 +224,13 @@ private fun SheetActions(confirmLabel: String?, onCancel: () -> Unit, onConfirm:
     ) {
         Text(
             text = "Cancel",
-            style = ShoppType.settingsButtonLabel.copy(color = colors.muted),
+            style = ShoppType.dialogActionLabel.copy(color = colors.muted),
             modifier = Modifier.clickable(onClick = onCancel),
         )
         if (confirmLabel != null) {
             Text(
                 text = confirmLabel,
-                style = ShoppType.settingsButtonLabel.copy(color = colors.accent),
+                style = ShoppType.dialogActionLabel.copy(color = colors.accent),
                 modifier = Modifier.clickable(onClick = onConfirm),
             )
         }

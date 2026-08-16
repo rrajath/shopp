@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rrajath.shopp.ui.theme.ShoppDimens
 import com.rrajath.shopp.ui.theme.ShoppTheme
@@ -52,16 +53,13 @@ fun SettingsScreen(
             .verticalScroll(rememberScrollState()),
     ) {
         SectionLabel(text = "Appearance", topPadding = ShoppDimens.settingsSectionLabelPaddingTop)
-        Row(
+        ThemeSegmentedControl(
+            themeMode = themeMode,
+            onThemeModeChange = onThemeModeChange,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = ShoppDimens.labelsTitlePaddingHorizontal),
-            horizontalArrangement = Arrangement.spacedBy(ShoppDimens.settingsButtonGap),
-        ) {
-            ThemeButton("System", themeMode == ThemeMode.SYSTEM, Modifier.weight(1f)) { onThemeModeChange(ThemeMode.SYSTEM) }
-            ThemeButton("Light", themeMode == ThemeMode.LIGHT, Modifier.weight(1f)) { onThemeModeChange(ThemeMode.LIGHT) }
-            ThemeButton("Dark", themeMode == ThemeMode.DARK, Modifier.weight(1f)) { onThemeModeChange(ThemeMode.DARK) }
-        }
+        )
 
         SectionLabel(text = "Behaviour", topPadding = ShoppDimens.settingsSectionLabelPaddingTopSecond)
         ToggleRow(
@@ -107,25 +105,47 @@ private fun SectionLabel(text: String, topPadding: androidx.compose.ui.unit.Dp) 
     )
 }
 
+// Single pill-shaped segmented control (one outer border, no gaps between
+// segments) per internal-docs/website/ShoppApp.dc.html's Settings screen --
+// was 3 separate bordered buttons.
 @Composable
-private fun ThemeButton(label: String, selected: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun ThemeSegmentedControl(
+    themeMode: ThemeMode,
+    onThemeModeChange: (ThemeMode) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = ShoppTheme.colors
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(ShoppDimens.themeSegmentContainerCornerRadius))
+            .border(
+                width = 1.dp,
+                color = colors.line,
+                shape = RoundedCornerShape(ShoppDimens.themeSegmentContainerCornerRadius),
+            ),
+    ) {
+        ThemeSegment("System", themeMode == ThemeMode.SYSTEM, Modifier.weight(1f)) { onThemeModeChange(ThemeMode.SYSTEM) }
+        ThemeSegment("Light", themeMode == ThemeMode.LIGHT, Modifier.weight(1f)) { onThemeModeChange(ThemeMode.LIGHT) }
+        ThemeSegment("Dark", themeMode == ThemeMode.DARK, Modifier.weight(1f)) { onThemeModeChange(ThemeMode.DARK) }
+    }
+}
+
+@Composable
+private fun ThemeSegment(label: String, selected: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val colors = ShoppTheme.colors
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(ShoppDimens.settingsButtonCornerRadius))
             .background(if (selected) colors.accent else Color.Transparent)
-            .border(
-                width = if (selected) 0.dp else 1.dp,
-                color = if (selected) Color.Transparent else colors.chipBorder,
-                shape = RoundedCornerShape(ShoppDimens.settingsButtonCornerRadius),
-            )
             .clickable(onClick = onClick)
-            .padding(vertical = ShoppDimens.settingsButtonPaddingVertical),
+            .padding(vertical = ShoppDimens.themeSegmentPaddingVertical),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = label,
-            style = ShoppType.settingsButtonLabel.copy(color = if (selected) colors.onAccent else colors.muted),
+            style = ShoppType.settingsButtonLabel.copy(
+                color = if (selected) colors.onAccent else colors.muted,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+            ),
         )
     }
 }

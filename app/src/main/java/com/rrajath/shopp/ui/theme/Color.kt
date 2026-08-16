@@ -3,126 +3,127 @@ package com.rrajath.shopp.ui.theme
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
-// August 2026 rebrand: dark mode is charcoal + bright yellow, light mode is
-// white + red. These values are the source of truth going forward (they
-// intentionally diverge from the original internal-docs/design/Shopp
-// Prototype.dc.html palette) — see docs/DESIGN_SYSTEM.md. Do not invent new
-// colors; add a token there first.
+// August 2026: literal transcription of the Organic design system shipped in
+// internal-docs/website/design_handoff_shopp_site/design/_ds/organic-*/
+// styles.css (tokens) and ShoppApp.dc.html (component usage), which now
+// includes the light-mode stylesheet that earlier sessions couldn't find --
+// see docs/DESIGN_SYSTEM.md. Both themes below are now literal, not
+// reconstructed. Do not invent new colors; add a token there first.
 @Immutable
 data class ShoppColors(
+    // The phone frame's own background in ShoppApp.dc.html is
+    // var(--color-neutral-100), not var(--color-bg) -- there's no "page
+    // behind the phone" in the real app, so the frame's background *is* the
+    // app's background.
     val background: Color,
     val foreground: Color,
+    // Not one single literal token -- the mockup uses several different
+    // color-mix(text, N%) opacities contextually (45/50/62/70%). Anchored
+    // instead on Organic's own general-purpose `.text-muted` /
+    // `figcaption` utility: color-mix(text, 55%, transparent).
     val muted: Color,
+    // var(--color-divider): color-mix(text, 16%/18%, transparent).
     val line: Color,
+    // List row checkbox border, literal: color-mix(text, 28%, transparent).
     val checkboxBorder: Color,
     val doneCheckboxFill: Color,
+    // Quick Add card / suggestions popovers: var(--color-neutral-100),
+    // identical to `background` -- elevation reads via shadow only, not a
+    // lighter/darker fill (see ShoppApp.dc.html). The Merge dialog's own
+    // card literally uses var(--color-surface) instead; LabelManagementSheet
+    // reuses this token for that case too (already a documented deviation --
+    // it stays a bottom sheet, not the prototype's centered modal card).
     val sheet: Color,
     val menu: Color,
-    val chipBorder: Color,
+    // Fill (not a stroke) for an unselected label chip -- var(--color-neutral-200).
+    val chipUnselectedFill: Color,
+    // Text on an unselected chip -- var(--color-neutral-800), not `foreground`.
+    val chipUnselectedText: Color,
+    // Quick Add / Drawer scrim: color-mix(neutral-900, 32%, transparent).
+    // The Merge dialog's own scrim is literally 46%; LabelManagementSheet
+    // reuses this 32% value for both of its scrims rather than adding a
+    // second token for one sub-mode.
     val scrim: Color,
     val toastBackground: Color,
     val toastForeground: Color,
     val toastAction: Color,
+    // var(--color-accent) itself (the base token, not an -N00 ramp rung).
     val accent: Color,
+    // var(--color-bg) -- the text/icon color drawn on an accent-filled
+    // surface (FAB, selected chip, selected segment, dialog primary button).
+    // Distinct from `background`, which is var(--color-neutral-100).
     val onAccent: Color,
     val chipSelectedText: Color,
-    // Text color for content drawn on a `foreground`-colored surface (e.g.
-    // the Inbox chip's selected fill, which is `foreground` itself) --
-    // `chipSelectedText` alone isn't safe there since it's light in dark
-    // mode, same as `foreground` is light in dark mode.
-    val onForeground: Color,
     val press: Color,
     val shadow: Color,
-    // color(null) in the prototype: the Inbox section header / unlabelled tint.
+    // The prototype's `color(null)` for the Inbox section: a literal
+    // hardcoded hex in its script (not a CSS var), identical in both themes.
     val inboxTint: Color,
     val labelPalette: List<Color>,
 )
 
-// August 2026: expanded from 6 to 15 (user request, for the Labels "Edit"
-// color picker) -- muted/pleasant rather than bright, index-parallel across
-// light/dark like the original 6 (same hue family per index, light mode
-// deepened for contrast on white, dark mode lightened for contrast on
-// charcoal). See docs/DESIGN_SYSTEM.md.
-private val LightLabelPalette = listOf(
-    Color(0xFFB15D66), // dusty rose
-    Color(0xFFB35A38), // terracotta
-    Color(0xFFA67C1E), // mustard
-    Color(0xFF6E7A3D), // olive
-    Color(0xFF4C7A4A), // sage
-    Color(0xFF3D8A75), // seafoam
-    Color(0xFF2E7A78), // teal
-    Color(0xFF3E689A), // steel blue
-    Color(0xFF5259AD), // periwinkle
-    Color(0xFF7455A0), // lavender
-    Color(0xFF8C4F80), // mauve
-    Color(0xFFB36A46), // dusty peach
-    Color(0xFF556072), // slate
-    Color(0xFF71624F), // warm gray
-    Color(0xFF99503B), // clay
+// Flat 10-color palette, literal PALETTE constant from ShoppApp.dc.html,
+// used identically in both themes. Auto-allocated only -- see
+// LabelColorAllocator -- no user-facing picker.
+private val LabelPalette = listOf(
+    Color(0xFFC67139), // burnt orange
+    Color(0xFF7A8A5E), // olive
+    Color(0xFFB2622D), // terracotta
+    Color(0xFF8FA073), // sage
+    Color(0xFFD67F48), // light orange
+    Color(0xFF728157), // deep olive
+    Color(0xFFF6A06B), // peach
+    Color(0xFFAEBF92), // light sage
+    Color(0xFF8C491A), // dark brown
+    Color(0xFF56633F), // dark olive
 )
 
-private val DarkLabelPalette = listOf(
-    Color(0xFFD98D96), // dusty rose
-    Color(0xFFE0916A), // terracotta
-    Color(0xFFD9AC4E), // mustard
-    Color(0xFFA8B571), // olive
-    Color(0xFF8FBF86), // sage
-    Color(0xFF7FD1B9), // seafoam
-    Color(0xFF6FBDBA), // teal
-    Color(0xFF7FAAD6), // steel blue
-    Color(0xFF9BA3E8), // periwinkle
-    Color(0xFFB99CDB), // lavender
-    Color(0xFFCB9AC0), // mauve
-    Color(0xFFE3AE8B), // dusty peach
-    Color(0xFF9FADC2), // slate
-    Color(0xFFBBA98E), // warm gray
-    Color(0xFFD68F73), // clay
-)
-
+// Literal, from organic-*/styles.css's :root block.
 val ShoppLightColors = ShoppColors(
-    background = Color(0xFFFFFFFF),
-    foreground = Color(0xFF1E1E1E),
-    muted = Color(0xFF767676),
-    line = Color(0xFFE4E4E4),
-    checkboxBorder = Color(0xFFC4C4C4),
-    doneCheckboxFill = Color(0xFFD8D8D8),
-    sheet = Color(0xFFFFFFFF),
-    menu = Color(0xFFFFFFFF),
-    chipBorder = Color(0xFFDDDDDD),
-    scrim = Color(0x6B1E1E1E), // rgba(30,30,30,.42)
-    toastBackground = Color(0xFF1E1E1E),
-    toastForeground = Color(0xFFFFFFFF),
-    toastAction = Color(0xFFFFD400), // dark theme's accent, for contrast on the dark toast surface
-    accent = Color(0xFFE53935),
-    onAccent = Color(0xFFFFFFFF),
-    chipSelectedText = Color(0xFFFFFFFF),
-    onForeground = Color(0xFFFFFFFF),
-    press = Color(0x0A000000), // rgba(0,0,0,.04)
-    shadow = Color(0x2E1E1E1E), // rgba(30,30,30,.18)
-    inboxTint = Color(0xFF1E1E1E),
-    labelPalette = LightLabelPalette,
+    background = Color(0xFFF9F4ED), // --color-neutral-100
+    foreground = Color(0xFF201E1D), // --color-text
+    muted = Color(0x8C201E1D), // --color-text @ 55%
+    line = Color(0x29201E1D), // --color-divider: --color-text @ 16%
+    checkboxBorder = Color(0x47201E1D), // --color-text @ 28%
+    doneCheckboxFill = Color(0xFFCFC8BE), // not depicted by the new prototype -- kept from the old one
+    sheet = Color(0xFFF9F4ED), // --color-neutral-100
+    menu = Color(0xFFF9F4ED),
+    chipUnselectedFill = Color(0xFFEEE7DB), // --color-neutral-200
+    chipUnselectedText = Color(0xFF474238), // --color-neutral-800
+    scrim = Color(0x522E2B25), // --color-neutral-900 @ 32%
+    toastBackground = Color(0xFF2E2B25), // --color-neutral-900
+    toastForeground = Color(0xFFEEE7DB), // --color-neutral-200
+    toastAction = Color(0xFFF6A06B), // --color-accent-400
+    accent = Color(0xFFC67139), // --color-accent
+    onAccent = Color(0xFFF5EAD8), // --color-bg
+    chipSelectedText = Color(0xFFF5EAD8), // --color-bg
+    press = Color(0x0A000000), // rgba(0,0,0,.04) -- not specified by the prototype (no touch states), kept from before
+    shadow = Color(0x382E2B25), // --shadow-lg: --color-neutral-900 @ 22%
+    inboxTint = Color(0xFFC0B6A5), // literal hardcoded '#c0b6a5' in ShoppApp.dc.html's script
+    labelPalette = LabelPalette,
 )
 
+// Literal, from ShoppApp.dc.html's [data-theme="dark"] block.
 val ShoppDarkColors = ShoppColors(
-    background = Color(0xFF0F1723),
-    foreground = Color(0xFFF2F2F2),
-    muted = Color(0xFFA0A0A0),
-    line = Color(0xFF3A3A3A),
-    checkboxBorder = Color(0xFF5C5C5C),
-    doneCheckboxFill = Color(0xFF454545),
-    sheet = Color(0xFF2A2A2A),
-    menu = Color(0xFF2A2A2A),
-    chipBorder = Color(0xFF4A4A4A),
-    scrim = Color(0x99000000), // rgba(0,0,0,.6)
-    toastBackground = Color(0xFFF2F2F2),
-    toastForeground = Color(0xFF212121),
-    toastAction = Color(0xFFE53935), // light theme's accent, for contrast on the light toast surface
-    accent = Color(0xFFE0C069),
-    onAccent = Color(0xFF212121),
-    chipSelectedText = Color(0xFFFFFFFF),
-    onForeground = Color(0xFF212121),
-    press = Color(0x0DFFFFFF), // rgba(255,255,255,.05)
-    shadow = Color(0x99000000), // rgba(0,0,0,.6)
-    inboxTint = Color(0xFFA0A0A0),
-    labelPalette = DarkLabelPalette,
+    background = Color(0xFF2E2B25), // --color-neutral-100 (dark override)
+    foreground = Color(0xFFF2E9DA), // --color-text
+    muted = Color(0x8CF2E9DA), // --color-text @ 55%
+    line = Color(0x2EF2E9DA), // --color-divider: --color-text @ 18%
+    checkboxBorder = Color(0x47F2E9DA), // --color-text @ 28%
+    doneCheckboxFill = Color(0xFF645C50), // not depicted by the new prototype -- kept from the old one
+    sheet = Color(0xFF2E2B25), // --color-neutral-100
+    menu = Color(0xFF2E2B25),
+    chipUnselectedFill = Color(0xFF474238), // --color-neutral-200
+    chipUnselectedText = Color(0xFFEEE7DB), // --color-neutral-800
+    scrim = Color(0x52F9F4ED), // --color-neutral-900 (dark override) @ 32% -- a light veil, not a black dim
+    toastBackground = Color(0xFFF9F4ED), // --color-neutral-900 (toast inverts: light bg in dark mode)
+    toastForeground = Color(0xFF474238), // --color-neutral-200
+    toastAction = Color(0xFFB2622D), // --color-accent-400
+    accent = Color(0xFFF6A06B), // --color-accent
+    onAccent = Color(0xFF211E19), // --color-bg
+    chipSelectedText = Color(0xFF211E19),
+    press = Color(0x0DFFFFFF), // rgba(255,255,255,.05) -- not specified by the prototype, kept from before
+    shadow = Color(0x99000000), // --shadow-lg: rgba(0,0,0,.6)
+    inboxTint = Color(0xFFC0B6A5), // same literal hardcoded hex as light -- the prototype doesn't theme this one
+    labelPalette = LabelPalette,
 )

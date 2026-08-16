@@ -42,23 +42,30 @@ fun HeaderRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = ShoppDimens.headerHorizontalPadding, vertical = ShoppDimens.headerTopPadding),
+            .padding(
+                start = ShoppDimens.headerHorizontalPadding,
+                end = ShoppDimens.headerHorizontalPadding,
+                top = ShoppDimens.headerTopPadding,
+                bottom = ShoppDimens.headerBottomPadding,
+            ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier = Modifier
-                .size(ShoppDimens.headerLeadTrailSize)
+                .size(ShoppDimens.headerLeadTrailSize) // outer tap target
                 .clip(CircleShape)
                 .clickable(onClick = onLeadTap),
             contentAlignment = Alignment.Center,
         ) {
-            if (showBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = colors.foreground)
-            } else {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Box(Modifier.width(20.dp).height(1.5.dp).background(colors.foreground))
-                    Box(Modifier.width(20.dp).height(1.5.dp).background(colors.foreground))
+            Box(modifier = Modifier.size(ShoppDimens.headerIconVisualSize), contentAlignment = Alignment.Center) {
+                if (showBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = colors.foreground)
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Box(Modifier.width(20.dp).height(1.5.dp).background(colors.foreground))
+                        Box(Modifier.width(20.dp).height(1.5.dp).background(colors.foreground))
+                    }
                 }
             }
         }
