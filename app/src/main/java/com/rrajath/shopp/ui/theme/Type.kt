@@ -54,7 +54,7 @@ object ShoppType {
     // no special weight -- regular. Left-aligned, not centered.
     val emptyTitle = TextStyle(
         fontFamily = FigtreeFamily, fontWeight = FontWeight.Normal,
-        fontSize = 16.sp, lineHeight = 21.sp,
+        fontSize = 20.sp, lineHeight = 24.sp,
     )
     // Secondary hint line under the empty state -- not in the prototype
     // (which has only one line); kept smaller and muted.
@@ -69,14 +69,16 @@ object ShoppType {
         fontSize = 26.sp, lineHeight = 26.sp, letterSpacing = 0.02.em(26.sp),
     )
 
-    // List row title: `font-size: 16px; line-height: 1.35`, no weight set -- regular.
+    // List row title: prototype is `font-size: 16px; line-height: 1.35`,
+    // bumped +2sp (August 2026, user request) to 18sp, keeping the same 1.35
+    // line-height ratio.
     val itemText = TextStyle(
         fontFamily = FigtreeFamily, fontWeight = FontWeight.Normal,
-        fontSize = 16.sp, lineHeight = 21.6.sp,
+        fontSize = 18.sp, lineHeight = 24.3.sp,
     )
     val itemTextDone = TextStyle(
         fontFamily = FigtreeFamily, fontWeight = FontWeight.Normal,
-        fontSize = 16.sp, lineHeight = 21.6.sp,
+        fontSize = 18.sp, lineHeight = 24.3.sp,
     )
 
     val fabLabel = TextStyle(

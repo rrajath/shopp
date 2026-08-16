@@ -212,6 +212,10 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch { onResult(container.renameLabel(labelId, newName)) }
     }
 
+    fun setLabelColor(labelId: String, colorIndex: Int) {
+        viewModelScope.launch { container.setLabelColor(labelId, colorIndex) }
+    }
+
     fun mergeLabels(sourceLabelId: String, targetLabelId: String) {
         viewModelScope.launch { container.mergeLabels(sourceLabelId, targetLabelId) }
     }

@@ -62,20 +62,27 @@ data class ShoppColors(
     val labelPalette: List<Color>,
 )
 
-// Flat 10-color palette, literal PALETTE constant from ShoppApp.dc.html,
-// used identically in both themes. Auto-allocated only -- see
-// LabelColorAllocator -- no user-facing picker.
+// Flat 15-color pastel palette (August 2026, user request -- deviates from
+// ShoppApp.dc.html's literal 10-color PALETTE constant), used identically
+// in both themes. Same list backs auto-allocation (LabelColorAllocator) and
+// the manual picker (LabelManagementSheet's ColorSwatchGrid) -- one index,
+// one palette, everywhere a label's color is drawn.
 private val LabelPalette = listOf(
-    Color(0xFFC67139), // burnt orange
-    Color(0xFF7A8A5E), // olive
-    Color(0xFFB2622D), // terracotta
-    Color(0xFF8FA073), // sage
-    Color(0xFFD67F48), // light orange
-    Color(0xFF728157), // deep olive
-    Color(0xFFF6A06B), // peach
-    Color(0xFFAEBF92), // light sage
-    Color(0xFF8C491A), // dark brown
-    Color(0xFF56633F), // dark olive
+    Color(0xFFE8A0A0), // rose
+    Color(0xFFE8B88A), // orange
+    Color(0xFFE8CC8A), // amber
+    Color(0xFFDCE08A), // yellow-green
+    Color(0xFFB8E08A), // lime
+    Color(0xFF8FDB9E), // green
+    Color(0xFF8AD9C2), // teal
+    Color(0xFF8AD0E0), // cyan
+    Color(0xFF8AB8E0), // sky blue
+    Color(0xFF8A9FE0), // blue
+    Color(0xFFA08AE0), // indigo
+    Color(0xFFC28AE0), // purple
+    Color(0xFFE08AD0), // magenta
+    Color(0xFFE08AB8), // pink
+    Color(0xFFC2A98A), // taupe
 )
 
 // Literal, from organic-*/styles.css's :root block.

@@ -31,8 +31,6 @@ object ShoppDimens {
     val sectionHeaderPaddingTop = 18.dp
     val sectionHeaderPaddingHorizontal = 22.dp
     val sectionHeaderPaddingBottom = 7.dp
-    val sectionHeaderGap = 8.dp
-    val sectionHeaderDotSize = 8.dp
     val rowPaddingVertical = 4.dp
     val rowPaddingHorizontal = 22.dp
     val rowGap = 14.dp
@@ -89,6 +87,8 @@ object ShoppDimens {
     val chipPaddingVertical = 6.dp
     val chipMinHeight = 28.dp
     val chipCornerRadius = 100.dp
+    val chipDotSize = 7.dp
+    val chipDotGap = 6.dp
     val sessionAddGap = 10.dp
     val sessionAddPaddingBottom = 10.dp
 
@@ -102,6 +102,7 @@ object ShoppDimens {
     val drawerMenuItemPaddingHorizontal = 24.dp
     val drawerMenuGap = 14.dp
     val drawerMenuDotSize = 5.dp
+    val drawerFooterPaddingVertical = 16.dp
 
     // Labels screen -- its own row list isn't depicted by the new prototype
     // (kept from the old one); the title/hint paddings are also shared with
@@ -122,6 +123,26 @@ object ShoppDimens {
     val mergeTargetRowGap = 11.dp
     val mergeTargetRowPaddingVertical = 9.dp
 
+    // Label color picker (LabelManagementSheet RENAME/"Edit" mode, August
+    // 2026 user request): swatches from the app's existing labelPalette,
+    // wrapped 5 per row.
+    val colorSectionPaddingTop = 18.dp
+    val colorSwatchesPerRow = 5
+    val colorSwatchSize = 24.dp
+    val colorSwatchRingSize = 32.dp
+    val colorSwatchRingWidth = 2.dp
+    val colorSwatchGap = 12.dp
+    val colorSwatchRowGap = 10.dp
+
+    // Sheet action buttons (Cancel/Save/Merge/Delete-confirm): actual
+    // bordered/filled pill buttons, not bare adjacent text (August 2026,
+    // user request -- they used to read as too close together).
+    val sheetButtonGap = 14.dp
+    val sheetButtonCornerRadius = 100.dp
+    val sheetButtonBorderWidth = 1.5.dp
+    val sheetButtonPaddingHorizontal = 18.dp
+    val sheetButtonPaddingVertical = 9.dp
+
     // Settings -- single pill-shaped segmented control (was 3 separate
     // bordered buttons), per ShoppApp.dc.html. Section label padding:
     // `padding: 12px 0 12px` for the first ("Theme"), `30px 0 8px` for the
@@ -133,14 +154,6 @@ object ShoppDimens {
     val settingsSectionLabelPaddingBottom = 12.dp
     val themeSegmentPaddingVertical = 9.dp
     val themeSegmentContainerCornerRadius = 100.dp
-    val settingsButtonGap = 8.dp
     val toggleRowPaddingVertical = 14.dp
     val toggleRowGap = 18.dp
-    val toggleTrackWidth = 46.dp
-    val toggleTrackHeight = 26.dp
-    val toggleTrackCornerRadius = 13.dp
-    val toggleTrackBorderWidth = 1.5.dp
-    val toggleKnobSizeOn = 17.dp
-    val toggleKnobSizeOff = 11.dp
-    val footerPaddingTop = 28.dp
 }

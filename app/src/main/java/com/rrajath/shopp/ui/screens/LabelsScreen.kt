@@ -41,6 +41,7 @@ fun LabelsScreen(
     activeCounts: Map<String, Int>,
     onFilter: (String) -> Unit,
     onRename: (labelId: String, newName: String, onResult: (RenameLabel.Result) -> Unit) -> Unit,
+    onColorChange: (labelId: String, colorIndex: Int) -> Unit,
     onMerge: (sourceLabelId: String, targetLabelId: String) -> Unit,
     onDelete: (labelId: String) -> Unit,
     modifier: Modifier = Modifier,
@@ -101,6 +102,7 @@ fun LabelsScreen(
                 allLabels = labels,
                 onDismiss = { managingLabelId = null },
                 onRename = { newName, onResult -> onRename(label.id, newName, onResult) },
+                onColorChange = { colorIndex -> onColorChange(label.id, colorIndex) },
                 onMerge = { targetId -> onMerge(label.id, targetId); managingLabelId = null },
                 onDelete = { onDelete(label.id); managingLabelId = null },
             )

@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -33,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.rrajath.shopp.data.db.LabelEntity
@@ -53,6 +55,7 @@ fun LabelManagementSheet(
     allLabels: List<LabelEntity>,
     onDismiss: () -> Unit,
     onRename: (String, (RenameLabel.Result) -> Unit) -> Unit,
+    onColorChange: (colorIndex: Int) -> Unit,
     onMerge: (targetLabelId: String) -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
@@ -119,6 +122,10 @@ fun LabelManagementSheet(
                     if (nameTaken) {
                         Text(text = "That name is already used", style = ShoppType.toggleHint.copy(color = colors.accent))
                     }
+                    Box(Modifier.size(1.dp, ShoppDimens.colorSectionPaddingTop))
+                    Text(text = "Color", style = ShoppType.toggleHint.copy(color = colors.muted))
+                    Box(Modifier.size(1.dp, ShoppDimens.colorSwatchRowGap))
+                    ColorSwatchGrid(selectedIndex = label.colorIndex, onSelect = onColorChange)
                     SheetActions(
                         confirmLabel = "Save",
                         onCancel = { mode = SheetMode.MENU },
@@ -198,6 +205,43 @@ private fun MergeRadio(selected: Boolean) {
     }
 }
 
+// The label color picker (August 2026, user request): offers the app's
+// existing 15-color pastel palette (`colors.labelPalette`) as manual
+// override swatches -- not a separate/new palette, since a label's color is
+// a single `colorIndex` into that one palette everywhere else in the app
+// (dots, section headers, chip fills). Wraps into rows of 5.
+@Composable
+private fun ColorSwatchGrid(selectedIndex: Int, onSelect: (Int) -> Unit) {
+    val colors = ShoppTheme.colors
+    Column(verticalArrangement = Arrangement.spacedBy(ShoppDimens.colorSwatchRowGap)) {
+        colors.labelPalette.withIndex().chunked(ShoppDimens.colorSwatchesPerRow).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(ShoppDimens.colorSwatchGap)) {
+                row.forEach { (index, color) ->
+                    ColorSwatch(color = color, selected = index == selectedIndex) { onSelect(index) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ColorSwatch(color: Color, selected: Boolean, onClick: () -> Unit) {
+    val colors = ShoppTheme.colors
+    Box(
+        modifier = Modifier.size(ShoppDimens.colorSwatchRingSize).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (selected) {
+            Box(
+                modifier = Modifier
+                    .size(ShoppDimens.colorSwatchRingSize)
+                    .border(ShoppDimens.colorSwatchRingWidth, colors.foreground, CircleShape),
+            )
+        }
+        Box(modifier = Modifier.size(ShoppDimens.colorSwatchSize).background(color, CircleShape))
+    }
+}
+
 @Composable
 private fun ManagementRow(name: String, emphasize: Boolean = false, onClick: () -> Unit) {
     val colors = ShoppTheme.colors
@@ -215,24 +259,48 @@ private fun ManagementRow(name: String, emphasize: Boolean = false, onClick: () 
 // var(--font-heading)` (Caprasimo), like the shared `.btn` class -- not the
 // body font, hence the dedicated dialogActionLabel style rather than
 // settingsButtonLabel (which is Figtree, for the Theme segmented control).
+// August 2026 (user request): rendered as actual bordered/filled pill
+// buttons, not bare adjacent text -- they read as too close together and
+// not obviously tappable as plain text.
 @Composable
 private fun SheetActions(confirmLabel: String?, onCancel: () -> Unit, onConfirm: () -> Unit) {
-    val colors = ShoppTheme.colors
     Row(
         modifier = Modifier.fillMaxWidth().padding(top = ShoppDimens.chipRowPaddingTop),
-        horizontalArrangement = Arrangement.spacedBy(ShoppDimens.settingsButtonGap),
+        horizontalArrangement = Arrangement.spacedBy(ShoppDimens.sheetButtonGap),
+    ) {
+        SheetButton(text = "Cancel", filled = false, onClick = onCancel)
+        if (confirmLabel != null) {
+            SheetButton(text = confirmLabel, filled = true, onClick = onConfirm)
+        }
+    }
+}
+
+@Composable
+private fun SheetButton(text: String, filled: Boolean, onClick: () -> Unit) {
+    val colors = ShoppTheme.colors
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(ShoppDimens.sheetButtonCornerRadius))
+            .then(
+                if (filled) {
+                    Modifier.background(colors.accent)
+                } else {
+                    Modifier.border(
+                        ShoppDimens.sheetButtonBorderWidth,
+                        colors.line,
+                        RoundedCornerShape(ShoppDimens.sheetButtonCornerRadius),
+                    )
+                },
+            )
+            .clickable(onClick = onClick)
+            .padding(
+                horizontal = ShoppDimens.sheetButtonPaddingHorizontal,
+                vertical = ShoppDimens.sheetButtonPaddingVertical,
+            ),
     ) {
         Text(
-            text = "Cancel",
-            style = ShoppType.dialogActionLabel.copy(color = colors.muted),
-            modifier = Modifier.clickable(onClick = onCancel),
+            text = text,
+            style = ShoppType.dialogActionLabel.copy(color = if (filled) colors.onAccent else colors.foreground),
         )
-        if (confirmLabel != null) {
-            Text(
-                text = confirmLabel,
-                style = ShoppType.dialogActionLabel.copy(color = colors.accent),
-                modifier = Modifier.clickable(onClick = onConfirm),
-            )
-        }
     }
 }

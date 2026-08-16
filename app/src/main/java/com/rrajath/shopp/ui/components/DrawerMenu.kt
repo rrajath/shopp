@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +27,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.rrajath.shopp.BuildConfig
 import com.rrajath.shopp.ui.Screen
 import com.rrajath.shopp.ui.theme.ShoppDimens
 import com.rrajath.shopp.ui.theme.ShoppTheme
@@ -118,6 +120,15 @@ fun DrawerMenu(
                 count = null,
                 active = currentScreen == Screen.SETTINGS,
                 onClick = { onSelect(Screen.SETTINGS) },
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = "Shopp ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                style = ShoppType.footerNote.copy(color = colors.muted),
+                modifier = Modifier.padding(
+                    horizontal = ShoppDimens.drawerTitlePaddingHorizontal,
+                    vertical = ShoppDimens.drawerFooterPaddingVertical,
+                ),
             )
         }
     }

@@ -1,8 +1,5 @@
 package com.rrajath.shopp.ui.screens
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,16 +9,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -79,15 +74,6 @@ fun SettingsScreen(
             hint = "Ask before emptying Recently completed.",
             checked = confirmBeforeClearing,
             onCheckedChange = onConfirmBeforeClearingChange,
-        )
-
-        Text(
-            text = "Shopp · 1.0",
-            style = ShoppType.footerNote.copy(color = colors.muted),
-            modifier = Modifier.padding(
-                horizontal = ShoppDimens.labelsTitlePaddingHorizontal,
-                vertical = ShoppDimens.footerPaddingTop,
-            ),
         )
     }
 }
@@ -175,30 +161,16 @@ private fun ToggleRow(name: String, hint: String, checked: Boolean, onCheckedCha
 @Composable
 private fun ToggleSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     val colors = ShoppTheme.colors
-    val trackColor by animateColorAsState(if (checked) colors.accent else Color.Transparent, tween(180), label = "trackColor")
-    val borderColor by animateColorAsState(if (checked) colors.accent else colors.checkboxBorder, tween(180), label = "borderColor")
-    val knobColor = if (checked) colors.onAccent else colors.checkboxBorder
-    val knobSize by animateDpAsState(if (checked) ShoppDimens.toggleKnobSizeOn else ShoppDimens.toggleKnobSizeOff, label = "knobSize")
-    val knobOffsetX by animateDpAsState(if (checked) 23.dp else 5.dp, label = "knobOffsetX")
-    val knobOffsetY = if (checked) 3.dp else 5.dp
-
-    Box(
-        modifier = Modifier
-            .size(ShoppDimens.toggleTrackWidth, ShoppDimens.toggleTrackHeight)
-            .clip(RoundedCornerShape(ShoppDimens.toggleTrackCornerRadius))
-            .background(trackColor)
-            .border(
-                ShoppDimens.toggleTrackBorderWidth,
-                borderColor,
-                RoundedCornerShape(ShoppDimens.toggleTrackCornerRadius),
-            )
-            .clickable { onCheckedChange(!checked) },
-    ) {
-        Box(
-            modifier = Modifier
-                .offset(x = knobOffsetX, y = knobOffsetY)
-                .size(knobSize)
-                .background(knobColor, CircleShape),
-        )
-    }
+    Switch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        colors = SwitchDefaults.colors(
+            checkedThumbColor = colors.onAccent,
+            checkedTrackColor = colors.accent,
+            checkedBorderColor = colors.accent,
+            uncheckedThumbColor = colors.checkboxBorder,
+            uncheckedTrackColor = Color.Transparent,
+            uncheckedBorderColor = colors.checkboxBorder,
+        ),
+    )
 }
