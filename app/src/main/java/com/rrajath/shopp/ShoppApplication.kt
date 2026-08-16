@@ -17,7 +17,6 @@ import com.rrajath.shopp.usecases.EditTitle
 import com.rrajath.shopp.usecases.MergeLabels
 import com.rrajath.shopp.usecases.ReaddCompleted
 import com.rrajath.shopp.usecases.RenameLabel
-import com.rrajath.shopp.usecases.SetLabelColor
 import com.rrajath.shopp.usecases.UndoComplete
 
 // Manual DI container. MainActivity and CaptureActivity both read this off
@@ -38,7 +37,6 @@ class AppContainer(app: Application) {
     val undoComplete = UndoComplete(database, itemRepository)
     val editTitle = EditTitle(database, itemRepository, labelRepository)
     val renameLabel = RenameLabel(database, labelRepository)
-    val setLabelColor = SetLabelColor(database, labelRepository)
     val mergeLabels = MergeLabels(database, itemRepository, labelRepository)
     val deleteLabel = DeleteLabel(database, itemRepository, labelRepository)
     val readdCompleted = ReaddCompleted(database, itemRepository, labelRepository)

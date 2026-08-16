@@ -41,16 +41,12 @@ fun LabelsScreen(
     activeCounts: Map<String, Int>,
     onFilter: (String) -> Unit,
     onRename: (labelId: String, newName: String, onResult: (RenameLabel.Result) -> Unit) -> Unit,
-    onColorChange: (labelId: String, colorIndex: Int) -> Unit,
     onMerge: (sourceLabelId: String, targetLabelId: String) -> Unit,
     onDelete: (labelId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = ShoppTheme.colors
     val haptics = LocalHapticFeedback.current
-    // Derived from the live `labels` list (not a snapshot captured at
-    // long-press time) so a color change made in the sheet is reflected
-    // back into it immediately -- see LabelManagementSheet's swatch picker.
     var managingLabelId by remember { mutableStateOf<String?>(null) }
     val liveManagingLabel = managingLabelId?.let { id -> labels.find { it.id == id } }
 
@@ -105,7 +101,6 @@ fun LabelsScreen(
                 allLabels = labels,
                 onDismiss = { managingLabelId = null },
                 onRename = { newName, onResult -> onRename(label.id, newName, onResult) },
-                onColorChange = { colorIndex -> onColorChange(label.id, colorIndex) },
                 onMerge = { targetId -> onMerge(label.id, targetId); managingLabelId = null },
                 onDelete = { onDelete(label.id); managingLabelId = null },
             )

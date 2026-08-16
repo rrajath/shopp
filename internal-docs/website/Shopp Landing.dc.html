@@ -16,17 +16,54 @@ body { margin: 0; text-wrap: pretty; overflow-x: clip; }
 a.q { color: var(--color-accent-700); text-decoration: none; }
 a.q:hover { color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
 @keyframes beltRun { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-@media (max-width: 940px) { .cols2 { grid-template-columns: minmax(0, 1fr) !important; } .cols2 > *:last-child { justify-self: start !important; } }
+@media (max-width: 940px) { .cols2 { grid-template-columns: minmax(0, 1fr) !important; } .cols2 > *:last-child { justify-self: start !important; width: 100% !important; max-width: 340px !important; } }
+@media (max-width: 1080px) { .fdot { display: none !important; } }
+@media (max-width: 760px) { .navlinks { display: none !important; } .feat { grid-template-columns: minmax(0, 1fr) !important; gap: 10px !important; padding: 18px 0 !important; } }
+@media (max-width: 620px) {
+  .roundbox { border-radius: 34px !important; padding: 34px 22px !important; }
+  .seedrow { gap: 12px !important; }
+  .seedrow > div { width: 152px !important; padding: 14px !important; transform: none !important; }
+  .seedrow > div p:first-child { font-size: 32px !important; line-height: 38px !important; }
+  .seedrow > div p:last-child { font-size: 11px !important; line-height: 15px !important; margin-top: 7px !important; }
+  .h2sm { font-size: 27px !important; line-height: 34px !important; }
+}
+[data-theme="dark"] {
+  --color-bg: #211e19; --color-surface: #2e2b25; --color-text: #f2e9da;
+  --color-accent: #f6a06b; --color-accent-2: #aebf92;
+  --color-divider: color-mix(in srgb, #f2e9da 18%, transparent);
+  --color-neutral-100: #2e2b25; --color-neutral-200: #474238; --color-neutral-300: #645c50;
+  --color-neutral-400: #82796a; --color-neutral-500: #a19786; --color-neutral-600: #c0b6a5;
+  --color-neutral-700: #dcd3c4; --color-neutral-800: #eee7db; --color-neutral-900: #f9f4ed;
+  --color-accent-100: #402310; --color-accent-200: #643312; --color-accent-300: #8c491a;
+  --color-accent-400: #b2622d; --color-accent-500: #d67f48; --color-accent-600: #f6a06b;
+  --color-accent-700: #ffc6a5; --color-accent-800: #ffe1d0; --color-accent-900: #fff2eb;
+  --color-accent-2-100: #272e1b; --color-accent-2-200: #3d472b; --color-accent-2-300: #56633f;
+  --color-accent-2-400: #728157; --color-accent-2-500: #8fa073; --color-accent-2-600: #aebf92;
+  --color-accent-2-700: #ccdbb2; --color-accent-2-800: #e1eecc; --color-accent-2-900: #f0fae1;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.5);
+  --shadow-md: 0 3px 12px rgba(0,0,0,0.55);
+  --shadow-lg: 0 14px 36px rgba(0,0,0,0.6);
+}
+body:has([data-theme="dark"]) { background: #211e19; }
+
 </style>
 </helmet>
 
-<div style="background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); font-size: 15px; line-height: 1.55; min-height: 100vh;">
+<div data-theme="{{ theme }}" style="background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); font-size: 15px; line-height: 1.55; min-height: 100vh;">
 
   <nav class="nav" style="padding: 18px clamp(20px, 5vw, 72px); max-width: 1320px; margin: 0 auto; gap: 26px; position: relative; z-index: 3;">
     <span class="nav-brand" style="font-size: 21px; letter-spacing: -0.02em;">Shopp</span>
-    <a href="#how">How it works</a>
-    <a href="#cut">What it won't do</a>
-    <a href="Shopp%20Docs.dc.html">Docs</a>
+    <span class="navlinks" style="display: flex; align-items: center; gap: 26px;"><a href="#how">How it works</a><a href="#cut">What it won't do</a><a href="Shopp%20Docs.dc.html">Docs</a></span>
+    <sc-if value="{{ isLight }}" hint-placeholder-val="{{ true }}">
+      <span onClick="{{ toggleTheme }}" role="button" tabindex="0" aria-label="Switch to dark theme" style="width: 40px; height: 40px; flex: none; border-radius: 999px; border: 1px solid var(--color-divider); display: grid; place-items: center; cursor: pointer; color: var(--color-text);" style-hover="background: color-mix(in srgb, var(--color-text) 7%, transparent);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"></path></svg>
+      </span>
+    </sc-if>
+    <sc-if value="{{ isDark }}" hint-placeholder-val="{{ false }}">
+      <span onClick="{{ toggleTheme }}" role="button" tabindex="0" aria-label="Switch to light theme" style="width: 40px; height: 40px; flex: none; border-radius: 999px; border: 1px solid var(--color-divider); display: grid; place-items: center; cursor: pointer; color: var(--color-text);" style-hover="background: color-mix(in srgb, var(--color-text) 12%, transparent);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"></path></svg>
+      </span>
+    </sc-if>
     <a class="btn btn-primary" href="#get" style="text-decoration: none;">Get Shopp</a>
   </nav>
 
@@ -36,7 +73,7 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
       <section class="cols2" style="position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 56px; align-items: center; padding: 84px 0 56px;">
         <div style="position: absolute; right: -140px; top: -180px; width: 420px; height: 420px; border-radius: 50%; background: var(--color-accent-2-200); z-index: 0; pointer-events: none;"></div>
         <div style="position: relative; z-index: 1;">
-          <h1 style="font-family: var(--font-heading); font-size: clamp(40px, 5.4vw, 68px); line-height: 1.08; letter-spacing: -0.015em; margin: 0 0 0 -0.028em;">
+          <h1 style="font-family: var(--font-heading); font-size: clamp(31px, 5.4vw, 68px); line-height: 1.08; letter-spacing: -0.015em; margin: 0 0 0 -0.028em;">
             <span style="display: block;">A shopping list is a</span>
             <span style="display: block; color: var(--color-accent-700);">conveyor belt,</span>
             <span style="display: block;">not a filing cabinet.</span>
@@ -46,7 +83,7 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
             <a class="btn btn-primary" href="#get" style="text-decoration: none; padding: 12px 22px; font-size: 15px;">Get Shopp — free</a>
             <a class="btn btn-secondary" href="Shopp%20Docs.dc.html" style="text-decoration: none; padding: 12px 22px; font-size: 15px;">Read the docs</a>
           </div>
-          <p style="font-size: 13px; color: color-mix(in srgb, var(--color-text) 70%, transparent); margin: 18px 0 0;">Android, iOS and web. No account. Works offline.</p>
+          <p style="font-size: 13px; color: color-mix(in srgb, var(--color-text) 70%, transparent); margin: 18px 0 0;">Android. No account. Works offline.</p>
         </div>
         <div style="position: relative; z-index: 1;">
           <dc-import name="ShoppApp" live="{{ true }}" mode="list" hint-size="340px,700px"></dc-import>
@@ -57,7 +94,7 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
 
     <sc-if value="{{ heroBelt }}" hint-placeholder-val="{{ false }}">
       <section style="padding: 76px 0 0;">
-        <h1 style="font-family: var(--font-heading); font-size: clamp(40px, 7.4vw, 96px); line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 0 -0.028em; max-width: 20ch;">
+        <h1 style="font-family: var(--font-heading); font-size: clamp(38px, 7.4vw, 96px); line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 0 -0.028em; max-width: 20ch;">
           <span style="display: block;">On fast.</span>
           <span style="display: block; color: var(--color-accent-700);">Off faster.</span>
         </h1>
@@ -89,7 +126,7 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
         <div style="position: absolute; left: 46%; top: 10px; width: 300px; height: 300px; border-radius: 50%; background: var(--color-accent-100); z-index: 0;"></div>
         <div style="position: absolute; left: 70%; top: 220px; width: 200px; height: 200px; border-radius: 50%; background: var(--color-accent-2-200); z-index: 0;"></div>
         <div style="position: relative; z-index: 1; max-width: 22ch;">
-          <h1 style="font-family: var(--font-heading); font-size: clamp(40px, 6.4vw, 82px); line-height: 1.06; letter-spacing: -0.02em; margin: 0 0 0 -0.028em;">
+          <h1 style="font-family: var(--font-heading); font-size: clamp(34px, 6.4vw, 82px); line-height: 1.06; letter-spacing: -0.02em; margin: 0 0 0 -0.028em;">
             <span style="display: block;">Two taps</span>
             <span style="display: block; color: var(--color-accent-700);">and it's</span>
             <span style="display: block;">on the list.</span>
@@ -108,7 +145,7 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
 
     <sc-if value="{{ seedStats }}" hint-placeholder-val="{{ true }}">
       <section style="position: relative; min-height: 420px; padding: 42px 0 56px;" aria-label="Shopp, by the numbers">
-        <div style="display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; align-items: center;">
+        <div class="seedrow" style="display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; align-items: center;">
           <div style="width: 236px; aspect-ratio: 1; border-radius: 50%; background: var(--color-accent-100); display: grid; place-content: center; text-align: center; padding: 26px;">
             <p style="font-family: var(--font-heading); font-size: 46px; line-height: 56px; margin: 0; color: var(--color-accent-700);">3s</p>
             <p style="font-size: 13px; line-height: 18px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin: 12px 0 0; max-width: 17ch; color: color-mix(in srgb, var(--color-text) 70%, transparent);">Locked phone to item saved</p>
@@ -141,33 +178,33 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
     <section id="how" style="padding: 42px 0 28px;">
       <span style="display: block; font-size: 13px; line-height: 14px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; color: var(--color-accent-700); margin: 0 0 34px;">How it works</span>
 
-      <div style="display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 28px clamp(24px, 4vw, 72px); align-items: baseline; padding: 22px 0;">
+      <div class="feat" style="display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 28px clamp(24px, 4vw, 72px); align-items: baseline; padding: 22px 0;">
         <h2 style="position: relative; font-family: var(--font-heading); font-size: 27px; line-height: 30px; margin: 0;">
-          <span style="position: absolute; left: -36px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-accent);"></span>
+          <span class="fdot" style="position: absolute; left: -36px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-accent);"></span>
           The overlay stays open
         </h2>
         <p style="font-size: 15.5px; line-height: 28px; margin: 0; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">Submit an item and the sheet stays up, the keyboard stays raised, and the label you picked stays selected. Six items to <code style="font-family: var(--font-body); color: var(--color-accent-700);">@costco</code> costs six lines of typing and one tag. Tap outside to leave.</p>
       </div>
 
-      <div style="display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 28px clamp(24px, 4vw, 72px); align-items: baseline; padding: 22px 0;">
+      <div class="feat" style="display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 28px clamp(24px, 4vw, 72px); align-items: baseline; padding: 22px 0;">
         <h2 style="position: relative; font-family: var(--font-heading); font-size: 27px; line-height: 30px; margin: 0;">
-          <span style="position: absolute; left: -36px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-accent);"></span>
+          <span class="fdot" style="position: absolute; left: -36px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-accent);"></span>
           One line, one item
         </h2>
         <p style="font-size: 15.5px; line-height: 28px; margin: 0; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">Newline is the only separator. Paste six lines, get six items in the order you gave them. “carrots, 2lb organic bag” stays a single item, because that is what you typed — no parsing, no preview, no rules to remember.</p>
       </div>
 
-      <div style="display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 28px clamp(24px, 4vw, 72px); align-items: baseline; padding: 22px 0;">
+      <div class="feat" style="display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 28px clamp(24px, 4vw, 72px); align-items: baseline; padding: 22px 0;">
         <h2 style="position: relative; font-family: var(--font-heading); font-size: 27px; line-height: 30px; margin: 0;">
-          <span style="position: absolute; left: -36px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-accent);"></span>
+          <span class="fdot" style="position: absolute; left: -36px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-accent);"></span>
           Check off without thinking
         </h2>
         <p style="font-size: 15.5px; line-height: 28px; margin: 0; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">One tap. No confirmation. The row leaves the list and a four-second undo sits at the bottom of the screen, so a mis-tap costs nothing and never sends you to another screen.</p>
       </div>
 
-      <div style="display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 28px clamp(24px, 4vw, 72px); align-items: baseline; padding: 22px 0;">
+      <div class="feat" style="display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 28px clamp(24px, 4vw, 72px); align-items: baseline; padding: 22px 0;">
         <h2 style="position: relative; font-family: var(--font-heading); font-size: 27px; line-height: 30px; margin: 0;">
-          <span style="position: absolute; left: -36px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-accent);"></span>
+          <span class="fdot" style="position: absolute; left: -36px; top: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-accent);"></span>
           Labels you never create
         </h2>
         <p style="font-size: 15.5px; line-height: 28px; margin: 0; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">Type <code style="font-family: var(--font-body); color: var(--color-accent-700);">@farmers</code> and the label exists, with a colour picked for you. The store you are actively adding to floats to the top of the list. There is no “new label” button anywhere in the app.</p>
@@ -177,14 +214,12 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
     <section class="cols2" style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 34px clamp(24px, 5vw, 84px); align-items: center; padding: 56px 0 62px;">
       <div>
         <span style="display: block; font-size: 13px; line-height: 14px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; color: var(--color-accent-700); margin: 0 0 20px;">Capture anywhere</span>
-        <h2 style="font-family: var(--font-heading); font-size: 33px; line-height: 42px; margin: 0;">Add milk without opening the app</h2>
-        <p style="font-size: 15.5px; line-height: 28px; margin: 24px 0 0; max-width: 48ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">A Quick Settings tile on Android, a Control Center control on iOS, a lock-screen widget and a Shortcuts intent. Each one opens the same overlay, with the same sticky label and the same stay-open behaviour — from the lock screen, where the platform allows it.</p>
+        <h2 class="h2sm" style="font-family: var(--font-heading); font-size: 33px; line-height: 42px; margin: 0;">Add milk without opening the app</h2>
+        <p style="font-size: 15.5px; line-height: 28px; margin: 24px 0 0; max-width: 48ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">A Quick Settings tile drops the Quick Add overlay straight into the notification shade. It is the same component as the in-app button — same sticky label, same stay-open submit — and it works from the lock screen without opening the app.</p>
         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 22px;">
-          <span class="tag tag-accent">Android tile</span>
-          <span class="tag tag-accent">iOS control</span>
-          <span class="tag tag-accent-2">Lock screen widget</span>
-          <span class="tag tag-accent-2">Shortcuts &amp; Siri</span>
-          <span class="tag tag-neutral">Installable PWA</span>
+          <span class="tag tag-accent">Quick Settings tile</span>
+          <span class="tag tag-accent-2">Works locked</span>
+          <span class="tag tag-neutral">Sticky label carries over</span>
         </div>
       </div>
       <div style="justify-self: end;">
@@ -194,9 +229,9 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
 
     <sc-if value="{{ showCut }}" hint-placeholder-val="{{ true }}">
       <section id="cut" style="padding: 0 0 62px;">
-        <div style="background: var(--color-surface); border-radius: 56px; padding: 52px clamp(26px, 4vw, 64px);">
+        <div class="roundbox" style="background: var(--color-surface); border-radius: 56px; padding: 52px clamp(26px, 4vw, 64px);">
           <span style="display: block; font-size: 13px; line-height: 14px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; color: var(--color-accent-700); margin: 0 0 18px;">Cut on purpose</span>
-          <h2 style="font-family: var(--font-heading); font-size: 33px; line-height: 42px; margin: 0; max-width: 26ch;">What Shopp will not do</h2>
+          <h2 class="h2sm" style="font-family: var(--font-heading); font-size: 33px; line-height: 42px; margin: 0; max-width: 26ch;">What Shopp will not do</h2>
           <p style="font-size: 15.5px; line-height: 28px; margin: 22px 0 26px; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">Every one of these was considered and rejected. Organising, annotating and rearranging are filing-cabinet behaviours; each would cost more than it returns.</p>
           <div style="display: flex; flex-wrap: wrap; gap: 9px;">
             <sc-for list="{{ cutItems }}" as="c" hint-placeholder-count="16">
@@ -214,12 +249,12 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
     </section>
 
     <section id="get" style="padding: 0 0 56px;">
-      <div style="background: var(--color-accent-2-100); border-radius: 56px; padding: 52px clamp(26px, 4vw, 64px);">
-        <h3 style="font-family: var(--font-heading); font-size: 27px; line-height: 30px; margin: 0;">Shopp 1.0 — Android, iOS and the web</h3>
+      <div class="roundbox" style="background: var(--color-accent-2-100); border-radius: 56px; padding: 52px clamp(26px, 4vw, 64px);">
+        <h3 style="font-family: var(--font-heading); font-size: 27px; line-height: 30px; margin: 0;">Shopp 1.0 for Android</h3>
         <p style="font-size: 15.5px; line-height: 28px; margin: 20px 0 0; max-width: 52ch; color: color-mix(in srgb, var(--color-text) 78%, transparent);">Local-first and fully functional signed out. Accounts and sync arrive in 2.0, and are opt-in when they do.</p>
-        <div style="display: flex; gap: 12px; align-items: stretch; max-width: 480px; margin-top: 28px; flex-wrap: wrap;">
-          <input class="input" type="email" placeholder="you@example.com" aria-label="Email address" style="flex: 1; min-width: 200px; min-height: 42px;" />
-          <a class="btn btn-primary" href="#get" style="text-decoration: none; min-height: 42px; padding-inline: 22px;">Send me the link</a>
+        <div style="display: flex; gap: 12px; align-items: center; margin-top: 28px; flex-wrap: wrap;">
+          <a class="btn btn-primary" href="#get" style="text-decoration: none; min-height: 46px; padding-inline: 24px; font-size: 15px;">Download for Android</a>
+          <span style="font-size: 13.5px; color: color-mix(in srgb, var(--color-text) 70%, transparent);">Requires Android 10 or later · 4.1 MB</span>
         </div>
       </div>
     </section>
@@ -240,10 +275,24 @@ const CUT = ['Quantities as data','Recipes','Meal planning','Price tracking','Ba
 const BELT = ['milk','AA batteries','carrots','tomatoes','onions','olive oil, 2L tin','sourdough','apricots','picture hooks','coffee filters','paper towels','tinned tomatoes'];
 
 class Component extends DCLogic {
+  state = { theme: 'light' };
+  componentDidMount() {
+    try { const t = localStorage.getItem('shopp-theme'); if (t === 'dark' || t === 'light') this.setState({ theme: t }); } catch (e) {}
+  }
+  toggleTheme = () => {
+    const next = this.state.theme === 'dark' ? 'light' : 'dark';
+    this.setState({ theme: next });
+    try { localStorage.setItem('shopp-theme', next); } catch (e) {}
+  };
+
   renderVals() {
     const hero = this.props.heroVariant ?? 'slab';
     const stats = this.props.statsShape ?? 'seeds';
     return {
+      theme: this.state.theme,
+      isDark: this.state.theme === 'dark',
+      isLight: this.state.theme !== 'dark',
+      toggleTheme: this.toggleTheme,
       heroSlab: hero === 'slab',
       heroBelt: hero === 'belt',
       heroSeeds: hero === 'seeds',

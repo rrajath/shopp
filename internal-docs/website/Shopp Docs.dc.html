@@ -15,17 +15,53 @@ html { scroll-behavior: smooth; }
 body { margin: 0; text-wrap: pretty; overflow-x: clip; }
 a.q { color: var(--color-accent-700); text-decoration: none; }
 a.q:hover { color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
-@media (max-width: 1100px) { .docgrid { grid-template-columns: minmax(0, 1fr) !important; } .docaside { position: static !important; padding-bottom: 8px !important; } }
+@media (max-width: 1100px) { .docgrid { grid-template-columns: minmax(0, 1fr) !important; } .docaside { position: static !important; padding-bottom: 8px !important; } .docnav { flex-direction: row !important; flex-wrap: wrap !important; gap: 4px 6px !important; } .docnav a { background: var(--color-surface); } }
 @media (max-width: 900px) { .cols2 { grid-template-columns: minmax(0, 1fr) !important; } .cols2 figure { position: static !important; } }
+@media (max-width: 760px) { .navlinks { display: none !important; } }
+@media (max-width: 620px) {
+  .speclist { border-radius: 30px !important; padding-inline: 18px !important; }
+  .specrow { grid-template-columns: minmax(0, 1fr) !important; gap: 2px !important; }
+  .doch1 { font-size: 29px !important; }
+  .docsech2 { font-size: 27px !important; line-height: 34px !important; }
+  .docaside { padding-top: 26px !important; }
+}
+[data-theme="dark"] {
+  --color-bg: #211e19; --color-surface: #2e2b25; --color-text: #f2e9da;
+  --color-accent: #f6a06b; --color-accent-2: #aebf92;
+  --color-divider: color-mix(in srgb, #f2e9da 18%, transparent);
+  --color-neutral-100: #2e2b25; --color-neutral-200: #474238; --color-neutral-300: #645c50;
+  --color-neutral-400: #82796a; --color-neutral-500: #a19786; --color-neutral-600: #c0b6a5;
+  --color-neutral-700: #dcd3c4; --color-neutral-800: #eee7db; --color-neutral-900: #f9f4ed;
+  --color-accent-100: #402310; --color-accent-200: #643312; --color-accent-300: #8c491a;
+  --color-accent-400: #b2622d; --color-accent-500: #d67f48; --color-accent-600: #f6a06b;
+  --color-accent-700: #ffc6a5; --color-accent-800: #ffe1d0; --color-accent-900: #fff2eb;
+  --color-accent-2-100: #272e1b; --color-accent-2-200: #3d472b; --color-accent-2-300: #56633f;
+  --color-accent-2-400: #728157; --color-accent-2-500: #8fa073; --color-accent-2-600: #aebf92;
+  --color-accent-2-700: #ccdbb2; --color-accent-2-800: #e1eecc; --color-accent-2-900: #f0fae1;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.5);
+  --shadow-md: 0 3px 12px rgba(0,0,0,0.55);
+  --shadow-lg: 0 14px 36px rgba(0,0,0,0.6);
+}
+body:has([data-theme="dark"]) { background: #211e19; }
+
 </style>
 </helmet>
 
-<div style="background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); font-size: 15px; line-height: 1.55; min-height: 100vh;">
+<div data-theme="{{ theme }}" style="background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); font-size: 15px; line-height: 1.55; min-height: 100vh;">
 
   <nav class="nav" style="padding: 18px clamp(20px, 5vw, 72px); max-width: 1400px; margin: 0 auto; gap: 26px; border-bottom: 1px solid var(--color-divider);">
     <span class="nav-brand" style="font-size: 21px; letter-spacing: -0.02em;"><a href="Shopp%20Landing.dc.html" style="color: inherit; text-decoration: none;">Shopp</a></span>
-    <a href="Shopp%20Landing.dc.html">Home</a>
-    <a href="#docs" aria-current="page">Docs</a>
+    <span class="navlinks" style="display: flex; align-items: center; gap: 26px;"><a href="Shopp%20Landing.dc.html">Home</a><a href="#docs" aria-current="page">Docs</a></span>
+    <sc-if value="{{ isLight }}" hint-placeholder-val="{{ true }}">
+      <span onClick="{{ toggleTheme }}" role="button" tabindex="0" aria-label="Switch to dark theme" style="width: 40px; height: 40px; flex: none; border-radius: 999px; border: 1px solid var(--color-divider); display: grid; place-items: center; cursor: pointer; color: var(--color-text);" style-hover="background: color-mix(in srgb, var(--color-text) 7%, transparent);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"></path></svg>
+      </span>
+    </sc-if>
+    <sc-if value="{{ isDark }}" hint-placeholder-val="{{ false }}">
+      <span onClick="{{ toggleTheme }}" role="button" tabindex="0" aria-label="Switch to light theme" style="width: 40px; height: 40px; flex: none; border-radius: 999px; border: 1px solid var(--color-divider); display: grid; place-items: center; cursor: pointer; color: var(--color-text);" style-hover="background: color-mix(in srgb, var(--color-text) 12%, transparent);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"></path></svg>
+      </span>
+    </sc-if>
     <a class="btn btn-primary" href="Shopp%20Landing.dc.html#get" style="text-decoration: none;">Get Shopp</a>
   </nav>
 
@@ -33,7 +69,7 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
 
     <aside class="docaside" style="position: sticky; top: 26px; padding: 62px 0 40px; font-size: 14px;">
       <span style="display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: color-mix(in srgb, var(--color-text) 70%, transparent); margin-bottom: 16px;">Documentation</span>
-      <div style="display: flex; flex-direction: column; gap: 3px;">
+      <div class="docnav" style="display: flex; flex-direction: column; gap: 3px;">
         <sc-for list="{{ sections }}" as="s" hint-placeholder-count="6">
           <a class="q" href="#{{ s.id }}" style="padding: 7px 12px; border-radius: 999px; display: block;" style-hover="background: var(--color-accent-100);">{{ s.title }}</a>
         </sc-for>
@@ -47,9 +83,9 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
 
       <header style="max-width: 58ch; padding-bottom: 20px;">
         <span style="display: block; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; color: var(--color-accent-700); margin-bottom: 18px;">Reference</span>
-        <h1 style="font-family: var(--font-heading); font-size: clamp(36px, 4.4vw, 56px); line-height: 1.08; letter-spacing: -0.02em; margin: 0 0 0 -0.028em;">How Shopp behaves</h1>
+        <h1 style="font-family: var(--font-heading); font-size: clamp(36px, 4.4vw, 56px); line-height: 1.08; letter-spacing: -0.02em; margin: 0 0 0 -0.028em;" class="doch1">How Shopp behaves</h1>
         <p style="font-size: 17.5px; line-height: 28px; margin: 26px 0 0;">Every screen, gesture and rule in version 1.0. A shopping list is a conveyor belt, not a filing cabinet — where this document is ambiguous, that principle is the tiebreaker.</p>
-        <p style="font-size: 15.5px; line-height: 28px; margin: 16px 0 0; color: color-mix(in srgb, var(--color-text) 70%, transparent);">Three screens, two entities, no configuration. The app is fully functional on first launch and stays functional signed out.</p>
+        <p style="font-size: 15.5px; line-height: 28px; margin: 16px 0 0; color: color-mix(in srgb, var(--color-text) 70%, transparent);">Android, version 1.0. Three screens, two entities, no configuration — fully functional on first launch and fully functional signed out.</p>
       </header>
 
       <sc-for list="{{ sections }}" as="s" hint-placeholder-count="6">
@@ -59,13 +95,13 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
             <div class="cols2" style="display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 34px clamp(28px, 4vw, 72px); align-items: start;">
               <div style="min-width: 0;">
                 <span style="display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--color-accent-700); margin-bottom: 14px;">{{ s.kicker }}</span>
-                <h2 style="font-family: var(--font-heading); font-size: 33px; line-height: 42px; margin: 0;">{{ s.title }}</h2>
+                <h2 class="docsech2" style="font-family: var(--font-heading); font-size: 33px; line-height: 42px; margin: 0;">{{ s.title }}</h2>
                 <sc-for list="{{ s.paras }}" as="p" hint-placeholder-count="3">
                   <p style="font-size: 15.5px; line-height: 28px; margin: 22px 0 0; max-width: 56ch; color: color-mix(in srgb, var(--color-text) 82%, transparent);">{{ p }}</p>
                 </sc-for>
-                <div style="margin-top: 30px; border-radius: 28px; background: var(--color-surface); padding: 8px 22px 14px;">
+                <div class="speclist" style="margin-top: 30px; border-radius: 28px; background: var(--color-surface); padding: 8px 22px 14px;">
                   <sc-for list="{{ s.specs }}" as="sp" hint-placeholder-count="4">
-                    <div style="display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr); gap: 6px 20px; padding: 12px 0; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 9%, transparent);">
+                    <div class="specrow" style="display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr); gap: 6px 20px; padding: 12px 0; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 9%, transparent);">
                       <span style="font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; color: color-mix(in srgb, var(--color-text) 62%, transparent); padding-top: 3px;">{{ sp.k }}</span>
                       <span style="font-size: 14.5px; line-height: 24px;">{{ sp.v }}</span>
                     </div>
@@ -82,7 +118,7 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
           <sc-if value="{{ stackedLayout }}" hint-placeholder-val="{{ false }}">
             <div>
               <span style="display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--color-accent-700); margin-bottom: 14px;">{{ s.kicker }}</span>
-              <h2 style="font-family: var(--font-heading); font-size: 40px; line-height: 48px; margin: 0; max-width: 24ch;">{{ s.title }}</h2>
+              <h2 class="docsech2" style="font-family: var(--font-heading); font-size: 40px; line-height: 48px; margin: 0; max-width: 24ch;">{{ s.title }}</h2>
               <figure style="margin: 34px 0 0; border-radius: 44px; background: var(--color-accent-2-100); padding: 44px 0 0; display: flex; justify-content: center; overflow: hidden;">
                 <div style="margin-bottom: -120px;">
                   <dc-import name="ShoppApp" mode="{{ s.mode }}" hint-size="340px,700px"></dc-import>
@@ -110,7 +146,7 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
 
       <section id="model" style="padding: 52px 0; border-top: 1px solid var(--color-divider); scroll-margin-top: 20px;">
         <span style="display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--color-accent-700); margin-bottom: 14px;">Appendix</span>
-        <h2 style="font-family: var(--font-heading); font-size: 33px; line-height: 42px; margin: 0;">Data model</h2>
+        <h2 class="docsech2" style="font-family: var(--font-heading); font-size: 33px; line-height: 42px; margin: 0;">Data model</h2>
         <p style="font-size: 15.5px; line-height: 28px; margin: 22px 0 34px; max-width: 56ch; color: color-mix(in srgb, var(--color-text) 82%, transparent);">Two entities. Client-generated UUID keys and <code style="font-family: var(--font-body); color: var(--color-accent-700);">updated_at</code> on every row from day one, and soft deletes everywhere — all three are free now and expensive to retrofit when sync arrives.</p>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 34px;">
           <div>
@@ -149,11 +185,11 @@ a.q:hover { color: var(--color-accent); text-decoration: underline; text-underli
 
       <section id="cut" style="padding: 52px 0 62px; border-top: 1px solid var(--color-divider); scroll-margin-top: 20px;">
         <span style="display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--color-accent-700); margin-bottom: 14px;">Appendix</span>
-        <h2 style="font-family: var(--font-heading); font-size: 33px; line-height: 42px; margin: 0;">Cut from v1, and why</h2>
+        <h2 class="docsech2" style="font-family: var(--font-heading); font-size: 33px; line-height: 42px; margin: 0;">Cut from v1, and why</h2>
         <p style="font-size: 15.5px; line-height: 28px; margin: 22px 0 30px; max-width: 56ch; color: color-mix(in srgb, var(--color-text) 82%, transparent);">Recorded so these do not quietly return during implementation.</p>
         <div style="border-radius: 28px; background: var(--color-surface); padding: 8px 26px 14px;">
           <sc-for list="{{ cuts }}" as="c" hint-placeholder-count="8">
-            <div style="display: grid; grid-template-columns: minmax(0, 230px) minmax(0, 1fr); gap: 6px 28px; padding: 15px 0; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 9%, transparent);">
+            <div class="specrow" style="display: grid; grid-template-columns: minmax(0, 230px) minmax(0, 1fr); gap: 6px 28px; padding: 15px 0; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 9%, transparent);">
               <span style="font-size: 15px; font-weight: 600;">{{ c.k }}</span>
               <span style="font-size: 14.5px; line-height: 24px; color: color-mix(in srgb, var(--color-text) 80%, transparent);">{{ c.v }}</span>
             </div>
@@ -240,7 +276,7 @@ const SECTIONS = [
     caption: 'Merge picks a target; the source label is removed, not its items.',
     paras: [
       'The real failure mode is @costco and @costo. Merge asks for a target, reassigns every item to it, and removes the source label. Items are never deleted along with a label.',
-      'A merge is recorded as reassignment plus removal rather than as a rename. When accounts and sync arrive in 2.0 that distinction is what keeps two clients from diverging.'
+      'A merge is recorded as reassignment plus removal rather than as a rename. When accounts and sync arrive in 2.0 that distinction is what keeps two devices from diverging.'
     ],
     specs: [
       { k: 'Source', v: 'The label being merged away. Tombstoned, not hard-deleted.' },
@@ -251,35 +287,49 @@ const SECTIONS = [
   },
   {
     id: 'capture', mode: 'tile', kicker: 'Platform', title: 'Capture from outside the app',
-    caption: 'The Android Quick Settings tile opens the overlay in place.',
+    caption: 'The Quick Settings tile opens the overlay in place, over the shade.',
     paras: [
-      'External surfaces open the same overlay as the in-app button — the same component, with sticky label and stay-open submit intact. Where the platform allows, it works without unlocking to the full app.',
-      'This is the highest-leverage feature in the product and the most platform-fragmented: expect three separate native implementations. It receives the budget freed by cutting drag-and-drop and multi-select.'
+      'The Quick Settings tile opens the same overlay as the in-app button — the same component, with sticky label and stay-open submit intact. It works from the shade without unlocking to the full app.',
+      'This is the highest-leverage feature in the product. It is also the only part of v1 that is genuinely native rather than shared, and it receives the implementation budget freed by cutting drag-and-drop and multi-select.'
     ],
     specs: [
-      { k: 'Android', v: 'Quick Settings tile → Quick Add overlay. P0.' },
-      { k: 'iOS', v: 'Control Center control → Quick Add overlay. P0.' },
-      { k: 'iOS, later', v: 'Lock Screen widget, Action Button, Shortcuts and Siri intent. P1.' },
-      { k: 'Web', v: 'Installable PWA with an app shortcut straight to Quick Add. P1.' }
+      { k: 'Surface', v: 'Quick Settings tile → Quick Add overlay. P0.' },
+      { k: 'Locked', v: 'Usable from the lock screen without unlocking to the full app.' },
+      { k: 'Component', v: 'Identical to the in-app overlay. Sticky label and stay-open submit are not re-implemented.' },
+      { k: 'Fallback', v: 'Tapping the tile with the app already open focuses the existing overlay rather than stacking a second one.' }
     ]
   }
 ];
 
 const CUTS = [
   { k: 'Notes field per item', v: 'Quantity, brand and links all fit in the free-text title. A second field forces expand/collapse state, taller rows and a second edit mode — it breaks the one-line row that defines the look.' },
-  { k: 'Drag and drop between sections', v: 'Expensive across three platforms, collides with long press, and solves a weekly four-second problem already solved by editing the @token.' },
+  { k: 'Drag and drop between sections', v: 'Expensive to build against sticky headers, collides with long press, and solves a weekly four-second problem already solved by editing the @token.' },
   { k: 'Long-press multi-select', v: 'Duplicates the job of drag-and-drop. Bulk complete is already cheap — five taps beats long press, four taps, then hunting for the action.' },
   { k: 'Cycling label button', v: 'O(n) taps. Fine at three labels, a slot machine at eight. The chip row is O(1) in the same pixel budget.' },
   { k: 'Comma splitting', v: 'Genuinely ambiguous: “carrots, 2lb organic bag”. Newline-only needs no preview UI and no explanation.' },
-  { k: 'Daily purge job', v: 'No cron on web, unreliable in the background on mobile. Trimming opportunistically on write is sufficient.' },
+  { k: 'Daily purge job', v: 'Background execution on Android is unreliable and cannot be counted on. Trimming opportunistically on write is sufficient.' },
   { k: 'Custom label colours', v: 'An override for a system that already works, controlling an 8px dot.' },
   { k: 'Three-day expiry', v: 'Shorter than the weekly grocery cycle, so it would routinely show an empty screen. Replaced by a 100-item cap.' }
 ];
 
 class Component extends DCLogic {
+  state = { theme: 'light' };
+  componentDidMount() {
+    try { const t = localStorage.getItem('shopp-theme'); if (t === 'dark' || t === 'light') this.setState({ theme: t }); } catch (e) {}
+  }
+  toggleTheme = () => {
+    const next = this.state.theme === 'dark' ? 'light' : 'dark';
+    this.setState({ theme: next });
+    try { localStorage.setItem('shopp-theme', next); } catch (e) {}
+  };
+
   renderVals() {
     const layout = this.props.docsLayout ?? 'split';
     return {
+      theme: this.state.theme,
+      isDark: this.state.theme === 'dark',
+      isLight: this.state.theme !== 'dark',
+      toggleTheme: this.toggleTheme,
       sections: SECTIONS,
       cuts: CUTS,
       splitLayout: layout === 'split',

@@ -176,7 +176,7 @@ private fun CompleteCheckbox(completing: Boolean, onTap: () -> Unit, modifier: M
                 imageVector = Icons.Filled.Check,
                 contentDescription = null,
                 tint = colors.onAccent.copy(alpha = checkAlpha),
-                modifier = Modifier.size(12.dp),
+                modifier = Modifier.size(14.dp),
             )
         }
     }

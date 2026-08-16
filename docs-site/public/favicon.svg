@@ -4,12 +4,12 @@
   <path d="M11.5 16.3 14.5 19.3 20.8 12.6" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" class="check" />
   <style>
     .bg { fill: #ffffff; }
-    .ring { stroke: #c4c4c4; }
-    .check { stroke: #e53935; }
+    .ring { stroke: #b3aea5; }
+    .check { stroke: #b2622d; }
     @media (prefers-color-scheme: dark) {
-      .bg { fill: #212121; }
-      .ring { stroke: #ffd400; }
-      .check { stroke: #ffd400; }
+      .bg { fill: #211e19; }
+      .ring { stroke: #f6a06b; }
+      .check { stroke: #f6a06b; }
     }
   </style>
 </svg>

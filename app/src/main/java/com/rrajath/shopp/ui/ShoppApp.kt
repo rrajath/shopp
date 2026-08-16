@@ -139,7 +139,6 @@ fun ShoppApp(viewModel: ShoppViewModel) {
                             activeCounts = activeCounts,
                             onFilter = viewModel::filterByLabel,
                             onRename = viewModel::renameLabel,
-                            onColorChange = viewModel::setLabelColor,
                             onMerge = viewModel::mergeLabels,
                             onDelete = viewModel::deleteLabel,
                         )
