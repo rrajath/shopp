@@ -42,11 +42,19 @@ import com.rrajath.shopp.data.db.ItemEntity
 import com.rrajath.shopp.ui.theme.ShoppDimens
 import com.rrajath.shopp.ui.theme.ShoppTheme
 import com.rrajath.shopp.ui.theme.ShoppType
+import kotlinx.coroutines.delay
+
+// Checkbox fill/check animations below total ~180ms; give them a beat to
+// finish before the row actually leaves the list.
+private const val COMPLETE_REMOVE_DELAY_MS = 200L
 
 /**
- * TDD §6.2/§7.4: tap checkbox completes (write fires immediately, the local
- * `completing` flag only drives the visual transition); tap elsewhere on the
- * row enters edit mode with the caret placed at the tap position via
+ * TDD §6.2/§7.4: tap checkbox marks `completing` immediately (drives the
+ * visual transition); [onComplete] -- the actual write -- fires after
+ * [COMPLETE_REMOVE_DELAY_MS] so the checkbox finishes filling before the row
+ * fades out of the list (see [LazyItemScope.animateItem] on the caller's
+ * `items` block). Tap elsewhere on the row enters edit mode with the caret
+ * placed at the tap position via
  * [androidx.compose.ui.text.TextLayoutResult.getOffsetForPosition].
  */
 @Composable
@@ -62,6 +70,13 @@ fun ItemRow(
     var fieldValue by remember(item.id) { mutableStateOf(TextFieldValue(item.title)) }
     var textLayout by remember(item.id) { mutableStateOf<TextLayoutResult?>(null) }
     val focusRequester = remember(item.id) { FocusRequester() }
+
+    LaunchedEffect(completing) {
+        if (completing) {
+            delay(COMPLETE_REMOVE_DELAY_MS)
+            onComplete()
+        }
+    }
 
     fun commitIfChanged() {
         val newTitle = fieldValue.text.trim()
@@ -81,10 +96,7 @@ fun ItemRow(
         CompleteCheckbox(
             completing = completing,
             onTap = {
-                if (!completing) {
-                    completing = true
-                    onComplete()
-                }
+                if (!completing) completing = true
             },
         )
 

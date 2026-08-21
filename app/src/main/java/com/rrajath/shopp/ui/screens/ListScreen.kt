@@ -81,6 +81,7 @@ fun ListScreen(
                             item = item,
                             onComplete = { onCompleteItem(item) },
                             onCommitEdit = { newTitle -> onCommitEdit(item.id, newTitle) },
+                            modifier = Modifier.animateItem(),
                         )
                     }
                 }
