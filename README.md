@@ -79,9 +79,18 @@ Both `keystore.properties` and `app/keystore/` are gitignored. If `keystore.prop
 
 The release build type has R8 minification and resource shrinking enabled (`isMinifyEnabled`/`isShrinkResources`), which cuts the APK from ~12 MB down to ~1.6 MB. The debug build type stays unminified for fast iteration and readable stack traces.
 
-**Automated releases**
+**Cutting a release**
 
-`.github/workflows/release.yml` builds a signed release APK and publishes a GitHub Release (tagged `v0.1-<run number>`) on every push to `main`. It needs four repository secrets under Settings > Secrets and variables > Actions:
+Releases are manual, not triggered by every push to `main`. `.github/workflows/release.yml` builds a signed release APK and publishes a GitHub Release when you either:
+
+- run it by hand from the Actions tab (or `gh workflow run release.yml`), or
+- push a git tag matching `v*` (e.g. `git tag v0.2 && git push origin v0.2`)
+
+`versionName` is hand-controlled: bump `VERSION_NAME` in `gradle.properties` before cutting a release. `versionCode` is computed automatically by the workflow as `(existing GitHub release count) + 1` and passed to Gradle via `-PVERSION_CODE`, so it always increments by one and never needs manual bookkeeping. Local builds default `versionCode` to `1` since the exact value doesn't matter outside of a release.
+
+The release tag is either the git tag you pushed, or (if triggered manually) `v<VERSION_NAME>-<computed versionCode>`.
+
+The workflow needs four repository secrets under Settings > Secrets and variables > Actions:
 
 | Secret | Value |
 | --- | --- |

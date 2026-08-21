@@ -1,14 +1,10 @@
 name: Release
 
 on:
+  workflow_dispatch: {}
   push:
-    branches: [main]
-    paths-ignore:
-      - "docs-site/**"
-      - "internal-docs/**"
-      - "screenshots/**"
-      - "docs/**"
-      - "README.md"
+    tags:
+      - "v*"
 
 permissions:
   contents: write
@@ -27,6 +23,23 @@ jobs:
           java-version: "21"
           cache: gradle
 
+      - name: Compute next version code
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_COUNT=$(gh release list --repo "${{ github.repository }}" --limit 1000 | wc -l | tr -d ' ')
+          VERSION_CODE=$((RELEASE_COUNT + 1))
+          echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
+
+      - name: Determine release tag
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "RELEASE_TAG=${{ github.ref_name }}" >> "$GITHUB_ENV"
+          else
+            VERSION_NAME=$(grep '^VERSION_NAME=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
+            echo "RELEASE_TAG=v${VERSION_NAME}-${VERSION_CODE}" >> "$GITHUB_ENV"
+          fi
+
       - name: Decode release keystore
         run: |
           mkdir -p app/keystore
@@ -42,14 +55,13 @@ jobs:
           EOF
 
       - name: Build release APK
-        run: ./gradlew :app:assembleRelease --no-daemon
+        run: ./gradlew :app:assembleRelease --no-daemon -PVERSION_CODE=${{ env.VERSION_CODE }}
 
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="v0.1-${{ github.run_number }}"
           APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
-          gh release create "$TAG" "$APK_PATH" \
-            --title "$TAG" \
+          gh release create "$RELEASE_TAG" "$APK_PATH" \
+            --title "$RELEASE_TAG" \
             --generate-notes

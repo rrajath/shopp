@@ -22,8 +22,11 @@ android {
         applicationId = "com.rrajath.shopp"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1"
+        // versionName is hand-controlled via VERSION_NAME in gradle.properties.
+        // versionCode is computed by the release workflow and passed as -PVERSION_CODE;
+        // it defaults to 1 for local builds, where the exact value doesn't matter.
+        versionCode = (findProperty("VERSION_CODE") as String?)?.toIntOrNull() ?: 1
+        versionName = findProperty("VERSION_NAME") as String? ?: "0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
