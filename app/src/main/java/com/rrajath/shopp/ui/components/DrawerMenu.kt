@@ -126,7 +126,8 @@ fun DrawerMenu(
             )
             Spacer(Modifier.weight(1f))
             Text(
-                text = "$appName ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                text = "$appName ${BuildConfig.VERSION_NAME}" +
+                    if (BuildConfig.DEBUG) " (debug)" else "",
                 style = ShoppType.footerNote.copy(color = colors.muted),
                 modifier = Modifier.padding(
                     horizontal = ShoppDimens.drawerTitlePaddingHorizontal,
