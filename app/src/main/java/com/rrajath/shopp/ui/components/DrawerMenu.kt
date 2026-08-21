@@ -25,9 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.rrajath.shopp.BuildConfig
+import com.rrajath.shopp.R
 import com.rrajath.shopp.ui.Screen
 import com.rrajath.shopp.ui.theme.ShoppDimens
 import com.rrajath.shopp.ui.theme.ShoppTheme
@@ -57,6 +59,7 @@ fun DrawerMenu(
 ) {
     if (progress <= 0f) return
 
+    val appName = stringResource(R.string.app_name)
     val colors = ShoppTheme.colors
     val drawerWidthPx = with(LocalDensity.current) { ShoppDimens.drawerWidth.toPx() }
 
@@ -90,7 +93,7 @@ fun DrawerMenu(
                 .padding(top = ShoppDimens.drawerTopPadding),
         ) {
             Text(
-                text = "Shopp",
+                text = appName,
                 style = ShoppType.drawerTitle.copy(color = colors.foreground),
                 modifier = Modifier.padding(
                     horizontal = ShoppDimens.drawerTitlePaddingHorizontal,
@@ -123,7 +126,7 @@ fun DrawerMenu(
             )
             Spacer(Modifier.weight(1f))
             Text(
-                text = "Shopp ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                text = "$appName ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
                 style = ShoppType.footerNote.copy(color = colors.muted),
                 modifier = Modifier.padding(
                     horizontal = ShoppDimens.drawerTitlePaddingHorizontal,

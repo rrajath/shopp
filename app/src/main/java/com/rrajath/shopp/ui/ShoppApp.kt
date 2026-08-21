@@ -18,6 +18,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import com.rrajath.shopp.R
 import com.rrajath.shopp.ui.components.ConfirmDialog
 import com.rrajath.shopp.ui.components.DrawerCounts
 import com.rrajath.shopp.ui.components.DrawerMenu
@@ -73,9 +75,10 @@ fun ShoppApp(viewModel: ShoppViewModel) {
         if (opening) viewModel.openDrawer() else viewModel.closeDrawer()
     }
 
+    val appName = stringResource(R.string.app_name)
     val filterLabel = filterLabelId?.let { id -> labels.find { it.id == id } }
     val title = when (screen) {
-        Screen.LIST -> filterLabel?.name ?: "Shopp"
+        Screen.LIST -> filterLabel?.name ?: appName
         Screen.RECENTLY_COMPLETED -> "Recently completed"
         Screen.LABELS -> "Labels"
         Screen.SETTINGS -> "Settings"
