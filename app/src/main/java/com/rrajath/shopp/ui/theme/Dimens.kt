@@ -156,4 +156,10 @@ object ShoppDimens {
     val themeSegmentContainerCornerRadius = 100.dp
     val toggleRowPaddingVertical = 14.dp
     val toggleRowGap = 18.dp
+
+    // Widget section (not in the prototype -- this app's own Settings
+    // addition for the home-screen widget's background transparency).
+    // Matches the toggle rows' horizontal rhythm/vertical padding.
+    val sliderRowPaddingVertical = 14.dp
+    val sliderRowGap = 4.dp
 }

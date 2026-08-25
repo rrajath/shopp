@@ -37,7 +37,8 @@ Shopping lists fail at the moment they're needed most: standing in an aisle, or 
 - **URL linkification** — a URL typed into a title becomes a tappable link without entering edit mode.
 - **Recently Completed** — a reverse-chronological log of completed items, grouped by day, with tap-to-re-add and a Clear action (optionally confirmed).
 - **Labels management** — rename, recolor (pick from a 15-color palette, or let it auto-allocate), merge, or delete labels via a long-press sheet; deleting a label moves its items to Inbox rather than deleting them, merging reassigns items then removes the source label, both atomically.
-- **Settings** — System/Light/Dark appearance, and three behavior toggles (group by label, keep Quick Add open after submit, confirm before clearing Recently Completed).
+- **Settings** — System/Light/Dark appearance, three behavior toggles (group by label, keep Quick Add open after submit, confirm before clearing Recently Completed), and a home-screen widget background transparency slider.
+- **Home screen widget** — a resizable widget showing your sectioned list with tap-to-complete, an Add button that opens the same capture overlay as the FAB/Quick Settings tile, and an adjustable card transparency.
 
 ## Setup
 
@@ -103,6 +104,10 @@ The workflow needs four repository secrets under Settings > Secrets and variable
 
 Pull down the notification shade twice to reach Quick Settings, tap the pencil/edit icon, and drag the "Add to Shopp" tile into your active tiles. Long-pressing (or tapping, depending on Android version) it opens the capture sheet without unlocking the phone.
 
+**Try the home screen widget**
+
+Long-press an empty area of your home screen, choose Widgets, find "Shopp", and drag it onto your home screen. It's resizable, and the number of visible items adapts to its size; tap an item to complete it, or tap the `+` to add a new one. Adjust how see-through its card is from Settings > Widget.
+
 ## Architecture
 
 Shopp is a single Kotlin + Jetpack Compose Gradle module (`:app`) — no multiplatform tooling, no backend, no network calls. Everything lives in one on-device Room (SQLite) database:
@@ -111,6 +116,7 @@ Shopp is a single Kotlin + Jetpack Compose Gradle module (`:app`) — no multipl
 - **Domain/use cases**: pure Kotlin (`domain/`, `usecases/`) — the `@label` capture parser, UUIDv7 generation, label color allocation, and one class per mutation (capture, complete, undo, merge, delete, etc.), each wrapped in a single Room transaction.
 - **Data**: Room entities and DAOs (`data/db/`, `data/repository/`) implementing the schema from the technical design doc — UUID primary keys, `updated_at` on every row, and soft deletes (tombstones) everywhere, so the app is sync-ready even though v1 has no accounts or sync.
 - **Capture surface**: the Android Quick Settings tile (`capture/QuickAddTileService.kt`, `CaptureActivity.kt`) opens the *exact same* Quick Add UI and controller as the in-app FAB, sharing the same `AppContainer` and database connection — not a separate, simplified implementation that could drift out of sync.
+- **Home screen widget**: a Glance-based widget (`widget/`) reading the same `AppContainer`/database as everything else — a third surface on the same shared state, not a separate data path.
 
 The product requirements and technical design docs (`internal-docs/`) originally specified a cross-platform React Native + iOS + web build with native "capture kernels." The shipped app is pure native Android instead, which removes that plan's biggest engineering risk (keeping a capture parser in sync across three languages) by construction — see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full package breakdown and the reasoning behind every deviation from those documents, and [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) for the color/type/spacing tokens and component inventory.
 

@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -34,10 +36,12 @@ fun SettingsScreen(
     groupByLabel: Boolean,
     keepQuickAddOpen: Boolean,
     confirmBeforeClearing: Boolean,
+    widgetTransparency: Float,
     onThemeModeChange: (ThemeMode) -> Unit,
     onGroupByLabelChange: (Boolean) -> Unit,
     onKeepQuickAddOpenChange: (Boolean) -> Unit,
     onConfirmBeforeClearingChange: (Boolean) -> Unit,
+    onWidgetTransparencyChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = ShoppTheme.colors
@@ -74,6 +78,14 @@ fun SettingsScreen(
             hint = "Ask before emptying Recently completed.",
             checked = confirmBeforeClearing,
             onCheckedChange = onConfirmBeforeClearingChange,
+        )
+
+        SectionLabel(text = "Widget", topPadding = ShoppDimens.settingsSectionLabelPaddingTopSecond)
+        SliderRow(
+            name = "Background transparency",
+            hint = "How see-through the home screen widget's card is.",
+            value = widgetTransparency,
+            onValueChange = onWidgetTransparencyChange,
         )
     }
 }
@@ -155,6 +167,34 @@ private fun ToggleRow(name: String, hint: String, checked: Boolean, onCheckedCha
             Text(text = hint, style = ShoppType.toggleHint.copy(color = colors.muted))
         }
         ToggleSwitch(checked = checked, onCheckedChange = onCheckedChange)
+    }
+}
+
+@Composable
+private fun SliderRow(name: String, hint: String, value: Float, onValueChange: (Float) -> Unit) {
+    val colors = ShoppTheme.colors
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = ShoppDimens.labelsTitlePaddingHorizontal,
+                vertical = ShoppDimens.sliderRowPaddingVertical,
+            ),
+    ) {
+        Text(text = name, style = ShoppType.toggleName.copy(color = colors.foreground))
+        Text(text = hint, style = ShoppType.toggleHint.copy(color = colors.muted))
+        Slider(
+            value = value,
+            onValueChange = onValueChange,
+            colors = SliderDefaults.colors(
+                thumbColor = colors.accent,
+                activeTrackColor = colors.accent,
+                inactiveTrackColor = colors.line,
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = ShoppDimens.sliderRowGap),
+        )
     }
 }
 

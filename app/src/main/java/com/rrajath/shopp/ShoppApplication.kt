@@ -19,6 +19,12 @@ import com.rrajath.shopp.usecases.ReaddCompleted
 import com.rrajath.shopp.usecases.RenameLabel
 import com.rrajath.shopp.usecases.SetLabelColor
 import com.rrajath.shopp.usecases.UndoComplete
+import com.rrajath.shopp.widget.ShoppWidget
+import androidx.glance.appwidget.updateAll
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.combine
 
 // Manual DI container. MainActivity and CaptureActivity both read this off
 // the Application instance, so they share the exact same Room connection
@@ -50,8 +56,26 @@ class ShoppApplication : Application() {
     lateinit var container: AppContainer
         private set
 
+    // Lives for the process's whole lifetime -- backs the widget-refresh
+    // collector below, independent of any single Activity/ViewModel scope.
+    private val applicationScope = CoroutineScope(SupervisorJob())
+
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+
+        // Keeps the home-screen widget in sync even when its own Glance
+        // session isn't currently active (e.g. it hasn't been redrawn in a
+        // while) -- see docs/DESIGN_SYSTEM.md, "Home screen widget". The
+        // widget's own provideContent also collects these flows directly
+        // while a session *is* alive; this is the belt-and-suspenders path.
+        applicationScope.launch {
+            combine(
+                container.itemRepository.observeActiveItems(),
+                container.labelRepository.observeLabels(),
+            ) { _, _ -> Unit }.collect {
+                ShoppWidget().updateAll(this@ShoppApplication)
+            }
+        }
     }
 }

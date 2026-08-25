@@ -29,6 +29,8 @@ com.rrajath.shopp/
 ├─ domain/                   parseCapture(), Uuidv7, Clock, LabelColorAllocator, LabelNameFolding
 ├─ usecases/                 One class per mutation: CaptureItems, CompleteItem, UndoComplete,
 │                             EditTitle, RenameLabel, MergeLabels, DeleteLabel, ReaddCompleted
+├─ widget/                   Home-screen widget (Glance): ShoppWidgetReceiver, ShoppWidget,
+│                             ShoppWidgetContent, CompleteItemAction
 └─ ui/
    ├─ theme/                 ShoppColors, ShoppType, ShoppDimens, ShoppTheme
    ├─ components/            QuickAddOverlay, ItemRow, LabelChipRow, DrawerMenu, UndoToast, ...
@@ -77,6 +79,18 @@ Each use case in `usecases/` corresponds to one row in TDD §4.3 and wraps its w
 `CaptureActivity` is `exported="false"`: only the app's own `TileService` can launch it. This was verified on-device — `adb shell am start` targeting it directly from a different UID fails with a `SecurityException`, as expected.
 
 **Real bug found and fixed**: `CaptureActivity` had no explicit `android:taskAffinity`, so it inherited the same default affinity as `MainActivity` (the app's package name). Combined with `launchMode="singleTask"` and `FLAG_ACTIVITY_NEW_TASK`, Android resolves the target task by *affinity*, not by which Activity is requested, so if `MainActivity`'s task already existed in the background, tapping the tile brought that whole task (and `MainActivity` with it) to the foreground first, then placed `CaptureActivity` on top of it in the same task. This read as "the app opens, then the dialog appears": a real, reproducible launch-path bug, not just a styling issue. Fixed with `android:taskAffinity=""` on `CaptureActivity`, which forces Android to always create a new, isolated task for it regardless of what other tasks already exist.
+
+## The home-screen widget
+
+Built on Glance (`androidx.glance:glance-appwidget`), not classic RemoteViews/XML, so it can read the app's existing Compose-based color/spacing tokens (`ShoppColors`, `ShoppDimens`) directly instead of duplicating them as a second set of Android resources. `ShoppWidgetReceiver` (a `GlanceAppWidgetReceiver`) just points at `ShoppWidget` (a `GlanceAppWidget`), which reads `(context.applicationContext as ShoppApplication).container` — the exact same `AppContainer` singleton `MainActivity` and `CaptureActivity` already share, so the widget is a third reader/writer of the same Room database rather than a separate data path.
+
+**Sections and sizing.** `ShoppWidget.provideGlance` calls the same top-level `buildSections()` function `ShoppViewModel` uses (extracted from a private method to a shared one for this purpose), always with `groupByLabel = true`, then drops empty sections — the widget has no "Inbox always pinned" behavior the List screen has, since wasting a section header on nothing is a worse trade at widget scale. `sizeMode = SizeMode.Exact` gives `LocalSize.current` at composition time; a small height budget (fixed chrome heights for the header/divider/section-header/item-row, mirroring `ShoppDimens` where possible) decides how many items are actually shown before falling back to a trailing "N more items" line, porting the original design prototype's own `rowCount`/`hasMore` capping logic into a size-driven form instead of a fixed constant.
+
+**Tap-to-complete.** Tapping an item runs `CompleteItemAction` (a Glance `ActionCallback`) which calls `container.completeItem(itemId)` — the same `CompleteItem` use case the in-app FAB uses — then explicitly triggers a widget update. Because the widget only ever queries `observeActiveItems()`, a completed item simply stops appearing on the next recomposition; there's no interim "checked" visual state to manage, unlike the in-app `ItemRow`'s optimistic-delay animation.
+
+**Freshness.** Two mechanisms, not one: `provideContent { }` uses `collectAsState()` directly on the item/label/preference Flows, so an active Glance session recomposes reactively like any other screen; separately, `ShoppApplication.onCreate()` starts an application-scoped coroutine that collects `combine(observeActiveItems, observeLabels)` and calls `ShoppWidget().updateAll(context)` on every emission, covering the case where the app process is alive but the widget's own session currently isn't. `updatePeriodMillis` in `shopp_widget_info.xml` is set to Android's enforced floor (30 minutes) purely as a last-resort safety net after process death, not as the primary refresh path.
+
+**Known Glance limitation.** `androidx.glance.text.TextStyle` has no `fontFamily` field — RemoteViews-backed widgets can't use the app's self-hosted Caprasimo/Figtree fonts, so widget text renders in the system default font. Every other token (color, size, weight, letter-spacing, the section-header's no-dot colored-text treatment) still matches the in-app `SectionHeader`/`ItemRow`.
 
 ## Testing
 

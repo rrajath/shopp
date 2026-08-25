@@ -36,6 +36,18 @@
             android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.Shopp.Capture" />
 
+        <receiver
+            android:name=".widget.ShoppWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/shopp_widget_info" />
+        </receiver>
+
         <service
             android:name=".capture.QuickAddTileService"
             android:exported="true"

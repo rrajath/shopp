@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Resizable home-screen widget (see docs/DESIGN_SYSTEM.md, "Home screen
+  widget"). minWidth/minHeight is roughly 3x2 cells; users can resize up to
+  the app's own card max width. previewImage reuses the launcher icon rather
+  than a bespoke widget screenshot, which is out of scope for this pass.
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="180dp"
+    android:minHeight="140dp"
+    android:targetCellWidth="3"
+    android:targetCellHeight="2"
+    android:maxResizeWidth="400dp"
+    android:maxResizeHeight="640dp"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:previewImage="@mipmap/ic_launcher"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:updatePeriodMillis="1800000" />

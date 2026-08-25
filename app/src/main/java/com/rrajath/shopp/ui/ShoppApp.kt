@@ -48,6 +48,7 @@ fun ShoppApp(viewModel: ShoppViewModel) {
     val groupByLabel by viewModel.groupByLabel.collectAsState()
     val keepQuickAddOpen by viewModel.keepQuickAddOpen.collectAsState()
     val confirmBeforeClearing by viewModel.confirmBeforeClearing.collectAsState()
+    val widgetTransparency by viewModel.widgetTransparency.collectAsState()
     val themeMode by viewModel.themeMode.collectAsState()
 
     var showClearConfirm by remember { mutableStateOf(false) }
@@ -153,10 +154,12 @@ fun ShoppApp(viewModel: ShoppViewModel) {
                         groupByLabel = groupByLabel,
                         keepQuickAddOpen = keepQuickAddOpen,
                         confirmBeforeClearing = confirmBeforeClearing,
+                        widgetTransparency = widgetTransparency,
                         onThemeModeChange = viewModel::setThemeMode,
                         onGroupByLabelChange = viewModel::setGroupByLabel,
                         onKeepQuickAddOpenChange = viewModel::setKeepQuickAddOpen,
                         onConfirmBeforeClearingChange = viewModel::setConfirmBeforeClearing,
+                        onWidgetTransparencyChange = viewModel::setWidgetTransparency,
                     )
                 }
             }

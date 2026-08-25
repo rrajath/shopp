@@ -89,6 +89,8 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
     val confirmBeforeClearing: StateFlow<Boolean> = container.preferencesRepository.confirmBeforeClearing
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+    val widgetTransparency: StateFlow<Float> = container.preferencesRepository.widgetTransparency
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 1f)
 
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch { container.preferencesRepository.setThemeMode(mode) }
@@ -104,6 +106,10 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
 
     fun setConfirmBeforeClearing(value: Boolean) {
         viewModelScope.launch { container.preferencesRepository.setConfirmBeforeClearing(value) }
+    }
+
+    fun setWidgetTransparency(value: Float) {
+        viewModelScope.launch { container.preferencesRepository.setWidgetTransparency(value) }
     }
 
     // --- List screen ---
@@ -224,36 +230,38 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch { container.deleteLabel(labelId) }
     }
 
-    // Inbox is always pinned first, even when empty (PRD §7.3) -- a
-    // deliberate deviation from the prototype's mockup logic, which only
-    // renders a section once it has at least one item. When ungrouped, a
-    // single "All items" (or the filtered label's name) section is used
-    // instead, matching the prototype's `group` toggle.
-    private fun buildSections(
-        items: List<ItemEntity>,
-        labels: List<LabelEntity>,
-        groupByLabel: Boolean,
-        filterLabelId: String?,
-    ): List<ListSection> {
-        val filtered = if (filterLabelId != null) items.filter { it.labelId == filterLabelId } else items
+}
 
-        if (!groupByLabel) {
-            if (filtered.isEmpty()) return emptyList()
-            val filterLabel = filterLabelId?.let { id -> labels.find { it.id == id } }
-            val name = filterLabel?.name ?: "All items"
-            return listOf(ListSection(filterLabelId, name, filterLabel?.colorIndex, filtered))
-        }
+// Inbox is always pinned first, even when empty (PRD §7.3) -- a deliberate
+// deviation from the prototype's mockup logic, which only renders a section
+// once it has at least one item. When ungrouped, a single "All items" (or the
+// filtered label's name) section is used instead, matching the prototype's
+// `group` toggle. Top-level (not a ShoppViewModel method) so the home-screen
+// widget (see widget/ShoppWidget.kt) can reuse the exact same grouping logic.
+fun buildSections(
+    items: List<ItemEntity>,
+    labels: List<LabelEntity>,
+    groupByLabel: Boolean,
+    filterLabelId: String?,
+): List<ListSection> {
+    val filtered = if (filterLabelId != null) items.filter { it.labelId == filterLabelId } else items
 
-        val byLabel = filtered.groupBy { it.labelId }
-        val sections = mutableListOf(ListSection(null, "Inbox", null, byLabel[null].orEmpty()))
-        for (label in labels) {
-            val labelItems = byLabel[label.id]
-            if (!labelItems.isNullOrEmpty()) {
-                sections += ListSection(label.id, label.name, label.colorIndex, labelItems)
-            }
-        }
-        return sections
+    if (!groupByLabel) {
+        if (filtered.isEmpty()) return emptyList()
+        val filterLabel = filterLabelId?.let { id -> labels.find { it.id == id } }
+        val name = filterLabel?.name ?: "All items"
+        return listOf(ListSection(filterLabelId, name, filterLabel?.colorIndex, filtered))
     }
+
+    val byLabel = filtered.groupBy { it.labelId }
+    val sections = mutableListOf(ListSection(null, "Inbox", null, byLabel[null].orEmpty()))
+    for (label in labels) {
+        val labelItems = byLabel[label.id]
+        if (!labelItems.isNullOrEmpty()) {
+            sections += ListSection(label.id, label.name, label.colorIndex, labelItems)
+        }
+    }
+    return sections
 }
 
 class ShoppViewModelFactory(private val container: AppContainer) : ViewModelProvider.Factory {
