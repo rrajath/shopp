@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Shopp Debug</string>
+    <string name="widget_label">Shopp Debug</string>
 </resources>

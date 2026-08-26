@@ -22,3 +22,6 @@ PROGRESS.md
 /keystore.properties
 /app/keystore/
 internal-docs
+
+# Local notes (plans, learnings)
+internal/

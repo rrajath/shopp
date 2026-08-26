@@ -26,7 +26,7 @@ A structural finding from the literal pass: the phone frame in `ShoppApp.dc.html
 | `doneCheckboxFill` | `#CFC8BE` | `#645C50` | Recently Completed's filled checkbox -- not depicted by the new prototype, kept from the old one |
 | `chipUnselectedFill` | `#EEE7DB` | `#474238` | Unselected label chip fill (`--color-neutral-200`; chips are filled, not outlined -- see Components inventory) |
 | `chipUnselectedText` | `#474238` | `#EEE7DB` | Unselected chip text (`--color-neutral-800` -- distinct from `foreground`) |
-| `scrim` | `#2E2B25` @ 32% | `#F9F4ED` @ 32% | Backdrop behind Quick Add card / drawer (`--color-neutral-900` @ 32%, both themes now -- previously asymmetric percentages guessed per theme). The Merge dialog's own scrim is literally 46%; `LabelManagementSheet` reuses this 32% value for both of its scrims rather than adding a second token for one sub-mode. |
+| `scrim` | `#2E2B25` @ 32% | `#2E2B25` @ 32% | Backdrop behind Quick Add card / drawer (`--color-neutral-900` light value @ 32% in both themes). **September 2026, user request**: dark theme previously used the dark-override `#F9F4ED` @ 32% literally from the prototype, which washed the screen out with a light veil (very visible behind the Quick Settings Quick Add over the launcher); the scrim now always dims. The Merge dialog's own scrim is literally 46%; `LabelManagementSheet` reuses this 32% value for both of its scrims rather than adding a second token for one sub-mode. |
 | `toastBackground` | `#2E2B25` | `#F9F4ED` | Undo toast (`--color-neutral-900`; inverts: opposite-theme-colored surface) |
 | `toastForeground` | `#EEE7DB` | `#474238` | Undo toast text (`--color-neutral-200`) |
 | `toastAction` | `#F6A06B` | `#B2622D` | "Undo" label (`--color-accent-400`, each theme) |
