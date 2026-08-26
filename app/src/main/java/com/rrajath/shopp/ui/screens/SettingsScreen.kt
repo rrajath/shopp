@@ -25,10 +25,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.rrajath.shopp.ui.theme.ShoppDimens
-import com.rrajath.shopp.ui.theme.ShoppTheme
-import com.rrajath.shopp.ui.theme.ShoppType
-import com.rrajath.shopp.ui.theme.ThemeMode
+import com.rrajath.shopp.designsystem.theme.ShoppDimens
+import com.rrajath.shopp.designsystem.theme.ShoppTheme
+import com.rrajath.shopp.designsystem.theme.ShoppType
+import com.rrajath.shopp.designsystem.theme.ThemeMode
 
 @Composable
 fun SettingsScreen(

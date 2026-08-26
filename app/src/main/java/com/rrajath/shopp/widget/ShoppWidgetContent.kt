@@ -15,6 +15,8 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.items
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -35,15 +37,14 @@ import com.rrajath.shopp.R
 import com.rrajath.shopp.capture.CaptureActivity
 import com.rrajath.shopp.data.db.ItemEntity
 import com.rrajath.shopp.ui.ListSection
-import com.rrajath.shopp.ui.theme.ShoppColors
-import com.rrajath.shopp.ui.theme.ShoppDimens
+import com.rrajath.shopp.designsystem.theme.ShoppColors
+import com.rrajath.shopp.designsystem.theme.ShoppDimens
 
 @Composable
 fun ShoppWidgetContent(
     colors: ShoppColors,
     cardAlpha: Float,
     sections: List<ListSection>,
-    hiddenCount: Int,
 ) {
     Column(
         modifier = GlanceModifier
@@ -71,31 +72,25 @@ fun ShoppWidgetContent(
                 ),
             )
         } else {
-            sections.forEach { section ->
-                val sectionColor = if (section.colorIndex == null) {
-                    colors.inboxTint
-                } else {
-                    colors.labelPalette[section.colorIndex % colors.labelPalette.size]
+            LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
+                sections.forEach { section ->
+                    val sectionColor = if (section.colorIndex == null) {
+                        colors.inboxTint
+                    } else {
+                        colors.labelPalette[section.colorIndex % colors.labelPalette.size]
+                    }
+                    item(itemId = "section-${section.labelId ?: "inbox"}".hashCode().toLong()) {
+                        SectionHeaderRow(name = section.name, color = sectionColor)
+                    }
+                    items(section.items, itemId = { it.id.hashCode().toLong() }) { item ->
+                        ItemRow(
+                            item = item,
+                            foreground = colors.foreground,
+                            checkboxBorder = colors.checkboxBorder,
+                            cardBackground = colors.background.copy(alpha = cardAlpha),
+                        )
+                    }
                 }
-                SectionHeaderRow(name = section.name, color = sectionColor)
-                section.items.forEach { item ->
-                    ItemRow(
-                        item = item,
-                        foreground = colors.foreground,
-                        checkboxBorder = colors.checkboxBorder,
-                        cardBackground = colors.background.copy(alpha = cardAlpha),
-                    )
-                }
-            }
-            if (hiddenCount > 0) {
-                Text(
-                    text = if (hiddenCount == 1) "1 more item" else "$hiddenCount more items",
-                    style = TextStyle(color = ColorProvider(colors.muted), fontSize = 12.sp),
-                    modifier = GlanceModifier.padding(
-                        horizontal = ShoppDimens.sectionHeaderPaddingHorizontal,
-                        vertical = 6.dp,
-                    ),
-                )
             }
         }
     }

@@ -19,9 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import com.rrajath.shopp.data.db.LabelEntity
-import com.rrajath.shopp.ui.theme.ShoppDimens
-import com.rrajath.shopp.ui.theme.ShoppTheme
-import com.rrajath.shopp.ui.theme.ShoppType
+import com.rrajath.shopp.designsystem.theme.ShoppDimens
+import com.rrajath.shopp.designsystem.theme.ShoppTheme
+import com.rrajath.shopp.designsystem.theme.ShoppType
 
 // Per user request (August 2026, Quick Add overlay only -- the identical
 // LabelChipRow used elsewhere in ShoppApp.dc.html keeps the old

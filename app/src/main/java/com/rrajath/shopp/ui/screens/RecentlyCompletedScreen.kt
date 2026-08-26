@@ -38,12 +38,12 @@ import androidx.compose.ui.unit.dp
 import com.rrajath.shopp.data.db.ItemEntity
 import com.rrajath.shopp.data.db.LabelEntity
 import com.rrajath.shopp.ui.UndoState
-import com.rrajath.shopp.ui.components.EmptyState
-import com.rrajath.shopp.ui.components.SectionHeader
-import com.rrajath.shopp.ui.components.UndoToast
-import com.rrajath.shopp.ui.theme.ShoppDimens
-import com.rrajath.shopp.ui.theme.ShoppTheme
-import com.rrajath.shopp.ui.theme.ShoppType
+import com.rrajath.shopp.designsystem.components.EmptyState
+import com.rrajath.shopp.designsystem.components.SectionHeader
+import com.rrajath.shopp.designsystem.components.UndoToast
+import com.rrajath.shopp.designsystem.theme.ShoppDimens
+import com.rrajath.shopp.designsystem.theme.ShoppTheme
+import com.rrajath.shopp.designsystem.theme.ShoppType
 import kotlinx.coroutines.delay
 import java.util.Calendar
 

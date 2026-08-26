@@ -24,12 +24,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import com.rrajath.shopp.data.db.ItemEntity
 import com.rrajath.shopp.ui.ListSection
 import com.rrajath.shopp.ui.UndoState
-import com.rrajath.shopp.ui.components.EmptyState
+import com.rrajath.shopp.designsystem.components.EmptyState
 import com.rrajath.shopp.ui.components.ItemRow
-import com.rrajath.shopp.ui.components.SectionHeader
-import com.rrajath.shopp.ui.components.UndoToast
-import com.rrajath.shopp.ui.theme.ShoppDimens
-import com.rrajath.shopp.ui.theme.ShoppTheme
+import com.rrajath.shopp.designsystem.components.SectionHeader
+import com.rrajath.shopp.designsystem.components.UndoToast
+import com.rrajath.shopp.designsystem.theme.ShoppDimens
+import com.rrajath.shopp.designsystem.theme.ShoppTheme
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

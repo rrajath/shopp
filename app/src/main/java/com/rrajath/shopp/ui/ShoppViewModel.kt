@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.rrajath.shopp.AppContainer
 import com.rrajath.shopp.data.db.ItemEntity
 import com.rrajath.shopp.data.db.LabelEntity
-import com.rrajath.shopp.ui.theme.ThemeMode
+import com.rrajath.shopp.designsystem.theme.ThemeMode
 import com.rrajath.shopp.usecases.RenameLabel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

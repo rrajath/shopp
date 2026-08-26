@@ -2,7 +2,7 @@
 
 ## Stack
 
-Pure native Android: Kotlin + Jetpack Compose, single `:app` Gradle module, no multiplatform or cross-language surface at all.
+Pure native Android: Kotlin + Jetpack Compose, two Gradle modules (`:app` and `:designsystem`), no multiplatform or cross-language surface at all.
 
 The technical design document (`internal-docs/shopping-list-tdd.md`) specifies a React Native + web Turborepo monorepo, with native Kotlin/Swift used only for narrow "capture kernels" (the Quick Settings tile / widget surfaces) that write directly to a shared SQLite database — a deliberately expensive architecture chosen specifically to avoid booting an RN process from a locked phone. This repository, however, started as a bare native Android Studio scaffold with no RN/iOS/web tooling, and the product only targets Android. Given that, building the *whole* app natively rather than just the capture kernel isn't a smaller version of the TDD's plan — it removes the TDD's hardest engineering risk outright. There is only one process and one language, so:
 
@@ -32,15 +32,26 @@ com.rrajath.shopp/
 ├─ widget/                   Home-screen widget (Glance): ShoppWidgetReceiver, ShoppWidget,
 │                             ShoppWidgetContent, CompleteItemAction
 └─ ui/
-   ├─ theme/                 ShoppColors, ShoppType, ShoppDimens, ShoppTheme
-   ├─ components/            QuickAddOverlay, ItemRow, LabelChipRow, DrawerMenu, UndoToast, ...
+   ├─ components/            App-coupled composables only (take domain types/use-cases directly):
+   │                          QuickAddOverlay, ItemRow, LabelChipRow, LabelManagementSheet, DrawerMenu
    ├─ screens/                ListScreen, RecentlyCompletedScreen, LabelsScreen, SettingsScreen
    ├─ ShoppApp.kt            Root shell: screen switch + drawer/quickAdd/undo overlay stack
    ├─ ShoppViewModel.kt      Screen/drawer/list/undo/labels state for the in-app flow
    └─ QuickAddController.kt  Quick Add's state/logic, shared by ShoppViewModel and CaptureViewModel
+
+com.rrajath.shopp.designsystem/    (separate Gradle module -- see "Modules" below)
+├─ theme/                    ShoppColors, ShoppType, ShoppDimens, ShoppTheme
+└─ components/                Generic, domain-free composables: ConfirmDialog, EmptyState,
+                               HeaderRow, SectionHeader, UndoToast, LinkifiedText
 ```
 
 `ItemEntity`/`LabelEntity` double as the domain model — they're plain data classes with no Android coupling beyond Room annotations, so a separate `domain/Item.kt`/`Label.kt` mapping layer would add a translation step with no real benefit at this size.
+
+## Modules
+
+`:designsystem` (August 2026) holds every design token and every Compose component with no dependency on app domain types, ViewModels, use-cases, or navigation state — `ShoppColors`/`ShoppDimens`/`ShoppType`/`ShoppTheme` plus `ConfirmDialog`, `EmptyState`, `HeaderRow`, `SectionHeader`, `UndoToast`, `LinkifiedText`. `:app` depends on it; the reverse is never true, so the Gradle dependency graph — not just convention — enforces that a screen can't reach past this module for a color or spacing value. Components that take domain types directly (`ItemRow` takes `ItemEntity`, `LabelManagementSheet` takes `LabelEntity` and the `RenameLabel` use case, `DrawerMenu` takes the `Screen` nav enum) stay in `:app`'s own `ui/components/`, since moving them would mean either moving domain types into the design-system module too (defeating the boundary) or laundering them through generic parameter types for no real benefit at this app's size. `docs/DESIGN_SYSTEM.md` is the rationale layer above this: it explains *why* a token or component looks the way it does, while the module is the enforced *source* of what it actually is.
+
+The Glance widget (`widget/`) can't host Compose UI's own components (Glance renders to `RemoteViews`, not the Compose UI tree), so `ShoppWidgetContent.kt` reimplements its own header/section/item row composables locally with Glance's own `Text`/`Row`/`Column`/`Box` — it only reuses `:designsystem`'s `ShoppColors`/`ShoppDimens` for the underlying values, not the components themselves.
 
 ## Data layer
 
@@ -84,7 +95,7 @@ Each use case in `usecases/` corresponds to one row in TDD §4.3 and wraps its w
 
 Built on Glance (`androidx.glance:glance-appwidget`), not classic RemoteViews/XML, so it can read the app's existing Compose-based color/spacing tokens (`ShoppColors`, `ShoppDimens`) directly instead of duplicating them as a second set of Android resources. `ShoppWidgetReceiver` (a `GlanceAppWidgetReceiver`) just points at `ShoppWidget` (a `GlanceAppWidget`), which reads `(context.applicationContext as ShoppApplication).container` — the exact same `AppContainer` singleton `MainActivity` and `CaptureActivity` already share, so the widget is a third reader/writer of the same Room database rather than a separate data path.
 
-**Sections and sizing.** `ShoppWidget.provideGlance` calls the same top-level `buildSections()` function `ShoppViewModel` uses (extracted from a private method to a shared one for this purpose), always with `groupByLabel = true`, then drops empty sections — the widget has no "Inbox always pinned" behavior the List screen has, since wasting a section header on nothing is a worse trade at widget scale. `sizeMode = SizeMode.Exact` gives `LocalSize.current` at composition time; a small height budget (fixed chrome heights for the header/divider/section-header/item-row, mirroring `ShoppDimens` where possible) decides how many items are actually shown before falling back to a trailing "N more items" line, porting the original design prototype's own `rowCount`/`hasMore` capping logic into a size-driven form instead of a fixed constant.
+**Sections and scrolling.** `ShoppWidget.provideGlance` calls the same top-level `buildSections()` function `ShoppViewModel` uses (extracted from a private method to a shared one for this purpose), always with `groupByLabel = true`, then drops empty sections — the widget has no "Inbox always pinned" behavior the List screen has, since wasting a section header on nothing is a worse trade at widget scale. `ShoppWidgetContent` renders every section header and item inside a Glance `LazyColumn` rather than capping the list to whatever fits the widget's current height, so all items are always reachable by scrolling instead of being replaced by a trailing "N more items" line past a fixed budget.
 
 **Tap-to-complete.** Tapping an item runs `CompleteItemAction` (a Glance `ActionCallback`) which calls `container.completeItem(itemId)` — the same `CompleteItem` use case the in-app FAB uses — then explicitly triggers a widget update. Because the widget only ever queries `observeActiveItems()`, a completed item simply stops appearing on the next recomposition; there's no interim "checked" visual state to manage, unlike the in-app `ItemRow`'s optimistic-delay animation.
 

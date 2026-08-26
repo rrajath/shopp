@@ -1,4 +1,4 @@
-package com.rrajath.shopp.ui.components
+package com.rrajath.shopp.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -10,9 +10,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import com.rrajath.shopp.ui.theme.ShoppDimens
-import com.rrajath.shopp.ui.theme.ShoppTheme
-import com.rrajath.shopp.ui.theme.ShoppType
+import com.rrajath.shopp.designsystem.theme.ShoppDimens
+import com.rrajath.shopp.designsystem.theme.ShoppTheme
+import com.rrajath.shopp.designsystem.theme.ShoppType
 
 // Small bold uppercase micro-label with the label's identity color applied
 // directly to the text, per ShoppApp.dc.html -- not the large serif display

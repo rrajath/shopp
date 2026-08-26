@@ -1,4 +1,4 @@
-package com.rrajath.shopp.ui.theme
+package com.rrajath.shopp.designsystem.theme
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme

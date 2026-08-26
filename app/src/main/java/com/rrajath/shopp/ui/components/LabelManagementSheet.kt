@@ -38,9 +38,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.rrajath.shopp.data.db.LabelEntity
-import com.rrajath.shopp.ui.theme.ShoppDimens
-import com.rrajath.shopp.ui.theme.ShoppTheme
-import com.rrajath.shopp.ui.theme.ShoppType
+import com.rrajath.shopp.designsystem.theme.ShoppDimens
+import com.rrajath.shopp.designsystem.theme.ShoppTheme
+import com.rrajath.shopp.designsystem.theme.ShoppType
 import com.rrajath.shopp.usecases.RenameLabel
 
 private enum class SheetMode { MENU, RENAME, MERGE, DELETE }

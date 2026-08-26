@@ -16,8 +16,8 @@ import com.rrajath.shopp.ShoppApplication
 import com.rrajath.shopp.ui.components.QuickAddOverlay
 import com.rrajath.shopp.ui.itemTitleSuggestions
 import com.rrajath.shopp.ui.quickAddSuggestions
-import com.rrajath.shopp.ui.theme.ShoppTheme
-import com.rrajath.shopp.ui.theme.ThemeMode
+import com.rrajath.shopp.designsystem.theme.ShoppTheme
+import com.rrajath.shopp.designsystem.theme.ThemeMode
 
 /**
  * TDD §7.2/§7.3: the Quick Settings tile's capture surface. Native, not a

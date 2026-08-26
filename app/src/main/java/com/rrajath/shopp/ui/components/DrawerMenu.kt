@@ -31,9 +31,9 @@ import androidx.compose.ui.unit.dp
 import com.rrajath.shopp.BuildConfig
 import com.rrajath.shopp.R
 import com.rrajath.shopp.ui.Screen
-import com.rrajath.shopp.ui.theme.ShoppDimens
-import com.rrajath.shopp.ui.theme.ShoppTheme
-import com.rrajath.shopp.ui.theme.ShoppType
+import com.rrajath.shopp.designsystem.theme.ShoppDimens
+import com.rrajath.shopp.designsystem.theme.ShoppTheme
+import com.rrajath.shopp.designsystem.theme.ShoppType
 import kotlin.math.roundToInt
 
 data class DrawerCounts(val activeCount: Int, val completedCount: Int, val labelCount: Int)

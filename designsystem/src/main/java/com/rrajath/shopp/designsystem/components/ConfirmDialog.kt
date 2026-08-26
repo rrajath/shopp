@@ -1,4 +1,4 @@
-package com.rrajath.shopp.ui.components
+package com.rrajath.shopp.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,9 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.rrajath.shopp.ui.theme.ShoppDimens
-import com.rrajath.shopp.ui.theme.ShoppTheme
-import com.rrajath.shopp.ui.theme.ShoppType
+import com.rrajath.shopp.designsystem.theme.ShoppDimens
+import com.rrajath.shopp.designsystem.theme.ShoppTheme
+import com.rrajath.shopp.designsystem.theme.ShoppType
 
 // No prototype reference exists for this (it's a state flag the mockup
 // never renders), so styled consistently with our own tokens rather than

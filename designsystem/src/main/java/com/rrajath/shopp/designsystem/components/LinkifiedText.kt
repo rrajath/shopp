@@ -1,4 +1,4 @@
-package com.rrajath.shopp.ui.components
+package com.rrajath.shopp.designsystem.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -29,7 +29,7 @@ fun LinkifiedText(
     modifier: Modifier = Modifier,
     onTextLayout: (TextLayoutResult) -> Unit = {},
 ) {
-    val linkColor = com.rrajath.shopp.ui.theme.ShoppTheme.colors.accent
+    val linkColor = com.rrajath.shopp.designsystem.theme.ShoppTheme.colors.accent
     val annotated = remember(text, linkColor) { buildLinkifiedString(text, linkColor) }
     androidx.compose.material3.Text(
         text = annotated,

@@ -10,7 +10,7 @@ import androidx.compose.runtime.getValue
 import com.rrajath.shopp.ui.ShoppApp
 import com.rrajath.shopp.ui.ShoppViewModel
 import com.rrajath.shopp.ui.ShoppViewModelFactory
-import com.rrajath.shopp.ui.theme.ShoppTheme
+import com.rrajath.shopp.designsystem.theme.ShoppTheme
 
 class MainActivity : ComponentActivity() {
 

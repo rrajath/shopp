@@ -1,4 +1,4 @@
-package com.rrajath.shopp.ui.theme
+package com.rrajath.shopp.designsystem.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -7,7 +7,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import com.rrajath.shopp.R
+import com.rrajath.shopp.designsystem.R
 
 // August 2026: swapped from Newsreader/Roboto to Caprasimo/Figtree, matching
 // ShoppApp.dc.html's `var(--font-heading)` / `var(--font-body)` (see

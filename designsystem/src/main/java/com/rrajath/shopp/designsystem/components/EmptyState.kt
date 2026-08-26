@@ -1,4 +1,4 @@
-package com.rrajath.shopp.ui.components
+package com.rrajath.shopp.designsystem.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.rrajath.shopp.ui.theme.ShoppDimens
-import com.rrajath.shopp.ui.theme.ShoppTheme
-import com.rrajath.shopp.ui.theme.ShoppType
+import com.rrajath.shopp.designsystem.theme.ShoppDimens
+import com.rrajath.shopp.designsystem.theme.ShoppTheme
+import com.rrajath.shopp.designsystem.theme.ShoppType
 
 // ShoppApp.dc.html depicts this as a single left-aligned 16px line
 // ("Nothing on the belt."): `padding: 34px 22px`, text at 50% opacity, no

@@ -20,17 +20,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import com.rrajath.shopp.R
-import com.rrajath.shopp.ui.components.ConfirmDialog
+import com.rrajath.shopp.designsystem.components.ConfirmDialog
 import com.rrajath.shopp.ui.components.DrawerCounts
 import com.rrajath.shopp.ui.components.DrawerMenu
-import com.rrajath.shopp.ui.components.HeaderRow
+import com.rrajath.shopp.designsystem.components.HeaderRow
 import com.rrajath.shopp.ui.components.QuickAddOverlay
 import com.rrajath.shopp.ui.screens.LabelsScreen
 import com.rrajath.shopp.ui.screens.ListScreen
 import com.rrajath.shopp.ui.screens.RecentlyCompletedScreen
 import com.rrajath.shopp.ui.screens.SettingsScreen
-import com.rrajath.shopp.ui.theme.ShoppDimens
-import com.rrajath.shopp.ui.theme.ShoppTheme
+import com.rrajath.shopp.designsystem.theme.ShoppDimens
+import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import kotlinx.coroutines.launch
 
 @Composable

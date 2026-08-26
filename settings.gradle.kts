@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Shopp"
 include(":app")
+include(":designsystem")
  

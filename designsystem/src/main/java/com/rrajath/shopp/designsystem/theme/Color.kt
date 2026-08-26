@@ -1,4 +1,4 @@
-package com.rrajath.shopp.ui.theme
+package com.rrajath.shopp.designsystem.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
