@@ -19,3 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep Glance widget classes
+-keep class com.rrajath.shopp.widget.ShoppWidgetReceiver
+-keep class com.rrajath.shopp.widget.ShoppWidget
