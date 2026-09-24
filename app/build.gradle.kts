@@ -73,6 +73,23 @@ android {
     }
 }
 
+// On CI (GitHub Actions sets CI=true), name APKs {app}-v{versionName}-{buildType}.apk,
+// e.g. shopp-v0.2.0-release.apk. Local builds keep the default app-{buildType}.apk.
+if (providers.environmentVariable("CI").orNull == "true") {
+    val appName = rootProject.name.lowercase()
+    androidComponents {
+        onVariants { variant ->
+            variant.outputs
+                .filterIsInstance<com.android.build.api.variant.impl.VariantOutputImpl>()
+                .forEach { output ->
+                    output.outputFileName.set(
+                        output.versionName.map { "$appName-v$it-${variant.buildType}.apk" }
+                    )
+                }
+        }
+    }
+}
+
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }

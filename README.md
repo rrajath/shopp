@@ -82,7 +82,7 @@ The release build type has R8 minification and resource shrinking enabled (`isMi
 
 **Cutting a release**
 
-Releases are manual, not triggered by every push to `main`. `.github/workflows/release.yml` builds a signed release APK and publishes a GitHub Release when you either:
+Releases are manual, not triggered by every push to `main`. `.github/workflows/release.yml` builds a signed release APK plus a debug APK and publishes a GitHub Release when you either:
 
 - run it by hand from the Actions tab (or `gh workflow run release.yml`), or
 - push a git tag matching `v*` (e.g. `git tag v0.2 && git push origin v0.2`)
@@ -90,6 +90,8 @@ Releases are manual, not triggered by every push to `main`. `.github/workflows/r
 `versionName` is hand-controlled: bump `VERSION_NAME` in `gradle.properties` before cutting a release. `versionCode` is computed automatically by the workflow as `(existing GitHub release count) + 1` and passed to Gradle via `-PVERSION_CODE`, so it always increments by one and never needs manual bookkeeping. Local builds default `versionCode` to `1` since the exact value doesn't matter outside of a release.
 
 The release tag is either the git tag you pushed, or (if triggered manually) `v<VERSION_NAME>-<computed versionCode>`.
+
+Each release has two APKs attached, named `shopp-v<VERSION_NAME>-<buildType>.apk` (e.g. `shopp-v0.2.0-release.apk` and `shopp-v0.2.0-debug.apk`). The naming only kicks in when the `CI=true` env var is set, which GitHub Actions does automatically. Local builds keep the default `app-<buildType>.apk`. To preview the CI names locally, run `CI=true ./gradlew :app:assembleDebug`.
 
 The workflow needs four repository secrets under Settings > Secrets and variables > Actions:
 
