@@ -25,7 +25,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,7 +39,9 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rrajath.shopp.data.db.LabelEntity
@@ -68,6 +73,11 @@ fun QuickAddOverlay(
 ) {
     val colors = ShoppTheme.colors
     val focusRequester = remember { FocusRequester() }
+    // Draft stays a String upstream, but the field needs its own selection so
+    // that when the draft is replaced from outside (accepting a suggestion),
+    // the caret jumps to the end instead of staying where typing left it.
+    var fieldState by remember { mutableStateOf(TextFieldValue(draft, TextRange(draft.length))) }
+    val fieldValue = if (fieldState.text == draft) fieldState else TextFieldValue(draft, TextRange(draft.length))
 
     Box(modifier = modifier.fillMaxSize()) {
         Box(
@@ -115,8 +125,11 @@ fun QuickAddOverlay(
                     Text(text = "Add an item", style = ShoppType.quickAddInput.copy(color = colors.muted))
                 }
                 BasicTextField(
-                    value = draft,
-                    onValueChange = onDraftChange,
+                    value = fieldValue,
+                    onValueChange = {
+                        fieldState = it
+                        if (it.text != draft) onDraftChange(it.text)
+                    },
                     textStyle = ShoppType.quickAddInput.copy(color = colors.foreground),
                     cursorBrush = androidx.compose.ui.graphics.SolidColor(colors.accent),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),

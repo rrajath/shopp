@@ -34,7 +34,6 @@ fun quickAddSuggestions(draft: String, labels: List<LabelEntity>): List<LabelEnt
     return labels.filter { it.nameFolded.startsWith(folded) }
 }
 
-private const val MIN_TITLE_SUGGESTION_LENGTH = 2
 private const val MAX_TITLE_SUGGESTIONS = 5
 
 // Autocomplete from purchase history (Recently Completed), so re-buying
@@ -46,7 +45,7 @@ private const val MAX_TITLE_SUGGESTIONS = 5
 fun itemTitleSuggestions(draft: String, completedItems: List<ItemEntity>): List<String> {
     if (TRAILING_TOKEN_REGEX.containsMatchIn(draft)) return emptyList()
     val currentLine = draft.substringAfterLast('\n').trim()
-    if (currentLine.length < MIN_TITLE_SUGGESTION_LENGTH) return emptyList()
+    if (currentLine.isEmpty()) return emptyList()
 
     val folded = currentLine.foldForMatching()
     val seen = HashSet<String>()
