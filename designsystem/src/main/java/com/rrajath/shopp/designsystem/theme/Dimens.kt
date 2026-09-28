@@ -95,6 +95,9 @@ object ShoppDimens {
     // Drawer -- not depicted by the new prototype (no drawer mode in
     // ShoppApp.dc.html); kept from the old prototype.
     val drawerWidth = 290.dp
+    // Same elevation as the Quick Add card: `menu` equals `background` in
+    // both themes, so the shadow is the only edge between drawer and page.
+    val drawerElevation = 16.dp
     val drawerTopPadding = 26.dp
     val drawerTitlePaddingHorizontal = 24.dp
     val drawerTitlePaddingBottom = 22.dp
