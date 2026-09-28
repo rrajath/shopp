@@ -23,6 +23,9 @@ interface ItemDao {
     )
     fun observeCompletedItems(): Flow<List<ItemEntity>>
 
+    @Query("SELECT * FROM items WHERE deletedAt IS NULL AND state = 'active'")
+    suspend fun getActiveItems(): List<ItemEntity>
+
     @Query("SELECT * FROM items WHERE id = :id")
     suspend fun getById(id: String): ItemEntity?
 

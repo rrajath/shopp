@@ -71,6 +71,8 @@ One deliberate parser behavior worth calling out: `@` only starts a label token 
 
 Each use case in `usecases/` corresponds to one row in TDD §4.3 and wraps its work in `ShoppDatabase.withTransaction { }`, matching the TDD's specified transaction boundaries exactly — e.g., `CompleteItem` runs the 100-item trim in the same transaction as the completion write; `MergeLabels` reassigns items to the target label and tombstones the source label atomically; `DeleteLabel` moves items to Inbox and removes the label atomically.
 
+`CaptureItems` drops duplicates silently: a line is skipped if an active item already has the same folded title (`foldForMatching`, so case-insensitive) under the same label, or if an earlier line in the same paste does. A matching title under a different label, or one that only exists in Recently Completed, still gets added. Nothing tells the user a line was skipped. This is enforced in the use case, not by a unique index, because a completed or tombstoned row with the same title has to stay valid.
+
 ## UI and state
 
 **Manual DI, no Hilt/Dagger.** `AppContainer` is a plain class instantiated once in `ShoppApplication.onCreate()`. At this project's size, a DI framework would add annotation processing and indirection without solving a problem manual construction doesn't already solve cleanly.

@@ -29,7 +29,7 @@ Shopping lists fail at the moment they're needed most: standing in an aisle, or 
 
 ## Features
 
-- **Quick Add** — a compact floating capture overlay (anchored above the keyboard, not a full-width bottom sheet) with autofocus, multi-line paste support, inline `@label` tagging with autocomplete, a sticky label chip that persists across consecutive adds, and title suggestions drawn from your Recently Completed history for items you buy on a cycle.
+- **Quick Add** — a compact floating capture overlay (anchored above the keyboard, not a full-width bottom sheet) with autofocus, multi-line paste support, inline `@label` tagging with autocomplete, a sticky label chip that persists across consecutive adds, and title suggestions drawn from your Recently Completed history for items you buy on a cycle. Adding an item that's already on the list under the same label is quietly ignored.
 - **Quick Settings tile** — add items without unlocking the phone or opening the app; the tile launches a translucent activity over the lock screen that shares the exact same capture component and database as the in-app flow.
 - **Sectioned list** — items group by label (Inbox always shown first), with sticky section headers while scrolling; grouping can be turned off in Settings for one flat list.
 - **Tap-to-complete with undo** — completing an item is a real, immediate write; a toast with a 4-second undo window follows, and a new completion during that window commits the previous one and starts a fresh timer.

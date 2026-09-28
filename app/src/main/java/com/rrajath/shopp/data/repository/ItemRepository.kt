@@ -17,6 +17,8 @@ class ItemRepository(
 
     fun observeCompletedItems(): Flow<List<ItemEntity>> = itemDao.observeCompletedItems()
 
+    suspend fun getActiveItems(): List<ItemEntity> = itemDao.getActiveItems()
+
     suspend fun getById(id: String): ItemEntity? = itemDao.getById(id)
 
     suspend fun insertAll(items: List<ItemEntity>) = itemDao.insertAll(items)

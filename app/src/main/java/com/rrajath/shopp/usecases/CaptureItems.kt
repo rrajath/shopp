@@ -9,10 +9,13 @@ import com.rrajath.shopp.data.repository.LabelRepository
 import com.rrajath.shopp.domain.Clock
 import com.rrajath.shopp.domain.IdGenerator
 import com.rrajath.shopp.domain.LabelRef
+import com.rrajath.shopp.domain.foldForMatching
 import com.rrajath.shopp.domain.parseCapture
 
 // TDD §4.3: resolve/create labels -> insert N items -> bump last_used_at on
 // each touched label, one transaction. Partial failure is not observable.
+// A line whose folded title matches an active item under the same label
+// (or an earlier line in the same paste) is silently dropped.
 class CaptureItems(
     private val database: ShoppDatabase,
     private val itemRepository: ItemRepository,
@@ -45,12 +48,17 @@ class CaptureItems(
                 }
             }
 
+            val activeKeys = itemRepository.getActiveItems()
+                .mapTo(HashSet()) { it.labelId to it.title.foldForMatching() }
+
             val now = clock.nowMillis()
-            val items = parsed.lines.map { line ->
+            val items = parsed.lines.mapNotNull { line ->
+                val labelId = idFor(line.label)
+                if (!activeKeys.add(labelId to line.title.foldForMatching())) return@mapNotNull null
                 ItemEntity(
                     id = idGenerator.newId(),
                     title = line.title,
-                    labelId = idFor(line.label),
+                    labelId = labelId,
                     state = STATE_ACTIVE,
                     createdAt = now,
                     updatedAt = now,

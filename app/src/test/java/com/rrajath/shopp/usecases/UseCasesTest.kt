@@ -80,6 +80,26 @@ class UseCasesTest {
     }
 
     @Test
+    fun `capture ignores a duplicate of an active item under the same label`() = runBlocking {
+        captureItems("milk @costco\neggs", LabelRef.None)
+        val result = captureItems("Milk @costco\nMILK @costco\nbread", LabelRef.None)
+        assertEquals(listOf("bread"), result.items.map { it.title })
+        val active = itemRepository.observeActiveItems().first()
+        assertEquals(listOf("milk", "eggs", "bread"), active.map { it.title })
+    }
+
+    @Test
+    fun `capture keeps the same title under a different label or after completion`() = runBlocking {
+        val first = captureItems("milk", LabelRef.None)
+        captureItems("milk @costco", LabelRef.None)
+        clock.advance()
+        completeItem(first.items.single().id)
+        captureItems("milk", LabelRef.None)
+        val active = itemRepository.observeActiveItems().first()
+        assertEquals(2, active.count { it.title == "milk" })
+    }
+
+    @Test
     fun `capture resolves a token to a real label and sets sticky`() = runBlocking {
         val result = captureItems("milk @costco\neggs", LabelRef.None)
         val active = itemRepository.observeActiveItems().first()
