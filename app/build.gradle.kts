@@ -113,6 +113,9 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.glance.appwidget)
+    // Glance 1.1.1 pulls in WorkManager 2.7.1, whose R8 rules let full mode strip
+    // OverwritingInputMerger's constructor, leaving release widgets stuck loading.
+    implementation(libs.androidx.work.runtime.ktx)
 
     testImplementation(libs.junit)
     testImplementation(libs.androidx.room.testing)

@@ -105,6 +105,8 @@ Built on Glance (`androidx.glance:glance-appwidget`), not classic RemoteViews/XM
 
 **Known Glance limitation.** `androidx.glance.text.TextStyle` has no `fontFamily` field — RemoteViews-backed widgets can't use the app's self-hosted Caprasimo/Figtree fonts, so widget text renders in the system default font. Every other token (color, size, weight, letter-spacing, the section-header's no-dot colored-text treatment) still matches the in-app `SectionHeader`/`ItemRow`.
 
+**WorkManager is pinned directly.** Glance renders the widget inside a WorkManager worker, and Glance 1.1.1 only pulls in WorkManager 2.7.1. That version's R8 rules don't keep `OverwritingInputMerger`'s no-arg constructor under R8 full mode, so in minified release builds the worker failed to start and the widget stayed on its loading layout forever. `app/build.gradle.kts` therefore declares `androidx.work:work-runtime-ktx` (2.11.x) itself, which ships correct keep rules. Don't remove it unless a newer Glance brings in a fixed WorkManager on its own.
+
 ## Testing
 
 - **JVM unit tests** (`app/src/test`): `parseCapture()` against the full TDD §9.4 golden fixture set plus supplementary branch-coverage cases, UUIDv7 monotonicity, label color allocation, and one test class per use case covering transaction atomicity, ordering, and the `updated_at` invariant.
