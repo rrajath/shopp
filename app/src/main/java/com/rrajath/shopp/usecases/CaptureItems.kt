@@ -12,7 +12,7 @@ import com.rrajath.shopp.domain.LabelRef
 import com.rrajath.shopp.domain.foldForMatching
 import com.rrajath.shopp.domain.parseCapture
 
-// TDD §4.3: resolve/create labels -> insert N items -> bump last_used_at on
+// Resolve/create labels -> insert N items -> bump last_used_at on
 // each touched label, one transaction. Partial failure is not observable.
 // A line whose folded title matches an active item under the same label
 // (or an earlier line in the same paste) is silently dropped.

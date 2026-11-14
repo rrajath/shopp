@@ -20,8 +20,8 @@ class LabelRepository(
     suspend fun findByFoldedName(nameFolded: String): LabelEntity? =
         labelDao.findByFoldedName(nameFolded)
 
-    // Resolve-or-create per TDD §4.2, bumping lastUsedAt either way (PRD §5:
-    // "bumped when an item is created with or moved to this label") — this
+    // Resolve-or-create, bumping lastUsedAt either way (it's bumped
+    // whenever an item is created with or moved to this label) — this
     // is the single place that touches a token-derived label, so callers
     // must not also call touch() on its result within the same transaction
     // (that would double-write the same row at the same instant and trip

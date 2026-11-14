@@ -19,9 +19,7 @@ import com.rrajath.shopp.designsystem.theme.ShoppDimens
 import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import com.rrajath.shopp.designsystem.theme.ShoppType
 
-// No prototype reference exists for this (it's a state flag the mockup
-// never renders), so styled consistently with our own tokens rather than
-// default Material chrome.
+// Styled with our own tokens rather than default Material chrome.
 @Composable
 fun ConfirmDialog(message: String, confirmLabel: String, onCancel: () -> Unit, onConfirm: () -> Unit) {
     val colors = ShoppTheme.colors

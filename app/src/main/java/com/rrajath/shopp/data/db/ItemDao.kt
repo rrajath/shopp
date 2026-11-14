@@ -40,7 +40,7 @@ interface ItemDao {
 
     // "Everything after the hundredth" — LIMIT -1 OFFSET 100 is SQLite's
     // idiom for an unbounded limit with an offset. A hard DELETE (not a
-    // tombstone) per PRD-equivalent user request: rows beyond the cap are
+    // tombstone): rows beyond the cap are
     // gone, not just hidden -- there's no "recover an old completed item"
     // feature that would need them kept around.
     @Query(

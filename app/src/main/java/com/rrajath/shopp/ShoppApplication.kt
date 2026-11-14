@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.combine
 
 // Manual DI container. MainActivity and CaptureActivity both read this off
 // the Application instance, so they share the exact same Room connection
-// pool (and therefore the exact same use-case/parser code) — see TDD §1.2.
+// pool (and therefore the exact same use-case/parser code).
 class AppContainer(app: Application) {
     val clock = SystemClock
     val idGenerator = Uuidv7IdGenerator

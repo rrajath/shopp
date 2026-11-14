@@ -15,10 +15,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withLink
 
-// Scheme-required, plus bare www. -- deliberately conservative (TDD §7.1).
+// Scheme-required, plus bare www. -- deliberately conservative.
 private val URL_REGEX = Regex("""(https?://\S+)|(www\.\S+)""", RegexOption.IGNORE_CASE)
 
-// Row titles are one line, no wrap (PRD §7.1); tapping a link opens it,
+// Row titles are one line, no wrap; tapping a link opens it,
 // tapping elsewhere on the row enters edit mode (handled by the caller via
 // pointerInput -- Compose's own link hit-testing only consumes taps that
 // land on the link's glyph run, so non-link taps still reach the row).

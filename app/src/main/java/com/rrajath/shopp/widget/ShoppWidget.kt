@@ -34,7 +34,7 @@ class ShoppWidget : GlanceAppWidget() {
             val colors = if (dark) ShoppDarkColors else ShoppLightColors
 
             // Inbox is dropped when empty here (unlike the List screen, which
-            // always pins it) -- matches the prototype's own behavior and
+            // always pins it) -- this
             // avoids wasting scarce widget space on an empty section.
             val sections = remember(items, labels) {
                 buildSections(items, labels, groupByLabel = true, filterLabelId = null)

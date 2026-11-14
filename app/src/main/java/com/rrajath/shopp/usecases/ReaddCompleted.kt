@@ -6,9 +6,8 @@ import com.rrajath.shopp.data.repository.ItemRepository
 import com.rrajath.shopp.data.repository.LabelRepository
 
 // Flips the *same* row back to active (same id, same createdAt) -- the item
-// leaves Recently Completed and reappears in its original group, per the
-// user-requested behavior change (superseding the old "leave the completed
-// row untouched, insert a duplicate" PRD §9 behavior).
+// leaves Recently Completed and reappears in its original group, rather
+// than leaving the completed row untouched and inserting a duplicate.
 class ReaddCompleted(
     private val database: ShoppDatabase,
     private val itemRepository: ItemRepository,

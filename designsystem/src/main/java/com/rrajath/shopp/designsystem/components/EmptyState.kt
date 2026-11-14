@@ -12,12 +12,10 @@ import com.rrajath.shopp.designsystem.theme.ShoppDimens
 import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import com.rrajath.shopp.designsystem.theme.ShoppType
 
-// ShoppApp.dc.html depicts this as a single left-aligned 16px line
-// ("Nothing on the belt."): `padding: 34px 22px`, text at 50% opacity, no
-// heading treatment. The app still shows a secondary hint line below it (the
-// prototype has no second line to source one from) styled smaller and
+// A single left-aligned primary line ("Nothing on the belt.") with no
+// heading treatment, plus a secondary hint line below it styled smaller and
 // muted, since that hint carries real product information (e.g. how to
-// reach Quick Add) that the single-line prototype text doesn't need to say.
+// reach Quick Add).
 @Composable
 fun EmptyState(title: String, body: String, modifier: Modifier = Modifier) {
     val colors = ShoppTheme.colors

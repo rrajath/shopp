@@ -72,7 +72,7 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     // Drawer's "All items" -- always clears any active filter, regardless
-    // of the current screen (matches the prototype's explicit filter:null).
+    // of the current screen.
     fun goToAllItems() {
         _filterLabelId.value = null
         _screen.value = Screen.LIST
@@ -232,10 +232,9 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
 
 }
 
-// Inbox is always pinned first, even when empty (PRD §7.3) -- a deliberate
-// deviation from the prototype's mockup logic, which only renders a section
-// once it has at least one item. When ungrouped, a single "All items" (or the
-// filtered label's name) section is used instead, matching the prototype's
+// Inbox is always pinned first, even when empty, rather than only
+// rendering once it has at least one item. When ungrouped, a single "All
+// items" (or the filtered label's name) section is used instead, per the
 // `group` toggle. Top-level (not a ShoppViewModel method) so the home-screen
 // widget (see widget/ShoppWidget.kt) can reuse the exact same grouping logic.
 fun buildSections(

@@ -1,8 +1,8 @@
 # Shopp
 
-A fast, native Android shopping list app. Type an item, tag it with `@label` to route it into a section, tap to check it off, and add items from the lock screen through a Quick Settings tile without unlocking the phone.
+A fast, native Android shopping list app. Type an item, tag it with `@label` to file it into a section, tap to check it off, and add items from the lock screen with a Quick Settings tile.
 
-Free and open source. **[Download the latest release](https://github.com/rrajath/shopp/releases/latest)** · [Full documentation](docs-site/) · Requires Android 8.0 (API 26) or newer.
+**[Download the latest release](https://github.com/rrajath/shopp/releases/latest)** · [Documentation](docs-site/) · Android 8.0 (API 26)+ · MIT licensed
 
 ## Screenshots
 
@@ -13,115 +13,77 @@ Free and open source. **[Download the latest release](https://github.com/rrajath
 | **Labels** | ![The Labels screen, light theme](screenshots/light/labels.png) | ![The Labels screen, dark theme](screenshots/dark/labels.png) |
 | **Settings** | ![The Settings screen, light theme](screenshots/light/settings.png) | ![The Settings screen, dark theme](screenshots/dark/settings.png) |
 
-More screens (autocomplete, merging labels, Recently Completed, and the Quick Settings tile capture surface) are in [`screenshots/`](screenshots/) and in the [documentation site](docs-site/).
-
-## Purpose
-
-Shopp implements the product requirements in `internal-docs/shopping-list-prd.md` and the technical design in `internal-docs/shopping-list-tdd.md`, adapted to a pure native Android stack (see [Architecture](docs/ARCHITECTURE.md) for why). The visual design and screen scope follow the prototype at `internal-docs/design/Shopp Prototype.dc.html`, which takes precedence over the PRD where the two disagree.
-
-## The problem it solves
-
-Shopping lists fail at the moment they're needed most: standing in an aisle, or remembering something the second before you fall asleep. Shopp is built around that moment specifically:
-
-- **Capture has to be instant.** A shared Quick Settings tile opens a translucent capture surface over whatever's on screen — including the lock screen — writes directly to the same on-device database the main app reads, and gets out of the way.
-- **Organizing can't cost extra taps.** Typing `@label` inline while capturing an item files it into a section immediately; there's no separate "assign a category" step.
-- **Undo has to be trustworthy.** Checking an item off is instant and real (not optimistic-then-maybe-fails), but a 4-second undo window means a mis-tap never costs you the item.
+More in [`screenshots/`](screenshots/).
 
 ## Features
 
-- **Quick Add** — a compact floating capture overlay (anchored above the keyboard, not a full-width bottom sheet) with autofocus, multi-line paste support, inline `@label` tagging with autocomplete, a sticky label chip that persists across consecutive adds, and title suggestions drawn from your Recently Completed history for items you buy on a cycle. Adding an item that's already on the list under the same label is quietly ignored.
-- **Quick Settings tile** — add items without unlocking the phone or opening the app; the tile launches a translucent activity over the lock screen that shares the exact same capture component and database as the in-app flow.
-- **Sectioned list** — items group by label (Inbox always shown first), with sticky section headers while scrolling; grouping can be turned off in Settings for one flat list.
-- **Tap-to-complete with undo** — completing an item is a real, immediate write; a toast with a 4-second undo window follows, and a new completion during that window commits the previous one and starts a fresh timer.
-- **Inline edit** — tap an item's title to edit it in place, with the text caret placed at the exact point you tapped.
-- **URL linkification** — a URL typed into a title becomes a tappable link without entering edit mode.
-- **Recently Completed** — a reverse-chronological log of completed items, grouped by day, with tap-to-re-add and a Clear action (optionally confirmed).
-- **Labels management** — rename, recolor (pick from a 15-color palette, or let it auto-allocate), merge, or delete labels via a long-press sheet; deleting a label moves its items to Inbox rather than deleting them, merging reassigns items then removes the source label, both atomically.
-- **Settings** — System/Light/Dark appearance, three behavior toggles (group by label, keep Quick Add open after submit, confirm before clearing Recently Completed), and a home-screen widget background transparency slider.
-- **Home screen widget** — a resizable widget showing your sectioned list with tap-to-complete, an Add button that opens the same capture overlay as the FAB/Quick Settings tile, and an adjustable card transparency.
+- **Quick Add** — floating capture overlay with inline `@label` tagging and autocomplete, multi-line paste, a sticky label chip across consecutive adds, and suggestions from items you've bought before. Duplicates under the same label are ignored.
+- **Quick Settings tile** — add items without unlocking the phone; opens the same capture overlay over the lock screen.
+- **Home screen widget** — resizable, sectioned list with tap-to-complete, an Add button, and adjustable transparency.
+- **Sectioned list** — items grouped by label (Inbox first) with sticky headers; grouping can be turned off.
+- **Tap to complete, with undo** — completion is immediate, with a 4-second undo window.
+- **Inline edit** — tap a title to edit it in place; URLs in titles are tappable links.
+- **Recently Completed** — day-grouped history with tap-to-re-add and Clear.
+- **Labels** — rename, recolor (15-color palette), merge, or delete. Deleting a label moves its items to Inbox.
+- **Settings** — System/Light/Dark theme, grouping, keep Quick Add open after submit, confirm before clearing history, widget transparency.
 
-## Setup
+All data stays on-device. No accounts, no network access.
 
-**Requirements**
+### Adding the tile and widget
 
-- Android Studio with an Android SDK including platform 36 and build-tools for it
-- JDK 21
-- An emulator or device running Android 8.0 (API 26) or newer
+- **Tile:** open Quick Settings, tap the edit (pencil) icon, and drag "Add to Shopp" into your active tiles.
+- **Widget:** long-press the home screen, choose Widgets, and drag "Shopp" onto it.
 
-**Build and run**
+## Building
 
-```sh
-./gradlew :app:assembleDebug
-./gradlew :app:installDebug
-```
-
-Or open the project in Android Studio and run the `app` configuration.
-
-The debug build installs as a separate app ("Shopp Debug", package `com.rrajath.shopp.debug`) alongside a release build (`com.rrajath.shopp`), so both can be on the same device at once.
-
-**Run tests**
+Requirements: Android Studio with SDK platform 36, JDK 21, and a device or emulator on API 26+.
 
 ```sh
-./gradlew :app:testDebugUnitTest
+./gradlew :app:installDebug        # build and install debug
+./gradlew :app:testDebugUnitTest   # run unit tests
 ```
 
-**Release builds**
+The debug build installs as "Shopp Debug" (`com.rrajath.shopp.debug`), so it can sit alongside the release build (`com.rrajath.shopp`).
 
-Release builds are signed with a local keystore that is never committed to git. To build `assembleRelease` on a new machine:
+### Release builds
 
-1. Generate a keystore (skip if you already have one):
+Release builds use R8 minification and resource shrinking, and are signed with a local keystore that is never committed:
+
+1. Generate a keystore if you don't have one:
    ```sh
    keytool -genkeypair -v -keystore app/keystore/shopp-release.jks -alias shopp -keyalg RSA -keysize 2048 -validity 10000
    ```
-2. Copy `keystore.properties.example` to `keystore.properties` at the project root and fill in the values (`storeFile` is relative to the project root, e.g. `app/keystore/shopp-release.jks`).
-3. Build: `./gradlew :app:assembleRelease`
+2. Copy `keystore.properties.example` to `keystore.properties` and fill in the values (`storeFile` is relative to the project root).
+3. `./gradlew :app:assembleRelease`
 
-Both `keystore.properties` and `app/keystore/` are gitignored. If `keystore.properties` is missing, `assembleRelease` still builds but produces an unsigned APK.
+Without `keystore.properties`, `assembleRelease` produces an unsigned APK.
 
-The release build type has R8 minification and resource shrinking enabled (`isMinifyEnabled`/`isShrinkResources`), which cuts the APK from ~12 MB down to ~1.6 MB. The debug build type stays unminified for fast iteration and readable stack traces.
+### Publishing a release
 
-**Cutting a release**
+[`.github/workflows/release.yml`](.github/workflows/release.yml) builds signed release and debug APKs and publishes a GitHub Release. Trigger it by pushing a `v*` tag or running it manually (`gh workflow run release.yml`).
 
-Releases are manual, not triggered by every push to `main`. `.github/workflows/release.yml` builds a signed release APK plus a debug APK and publishes a GitHub Release when you either:
-
-- run it by hand from the Actions tab (or `gh workflow run release.yml`), or
-- push a git tag matching `v*` (e.g. `git tag v0.2 && git push origin v0.2`)
-
-`versionName` is hand-controlled: bump `VERSION_NAME` in `gradle.properties` before cutting a release. `versionCode` is computed automatically by the workflow as `(existing GitHub release count) + 1` and passed to Gradle via `-PVERSION_CODE`, so it always increments by one and never needs manual bookkeeping. Local builds default `versionCode` to `1` since the exact value doesn't matter outside of a release.
-
-The release tag is either the git tag you pushed, or (if triggered manually) `v<VERSION_NAME>-<computed versionCode>`.
-
-Each release has two APKs attached, named `shopp-v<VERSION_NAME>-<buildType>.apk` (e.g. `shopp-v0.2.0-release.apk` and `shopp-v0.2.0-debug.apk`). The naming only kicks in when the `CI=true` env var is set, which GitHub Actions does automatically. Local builds keep the default `app-<buildType>.apk`. To preview the CI names locally, run `CI=true ./gradlew :app:assembleDebug`.
-
-The workflow needs four repository secrets under Settings > Secrets and variables > Actions:
+- Bump `VERSION_NAME` in `gradle.properties` first. `versionCode` is set automatically to the existing release count + 1.
+- Manual runs are tagged `v<VERSION_NAME>-<versionCode>`.
+- The workflow needs these repository secrets:
 
 | Secret | Value |
 | --- | --- |
-| `RELEASE_KEYSTORE_BASE64` | `base64 -i app/keystore/shopp-release.jks` output |
+| `RELEASE_KEYSTORE_BASE64` | Output of `base64 -i app/keystore/shopp-release.jks` |
 | `RELEASE_KEYSTORE_PASSWORD` | `storePassword` from `keystore.properties` |
 | `RELEASE_KEY_PASSWORD` | `keyPassword` from `keystore.properties` |
 | `RELEASE_KEY_ALIAS` | `keyAlias` from `keystore.properties` |
 
-**Try the Quick Settings tile**
-
-Pull down the notification shade twice to reach Quick Settings, tap the pencil/edit icon, and drag the "Add to Shopp" tile into your active tiles. Long-pressing (or tapping, depending on Android version) it opens the capture sheet without unlocking the phone.
-
-**Try the home screen widget**
-
-Long-press an empty area of your home screen, choose Widgets, find "Shopp", and drag it onto your home screen. It's resizable, and the number of visible items adapts to its size; tap an item to complete it, or tap the `+` to add a new one. Adjust how see-through its card is from Settings > Widget.
-
 ## Architecture
 
-Shopp is a single Kotlin + Jetpack Compose Gradle module (`:app`) — no multiplatform tooling, no backend, no network calls. Everything lives in one on-device Room (SQLite) database:
+Kotlin and Jetpack Compose, with two Gradle modules: `:app` and `:designsystem` (theme tokens and shared components). One Room database backs every surface.
 
-- **UI**: Jetpack Compose screens (`ui/screens/`) driven by `ShoppViewModel`, with manual dependency injection (`AppContainer`, built once in `ShoppApplication`) instead of Hilt/Dagger.
-- **Domain/use cases**: pure Kotlin (`domain/`, `usecases/`) — the `@label` capture parser, UUIDv7 generation, label color allocation, and one class per mutation (capture, complete, undo, merge, delete, etc.), each wrapped in a single Room transaction.
-- **Data**: Room entities and DAOs (`data/db/`, `data/repository/`) implementing the schema from the technical design doc — UUID primary keys, `updated_at` on every row, and soft deletes (tombstones) everywhere, so the app is sync-ready even though v1 has no accounts or sync.
-- **Capture surface**: the Android Quick Settings tile (`capture/QuickAddTileService.kt`, `CaptureActivity.kt`) opens the *exact same* Quick Add UI and controller as the in-app FAB, sharing the same `AppContainer` and database connection — not a separate, simplified implementation that could drift out of sync.
-- **Home screen widget**: a Glance-based widget (`widget/`) reading the same `AppContainer`/database as everything else — a third surface on the same shared state, not a separate data path.
+- **UI** — Compose screens in `ui/screens/`, driven by `ShoppViewModel`, with manual dependency injection via `AppContainer`.
+- **Domain** — pure Kotlin in `domain/` and `usecases/`: the `@label` parser, label color allocation, and one use case per mutation, each run in a single Room transaction.
+- **Data** — Room entities, DAOs, and repositories in `data/`. Rows use UUIDv7 keys, `updated_at` timestamps, and soft deletes.
+- **Capture and widget** — the Quick Settings tile (`capture/`) and the Glance widget (`widget/`) share the in-app Quick Add UI and the same `AppContainer` and database.
 
-The product requirements and technical design docs (`internal-docs/`) originally specified a cross-platform React Native + iOS + web build with native "capture kernels." The shipped app is pure native Android instead, which removes that plan's biggest engineering risk (keeping a capture parser in sync across three languages) by construction — see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full package breakdown and the reasoning behind every deviation from those documents, and [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) for the color/type/spacing tokens and component inventory.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) for details.
 
-## Status
+## License
 
-All 11 implementation milestones are complete — see `PROGRESS.md` (gitignored, local-only) for the detailed build log, bugs found and fixed along the way, and testing notes.
+[MIT](LICENSE)

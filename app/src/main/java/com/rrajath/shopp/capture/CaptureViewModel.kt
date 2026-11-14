@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.stateIn
  * CaptureActivity's whole job is Quick Add, opened immediately -- this is a
  * thin wrapper around the exact same [QuickAddController] the in-app FAB
  * uses, reading off the same [AppContainer] (same Room instance, same
- * process) so there is no separate "kernel" to keep in sync (TDD §1.2/§7.1).
+ * process) so there is no separate "kernel" to keep in sync.
  */
 class CaptureViewModel(container: AppContainer) : ViewModel() {
 

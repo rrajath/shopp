@@ -51,7 +51,7 @@ import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import com.rrajath.shopp.designsystem.theme.ShoppType
 
 /**
- * TDD §6.1/§7.1-7.5: shared between the in-app FAB and (later) the Quick
+ * Shared between the in-app FAB and the Quick
  * Settings tile's CaptureActivity -- same component, same behavior, since
  * both are native Compose in the same process.
  */
@@ -139,8 +139,8 @@ fun QuickAddOverlay(
                         .focusRequester(focusRequester)
                         .onPreviewKeyEvent { event ->
                             // Return commits; pasted text may still contain \n
-                            // (that's the only way a newline enters the buffer,
-                            // per TDD §6.1 D-7) since paste bypasses key events.
+                            // (that's the only way a newline enters the buffer)
+                            // since paste bypasses key events.
                             if (event.type == androidx.compose.ui.input.key.KeyEventType.KeyDown &&
                                 (event.key == Key.Enter || event.key == Key.NumPadEnter)
                             ) {

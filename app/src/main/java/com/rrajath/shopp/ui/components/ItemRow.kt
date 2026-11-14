@@ -50,7 +50,7 @@ import kotlinx.coroutines.delay
 private const val COMPLETE_REMOVE_DELAY_MS = 200L
 
 /**
- * TDD §6.2/§7.4: tap checkbox marks `completing` immediately (drives the
+ * Tap checkbox marks `completing` immediately (drives the
  * visual transition); [onComplete] -- the actual write -- fires after
  * [COMPLETE_REMOVE_DELAY_MS] so the checkbox finishes filling before the row
  * fades out of the list (see [LazyItemScope.animateItem] on the caller's

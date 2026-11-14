@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Not from the prototype (it has no icon asset; checked, none exists).
-     Designed to match its own visual language instead: the app's most
+<!-- Designed to match the app's own visual language: its most
      repeated motif is the circular checkbox and checkmark used on every
      row (ItemRow, Recently Completed), so the icon is that shape, enlarged. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"

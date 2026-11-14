@@ -12,7 +12,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// Settings screen's Appearance choice (PRD §10). SYSTEM defers to the OS.
+// Settings screen's Appearance choice. SYSTEM defers to the OS.
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
 private val LocalShoppColors = compositionLocalOf { ShoppLightColors }

@@ -1,10 +1,8 @@
 /*
- * Design tokens transcribed from docs/DESIGN_SYSTEM.md (the app's real
- * theme: app/src/main/java/com/rrajath/shopp/ui/theme/Color.kt), which in
- * turn matches internal-docs/website/ShoppApp.dc.html's warm cream/
- * terracotta/olive palette (dark mode literal, light mode a documented
- * reconstruction -- see that doc's Color section). Keep this file in sync
- * if the app's palette changes.
+ * Design tokens mirrored from the app's theme
+ * (designsystem/src/main/java/com/rrajath/shopp/designsystem/theme/Color.kt,
+ * documented in docs/DESIGN_SYSTEM.md). Keep this file in sync if the app's
+ * palette changes.
  */
 
 @font-face {

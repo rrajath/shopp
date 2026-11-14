@@ -7,8 +7,8 @@ import com.rrajath.shopp.data.db.STATE_COMPLETED
 import com.rrajath.shopp.domain.Clock
 import kotlinx.coroutines.flow.Flow
 
-// The single place that stamps updatedAt on writes to existing rows (TDD
-// §3.5) — use cases never touch the DAO for updates directly.
+// The single place that stamps updatedAt on writes to existing rows --
+// use cases never touch the DAO for updates directly.
 class ItemRepository(
     private val itemDao: ItemDao,
     private val clock: Clock,

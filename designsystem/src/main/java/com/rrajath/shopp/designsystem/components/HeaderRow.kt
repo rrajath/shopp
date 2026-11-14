@@ -26,7 +26,7 @@ import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import com.rrajath.shopp.designsystem.theme.ShoppType
 
 /**
- * Shared header row across every screen (prototype's single `shell` header):
+ * Shared header row across every screen:
  * leading hamburger-or-back, centered title, trailing action (e.g. "Clear").
  */
 @Composable

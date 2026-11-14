@@ -4,7 +4,7 @@ import androidx.room.withTransaction
 import com.rrajath.shopp.data.db.ShoppDatabase
 import com.rrajath.shopp.data.repository.ItemRepository
 
-// The write is immediate, not deferred behind the undo window (TDD §6.3) --
+// The write is immediate, not deferred behind the undo window --
 // trim runs in the same transaction so "at most 100 live completed rows"
 // holds after every completion.
 class CompleteItem(

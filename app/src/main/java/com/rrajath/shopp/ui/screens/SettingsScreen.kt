@@ -104,8 +104,7 @@ private fun SectionLabel(text: String, topPadding: androidx.compose.ui.unit.Dp) 
 }
 
 // Single pill-shaped segmented control (one outer border, no gaps between
-// segments) per internal-docs/website/ShoppApp.dc.html's Settings screen --
-// was 3 separate bordered buttons.
+// segments).
 @Composable
 private fun ThemeSegmentedControl(
     themeMode: ThemeMode,

@@ -15,10 +15,7 @@ import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import com.rrajath.shopp.designsystem.theme.ShoppType
 
 // Small bold uppercase micro-label with the label's identity color applied
-// directly to the text, per ShoppApp.dc.html -- not the large serif display
-// heading this used to be (that was the old prototype's treatment; the new
-// one resolves the previously-noted deviation from PRD §11's "smaller/
-// heavier" micro-header).
+// directly to the text.
 @Composable
 fun SectionHeader(name: String, color: Color, modifier: Modifier = Modifier) {
     val colors = ShoppTheme.colors

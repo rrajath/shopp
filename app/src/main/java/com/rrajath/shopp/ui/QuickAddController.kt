@@ -22,8 +22,8 @@ data class QuickAddState(
 
 // A line containing only a token sets sticky and yields no item, so the
 // same regex parseCapture uses to find the trailing token is reused here to
-// detect "is the user mid-typing a label" (prototype's own approach: only
-// the END of the draft is checked, not full caret-aware detection).
+// detect "is the user mid-typing a label" (only the END of the draft is
+// checked, not full caret-aware detection).
 private val TRAILING_TOKEN_REGEX = Regex("@([\\p{L}\\p{N}_-]*)$")
 
 // Pure, so the caller can compute it reactively (e.g. remember(draft, labels))
@@ -64,8 +64,8 @@ fun itemTitleSuggestions(draft: String, completedItems: List<ItemEntity>): List<
  * Owns Quick Add's ephemeral state and the submit/suggestion logic. Shared
  * by [ShoppViewModel] (in-app FAB) and `CaptureViewModel` (Quick Settings
  * tile's [com.rrajath.shopp.capture.CaptureActivity]) so "the same component"
- * (TDD/PRD) is literally true rather than something that needs cross-
- * language fixture verification -- see TDD §1.2.
+ * is literally true rather than something that needs cross-language
+ * fixture verification.
  */
 class QuickAddController(
     private val scope: CoroutineScope,
@@ -79,7 +79,7 @@ class QuickAddController(
         _state.value = QuickAddState(open = true)
     }
 
-    // Sticky resets to Inbox on close (TDD §5.2 -- lives only in this
+    // Sticky resets to Inbox on close (it lives only in this
     // ephemeral state, never persisted).
     fun close() {
         _state.value = QuickAddState(open = false)

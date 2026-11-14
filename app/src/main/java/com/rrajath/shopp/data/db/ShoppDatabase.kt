@@ -32,7 +32,7 @@ abstract class ShoppDatabase : RoomDatabase() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
             // Partial indexes: every read filters deletedAt IS NULL, so
-            // tombstones shouldn't be in the hot index (see TDD §3.1).
+            // tombstones shouldn't be in the hot index.
             db.execSQL(
                 "CREATE UNIQUE INDEX ux_labels_folded ON labels(nameFolded) WHERE deletedAt IS NULL"
             )
@@ -63,7 +63,7 @@ abstract class ShoppDatabase : RoomDatabase() {
         }
 
         // Debug-only defense in depth: every repository write must bump
-        // updatedAt from the injected Clock. See TDD §3.5 — a silently
+        // updatedAt from the injected Clock -- a silently
         // stale updatedAt is invisible until V2 sync depends on it.
         private fun guardTriggerSql(table: String, trigger: String): String =
             """

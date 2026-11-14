@@ -179,9 +179,7 @@ fun LabelManagementSheet(
 
 // Radio circle for the merge target picker: outline when unselected,
 // accent-filled with an inset ring (punched-out center in the sheet's own
-// background) when selected -- matches internal-docs/website/
-// ShoppApp.dc.html's merge dialog exactly (`box-shadow: inset 0 0 0 4px
-// var(--color-surface)` there, done here with a nested inner circle).
+// background) when selected, drawn as a nested inner circle.
 @Composable
 private fun MergeRadio(selected: Boolean) {
     val colors = ShoppTheme.colors
@@ -205,7 +203,7 @@ private fun MergeRadio(selected: Boolean) {
     }
 }
 
-// The label color picker (August 2026, user request): offers the app's
+// The label color picker: offers the app's
 // existing 15-color pastel palette (`colors.labelPalette`) as manual
 // override swatches -- not a separate/new palette, since a label's color is
 // a single `colorIndex` into that one palette everywhere else in the app
@@ -255,13 +253,11 @@ private fun ManagementRow(name: String, emphasize: Boolean = false, onClick: () 
     )
 }
 
-// Cancel/Merge in ShoppApp.dc.html's merge dialog use `font-family:
-// var(--font-heading)` (Caprasimo), like the shared `.btn` class -- not the
-// body font, hence the dedicated dialogActionLabel style rather than
+// Cancel/Merge use the heading font (Caprasimo), like other buttons -- not
+// the body font, hence the dedicated dialogActionLabel style rather than
 // settingsButtonLabel (which is Figtree, for the Theme segmented control).
-// August 2026 (user request): rendered as actual bordered/filled pill
-// buttons, not bare adjacent text -- they read as too close together and
-// not obviously tappable as plain text.
+// Rendered as actual bordered/filled pill buttons, not bare adjacent text
+// -- plain text reads as too close together and not obviously tappable.
 @Composable
 private fun SheetActions(confirmLabel: String?, onCancel: () -> Unit, onConfirm: () -> Unit) {
     Row(

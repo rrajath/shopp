@@ -23,10 +23,8 @@ import com.rrajath.shopp.designsystem.theme.ShoppDimens
 import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import com.rrajath.shopp.designsystem.theme.ShoppType
 
-// Per user request (August 2026, Quick Add overlay only -- the identical
-// LabelChipRow used elsewhere in ShoppApp.dc.html keeps the old
-// accent-vs-neutral treatment): unselected chips are a neutral filled pill
-// (`chipUnselectedFill`/`chipUnselectedText`, as before) with a small leading
+// Unselected chips are a neutral filled pill
+// (`chipUnselectedFill`/`chipUnselectedText`) with a small leading
 // dot in the label's own palette color -- Inbox never has a dot, it has no
 // palette color. Selecting a chip moves that identity color from the dot
 // into the whole pill's fill (dot disappears, text switches to a

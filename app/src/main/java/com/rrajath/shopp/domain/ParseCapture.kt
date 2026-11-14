@@ -5,7 +5,7 @@ import java.text.Normalizer
 // Opaque label reference threaded through a parse: either nothing (Inbox),
 // an already-resolved id (the sticky value the caller passed in), or a raw
 // token extracted during this parse that the caller still has to
-// resolve/create (TDD §4.2 — the parser stays pure and I/O-free).
+// resolve/create (the parser stays pure and I/O-free).
 sealed class LabelRef {
     data object None : LabelRef()
     data class Id(val labelId: String) : LabelRef()
@@ -23,7 +23,7 @@ private val TRAILING_PUNCTUATION = setOf('.', ',', ';', ':', '!', '?')
 private val TOKEN_REGEX = Regex("(?:^|\\s)@([^\\s@]+)")
 
 /**
- * TDD §4.1. Pure and I/O-free: label tokens are returned as raw text
+ * Pure and I/O-free: label tokens are returned as raw text
  * ([LabelRef.Token]) for the caller to resolve/create; only the initial
  * sticky value may already be a resolved [LabelRef.Id].
  */

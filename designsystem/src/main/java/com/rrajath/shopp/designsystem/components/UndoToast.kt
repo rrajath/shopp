@@ -16,7 +16,7 @@ import com.rrajath.shopp.designsystem.theme.ShoppDimens
 import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import com.rrajath.shopp.designsystem.theme.ShoppType
 
-// A content-sized pill (`white-space: nowrap` in the prototype), not a
+// A content-sized pill, not a
 // full-width bar -- see ShoppDimens.toastMaxWidth for the one departure
 // (a defensive cap so an unusually long item title can't run off-screen).
 @Composable

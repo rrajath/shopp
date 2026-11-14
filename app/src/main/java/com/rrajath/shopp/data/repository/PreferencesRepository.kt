@@ -10,9 +10,7 @@ import com.rrajath.shopp.designsystem.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-// Theme is the only persisted preference (TDD §5.2); these three behaviour
-// toggles are prototype-scope additions (user decision: prototype wins for
-// scope) and live alongside it in the same small DataStore file.
+// Theme plus three behaviour toggles, all in the same small DataStore file.
 class PreferencesRepository(private val dataStore: DataStore<Preferences>) {
 
     private object Keys {
@@ -29,7 +27,7 @@ class PreferencesRepository(private val dataStore: DataStore<Preferences>) {
     val groupByLabel: Flow<Boolean> = dataStore.data.map { it[Keys.GROUP_BY_LABEL] ?: true }
     val keepQuickAddOpen: Flow<Boolean> = dataStore.data.map { it[Keys.KEEP_QUICK_ADD_OPEN] ?: true }
     val confirmBeforeClearing: Flow<Boolean> = dataStore.data.map { it[Keys.CONFIRM_BEFORE_CLEARING] ?: true }
-    // Widget card background alpha (1f = opaque, matching the prototype and
+    // Widget card background alpha (1f = opaque, matching
     // the app's own surfaces). Text/icons/checkboxes stay fully opaque --
     // only the card fill is affected.
     val widgetTransparency: Flow<Float> = dataStore.data.map { it[Keys.WIDGET_TRANSPARENCY] ?: 1f }

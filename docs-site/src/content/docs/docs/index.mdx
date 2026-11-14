@@ -7,7 +7,7 @@ import { Card, CardGrid, Badge } from '@astrojs/starlight/components';
 
 <Badge text="Android · version 1.0" variant="note" /> <Badge text="MVP scope frozen" variant="tip" />
 
-Shopp is a fast, native Android shopping list app. This section documents every screen, gesture, and rule in the current build. Where the wording is ambiguous, the product's tiebreaker is the same one written into the [PRD](https://github.com/rrajath/shopp/blob/main/internal-docs/shopping-list-prd.md):
+Shopp is a fast, native Android shopping list app. This section documents every screen, gesture, and rule in the current build. Where the wording is ambiguous, the tiebreaker is the product's guiding principle:
 
 > A shopping list is a conveyor belt, not a filing cabinet.
 
@@ -32,4 +32,4 @@ Three screens, two entities, no configuration required. The app is fully functio
 
 ## Source of truth
 
-This documentation is generated from the shipped Android app (`app/src/main/java/com/rrajath/shopp/`), cross-checked against the [product requirements](https://github.com/rrajath/shopp/blob/main/internal-docs/shopping-list-prd.md) and [technical design](https://github.com/rrajath/shopp/blob/main/internal-docs/shopping-list-tdd.md) documents. Those two documents describe an original cross-platform (Android + iOS + web) plan; the app that actually shipped is **pure native Android**, one Kotlin/Compose codebase with no other platform surface. Wherever the original documents and the shipped app disagree, this documentation follows the app — see the [architecture notes](https://github.com/rrajath/shopp/blob/main/docs/ARCHITECTURE.md) in the repository for why that substitution was made and what it simplified.
+This documentation is generated from the shipped Android app (`app/src/main/java/com/rrajath/shopp/`). For how it's built, see the [architecture notes](https://github.com/rrajath/shopp/blob/main/docs/ARCHITECTURE.md) in the repository.

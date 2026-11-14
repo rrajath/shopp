@@ -20,11 +20,11 @@ import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import com.rrajath.shopp.designsystem.theme.ThemeMode
 
 /**
- * TDD §7.2/§7.3: the Quick Settings tile's capture surface. Native, not a
+ * The Quick Settings tile's capture surface. Native, not a
  * booted RN/app-navigation flow -- it just hosts the exact same
  * [QuickAddOverlay] the in-app FAB uses, reading off the same
  * [com.rrajath.shopp.AppContainer] singleton, so "the same component" is
- * trivially true (TDD §1.2).
+ * trivially true.
  */
 class CaptureActivity : ComponentActivity() {
 
@@ -89,8 +89,8 @@ class CaptureActivity : ComponentActivity() {
     }
 
     // showWhenLocked/turnScreenOn is what makes "usable without unlocking"
-    // true (PRD §12). The Activity methods exist from API 27; API 26 needs
-    // the window-flag equivalents (TDD §7.2: "use both behind a version check").
+    // true. The Activity methods exist from API 27; API 26 needs the
+    // window-flag equivalents, so both are used behind a version check.
     private fun showOverLockScreenAndWakeUp() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)

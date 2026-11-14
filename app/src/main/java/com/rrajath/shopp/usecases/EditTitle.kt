@@ -7,10 +7,10 @@ import com.rrajath.shopp.data.repository.LabelRepository
 import com.rrajath.shopp.domain.LabelRef
 import com.rrajath.shopp.domain.parseCapture
 
-// Re-runs token extraction on the new title (PRD §7.4 / TDD §4.3): a token
+// Re-runs token extraction on the new title: a token
 // re-tags the item and moves it to that section; no token leaves the
 // existing label untouched. created_at is never touched, so position is
-// preserved (PRD §7.2).
+// preserved.
 class EditTitle(
     private val database: ShoppDatabase,
     private val itemRepository: ItemRepository,

@@ -8,7 +8,7 @@ import android.service.quicksettings.TileService
 import com.rrajath.shopp.R
 
 /**
- * TDD §7.2. `startActivityAndCollapse(Intent)` is deprecated on API 34+ in
+ * `startActivityAndCollapse(Intent)` is deprecated on API 34+ in
  * favor of the PendingIntent overload -- both paths are kept, version-gated.
  */
 class QuickAddTileService : TileService() {

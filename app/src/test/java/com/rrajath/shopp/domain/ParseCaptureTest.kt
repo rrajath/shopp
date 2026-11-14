@@ -3,9 +3,9 @@ package com.rrajath.shopp.domain
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-// Golden fixtures ported from TDD §9.4 packages/fixtures/parser.json — this
+// Golden parser fixtures -- this
 // is the contract the parser must satisfy exactly. `label(...)` folds a raw
-// Token the same way label resolution would (TDD §4.2's resolveLabel), since
+// Token the same way label resolution would, since
 // the fixtures express expected labels in their resolved/folded form.
 class ParseCaptureTest {
 
