@@ -45,6 +45,7 @@ fun ShoppApp(viewModel: ShoppViewModel) {
     val readdUndo by viewModel.readdUndo.collectAsState()
     val quickAdd by viewModel.quickAdd.collectAsState()
     val completedItems by viewModel.completedItems.collectAsState()
+    val purchaseHistory by viewModel.purchaseHistory.collectAsState()
     val groupByLabel by viewModel.groupByLabel.collectAsState()
     val keepQuickAddOpen by viewModel.keepQuickAddOpen.collectAsState()
     val confirmBeforeClearing by viewModel.confirmBeforeClearing.collectAsState()
@@ -170,12 +171,16 @@ fun ShoppApp(viewModel: ShoppViewModel) {
             val titleSuggestions = remember(quickAdd.draft, completedItems) {
                 itemTitleSuggestions(quickAdd.draft, completedItems)
             }
+            val quickPicks = remember(purchaseHistory, activeItems, labels) {
+                quickPicks(purchaseHistory, activeItems, labels)
+            }
             QuickAddOverlay(
                 draft = quickAdd.draft,
                 stickyLabelId = quickAdd.stickyLabelId,
                 labels = labels,
                 suggestions = suggestions,
                 titleSuggestions = titleSuggestions,
+                quickPicks = quickPicks,
                 sessionAdds = quickAdd.sessionAdds,
                 quantity = quickAdd.quantity,
                 hint = quickAdd.hint,
@@ -184,6 +189,7 @@ fun ShoppApp(viewModel: ShoppViewModel) {
                 onSelectSticky = viewModel::selectStickyChip,
                 onAcceptSuggestion = viewModel::acceptSuggestion,
                 onAcceptTitleSuggestion = viewModel::acceptTitleSuggestion,
+                onAddQuickPick = viewModel::addQuickPick,
                 onSubmit = viewModel::submitQuickAdd,
                 onDismiss = viewModel::closeQuickAdd,
             )

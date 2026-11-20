@@ -23,9 +23,12 @@ class ItemRepository(
 
     suspend fun insertAll(items: List<ItemEntity>) = itemDao.insertAll(items)
 
-    suspend fun markCompleted(item: ItemEntity) {
+    // Returns the row as written, so callers can use its completedAt.
+    suspend fun markCompleted(item: ItemEntity): ItemEntity {
         val now = clock.nowMillis()
-        itemDao.update(item.copy(state = STATE_COMPLETED, completedAt = now, updatedAt = now))
+        val completed = item.copy(state = STATE_COMPLETED, completedAt = now, updatedAt = now)
+        itemDao.update(completed)
+        return completed
     }
 
     suspend fun markActive(item: ItemEntity) {

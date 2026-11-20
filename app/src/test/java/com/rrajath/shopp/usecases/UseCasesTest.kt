@@ -6,8 +6,10 @@ import com.rrajath.shopp.data.db.STATE_COMPLETED
 import com.rrajath.shopp.data.db.ShoppDatabase
 import com.rrajath.shopp.data.repository.ItemRepository
 import com.rrajath.shopp.data.repository.LabelRepository
+import com.rrajath.shopp.data.repository.PurchaseHistoryRepository
 import com.rrajath.shopp.domain.Clock
 import com.rrajath.shopp.domain.LabelRef
+import com.rrajath.shopp.domain.foldForMatching
 import com.rrajath.shopp.domain.Uuidv7IdGenerator
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -38,6 +40,7 @@ class UseCasesTest {
     private lateinit var clock: FakeClock
     private lateinit var itemRepository: ItemRepository
     private lateinit var labelRepository: LabelRepository
+    private lateinit var purchaseHistoryRepository: PurchaseHistoryRepository
 
     private lateinit var captureItems: CaptureItems
     private lateinit var completeItem: CompleteItem
@@ -55,14 +58,15 @@ class UseCasesTest {
         val idGenerator = Uuidv7IdGenerator
         itemRepository = ItemRepository(db.itemDao(), clock)
         labelRepository = LabelRepository(db.labelDao(), clock, idGenerator)
+        purchaseHistoryRepository = PurchaseHistoryRepository(db.purchaseHistoryDao())
 
         captureItems = CaptureItems(db, itemRepository, labelRepository, clock, idGenerator)
-        completeItem = CompleteItem(db, itemRepository)
-        undoComplete = UndoComplete(db, itemRepository)
+        completeItem = CompleteItem(db, itemRepository, purchaseHistoryRepository)
+        undoComplete = UndoComplete(db, itemRepository, purchaseHistoryRepository)
         editTitle = EditTitle(db, itemRepository, labelRepository)
         renameLabel = RenameLabel(db, labelRepository)
-        mergeLabels = MergeLabels(db, itemRepository, labelRepository)
-        deleteLabel = DeleteLabel(db, itemRepository, labelRepository)
+        mergeLabels = MergeLabels(db, itemRepository, labelRepository, purchaseHistoryRepository)
+        deleteLabel = DeleteLabel(db, itemRepository, labelRepository, purchaseHistoryRepository)
         readdCompleted = ReaddCompleted(db, itemRepository, labelRepository)
     }
 
@@ -318,5 +322,66 @@ class UseCasesTest {
         renameLabel(label.id, "Costco Wholesale")
         val afterRename = labelRepository.getById(label.id)!!
         assertTrue(afterRename.updatedAt > label.updatedAt)
+    }
+
+    private suspend fun historyFor(title: String) =
+        db.purchaseHistoryDao().get(title.foldForMatching())
+
+    @Test
+    fun `completing counts a purchase and undo takes it back`() = runBlocking {
+        captureItems("Milk", LabelRef.None)
+        val first = itemRepository.observeActiveItems().first().single()
+        clock.advance(100)
+        completeItem(first.id)
+        val t1 = clock.nowMillis()
+
+        captureItems("milk", LabelRef.None)
+        val second = itemRepository.observeActiveItems().first().single()
+        clock.advance(100)
+        completeItem(second.id)
+        assertEquals(2, historyFor("milk")!!.count)
+        assertEquals("milk", historyFor("milk")!!.title)
+
+        clock.advance()
+        undoComplete(second.id)
+        val afterUndo = historyFor("milk")!!
+        assertEquals(1, afterUndo.count)
+        assertEquals(t1, afterUndo.lastPurchasedAt)
+
+        clock.advance()
+        undoComplete(first.id) // first is still completed; undo removes the last count
+        assertNull(historyFor("milk"))
+    }
+
+    @Test
+    fun `re-completing without recording leaves the count alone`() = runBlocking {
+        captureItems("eggs", LabelRef.None)
+        val item = itemRepository.observeActiveItems().first().single()
+        clock.advance()
+        completeItem(item.id)
+        clock.advance()
+        readdCompleted(item.id)
+        clock.advance()
+        completeItem(item.id, recordPurchase = false)
+        assertEquals(1, historyFor("eggs")!!.count)
+    }
+
+    @Test
+    fun `label delete and merge move purchase history too`() = runBlocking {
+        captureItems("milk @dairy\nbread @bakery", LabelRef.None)
+        val items = itemRepository.observeActiveItems().first()
+        clock.advance()
+        items.forEach { completeItem(it.id) }
+        val dairy = items.first { it.title == "milk" }.labelId!!
+        val bakery = items.first { it.title == "bread" }.labelId!!
+
+        clock.advance()
+        mergeLabels(bakery, dairy)
+        assertEquals(dairy, historyFor("bread")!!.labelId)
+
+        clock.advance()
+        deleteLabel(dairy)
+        assertNull(historyFor("milk")!!.labelId)
+        assertNull(historyFor("bread")!!.labelId)
     }
 }

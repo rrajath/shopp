@@ -70,6 +70,33 @@ class ShoppMigrationTest {
         }
     }
 
+    @Test
+    fun `v2 to v3 seeds purchase history from completed rows, cleared ones included`() = runBlocking {
+        val file = context.getDatabasePath(dbName)
+        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { db ->
+            fun completed(id: String, title: String, at: Long, deletedAt: Long?) = db.execSQL(
+                "INSERT INTO items (id, title, labelId, state, createdAt, updatedAt, completedAt, deletedAt) " +
+                    "VALUES ('$id', '$title', NULL, 'completed', 1, 1, $at, ${deletedAt ?: "NULL"})"
+            )
+            completed("c1", "Eggs", 100, deletedAt = 500)
+            completed("c2", "eggs", 200, deletedAt = null)
+            completed("c3", "bread", 150, deletedAt = null)
+        }
+        val db = ShoppDatabase.build(context, dbName)
+        try {
+            val dao = db.purchaseHistoryDao()
+            val eggs = dao.get("eggs")!!
+            assertEquals(2, eggs.count)
+            assertEquals("eggs", eggs.title)
+            assertEquals(200L, eggs.lastPurchasedAt)
+            assertEquals(100L, eggs.previousPurchasedAt)
+            assertEquals(1, dao.get("bread")!!.count)
+            assertEquals(null, dao.get("milk")) // active, never purchased
+        } finally {
+            db.close()
+        }
+    }
+
     // Statements copied from app/schemas/.../1.json plus the v1 onCreate
     // callback's partial indexes.
     private fun createV1Database() {

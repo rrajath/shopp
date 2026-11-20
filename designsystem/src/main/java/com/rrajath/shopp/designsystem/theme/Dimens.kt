@@ -78,6 +78,11 @@ object ShoppDimens {
     val chipDotGap = 6.dp
     val sessionAddGap = 10.dp
     val sessionAddPaddingBottom = 10.dp
+    // Frequent/Recent tabs above the quick-pick popover: label-chip pills
+    // spaced like the chip row, with the same 10dp the popovers keep from
+    // what sits below them.
+    val quickPickTabGap = 7.dp
+    val quickPickTabsPaddingBottom = 10.dp
 
     // Quantity stepper (Quick Add input row and ItemRow edit mode): 28dp
     // circles (same height as a label chip) inside 44dp tapTarget boxes, so

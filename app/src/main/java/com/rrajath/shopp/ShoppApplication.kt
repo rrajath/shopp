@@ -8,6 +8,7 @@ import com.rrajath.shopp.data.db.ShoppDatabase
 import com.rrajath.shopp.data.repository.ItemRepository
 import com.rrajath.shopp.data.repository.LabelRepository
 import com.rrajath.shopp.data.repository.PreferencesRepository
+import com.rrajath.shopp.data.repository.PurchaseHistoryRepository
 import com.rrajath.shopp.domain.SystemClock
 import com.rrajath.shopp.domain.Uuidv7IdGenerator
 import com.rrajath.shopp.usecases.CaptureItems
@@ -38,15 +39,16 @@ class AppContainer(app: Application) {
     val itemRepository = ItemRepository(database.itemDao(), clock)
     val labelRepository = LabelRepository(database.labelDao(), clock, idGenerator)
     val preferencesRepository = PreferencesRepository(app.dataStore)
+    val purchaseHistoryRepository = PurchaseHistoryRepository(database.purchaseHistoryDao())
 
     val captureItems = CaptureItems(database, itemRepository, labelRepository, clock, idGenerator)
-    val completeItem = CompleteItem(database, itemRepository)
-    val undoComplete = UndoComplete(database, itemRepository)
+    val completeItem = CompleteItem(database, itemRepository, purchaseHistoryRepository)
+    val undoComplete = UndoComplete(database, itemRepository, purchaseHistoryRepository)
     val editTitle = EditTitle(database, itemRepository, labelRepository)
     val renameLabel = RenameLabel(database, labelRepository)
     val setLabelColor = SetLabelColor(database, labelRepository)
-    val mergeLabels = MergeLabels(database, itemRepository, labelRepository)
-    val deleteLabel = DeleteLabel(database, itemRepository, labelRepository)
+    val mergeLabels = MergeLabels(database, itemRepository, labelRepository, purchaseHistoryRepository)
+    val deleteLabel = DeleteLabel(database, itemRepository, labelRepository, purchaseHistoryRepository)
     val readdCompleted = ReaddCompleted(database, itemRepository, labelRepository)
 }
 

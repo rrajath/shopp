@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -17,7 +19,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -26,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,6 +46,9 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -48,6 +58,7 @@ import com.rrajath.shopp.data.db.LabelEntity
 import com.rrajath.shopp.designsystem.components.QuantityStepper
 import com.rrajath.shopp.domain.MAX_QUANTITY
 import com.rrajath.shopp.domain.MIN_QUANTITY
+import com.rrajath.shopp.ui.QuickPicks
 import com.rrajath.shopp.ui.SessionAddEntry
 import com.rrajath.shopp.ui.TitleSuggestion
 import com.rrajath.shopp.designsystem.theme.ShoppDimens
@@ -66,6 +77,7 @@ fun QuickAddOverlay(
     labels: List<LabelEntity>,
     suggestions: List<LabelEntity>,
     titleSuggestions: List<TitleSuggestion>,
+    quickPicks: QuickPicks,
     sessionAdds: List<SessionAddEntry>,
     quantity: Int,
     hint: String?,
@@ -74,6 +86,7 @@ fun QuickAddOverlay(
     onSelectSticky: (String?) -> Unit,
     onAcceptSuggestion: (String) -> Unit,
     onAcceptTitleSuggestion: (TitleSuggestion) -> Unit,
+    onAddQuickPick: (TitleSuggestion) -> Unit,
     onSubmit: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -125,6 +138,8 @@ fun QuickAddOverlay(
                     labels = labels,
                     onAccept = onAcceptTitleSuggestion,
                 )
+            } else if (draft.isEmpty() && !quickPicks.isEmpty) {
+                QuickPicksPanel(quickPicks = quickPicks, labels = labels, onAdd = onAddQuickPick)
             }
 
             sessionAdds.forEach { entry ->
@@ -266,6 +281,107 @@ private fun TitleSuggestionsPopover(
                 Text(text = suggestion.title, style = ShoppType.suggestionText.copy(color = colors.foreground))
             }
         }
+    }
+}
+
+private enum class QuickPickTab(val title: String) { Frequent("Frequent"), Recent("Recent") }
+
+private const val QUICK_PICK_VISIBLE_ROWS = 5
+
+// One-tap re-adds while the draft is empty (see quickPicks): two chip-style
+// tabs over a popover styled like the suggestion popovers, showing up to
+// MAX_QUICK_PICKS rows with QUICK_PICK_VISIBLE_ROWS visible and the rest
+// scrolled. Typing swaps it for the suggestion popovers, which use the
+// same slot. No top-row highlight: Done doesn't pick from this list.
+@Composable
+private fun QuickPicksPanel(
+    quickPicks: QuickPicks,
+    labels: List<LabelEntity>,
+    onAdd: (TitleSuggestion) -> Unit,
+) {
+    val colors = ShoppTheme.colors
+    var tab by rememberSaveable { mutableStateOf(QuickPickTab.Frequent) }
+    val picks = when (tab) {
+        QuickPickTab.Frequent -> quickPicks.frequent
+        QuickPickTab.Recent -> quickPicks.recent
+    }
+    // Rows are single-line text plus fixed padding, so their height is
+    // known up front; capping the popover at five of them avoids a
+    // measure-then-shrink flash on the first frame.
+    val density = LocalDensity.current
+    val rowHeight = with(density) { ShoppType.suggestionText.lineHeight.toDp() } +
+        ShoppDimens.suggestionRowPaddingVertical * 2
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = ShoppDimens.quickPickTabsPaddingBottom)
+            .selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(ShoppDimens.quickPickTabGap),
+    ) {
+        QuickPickTab.entries.forEach { entry ->
+            QuickPickTabChip(title = entry.title, selected = tab == entry, onClick = { tab = entry })
+        }
+    }
+
+    // Fresh scroll position per tab, so switching always starts at the top.
+    val scrollState = remember(tab) { ScrollState(0) }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = ShoppDimens.suggestionsBottomMargin)
+            .shadow(4.dp, RoundedCornerShape(ShoppDimens.suggestionsCornerRadius))
+            .clip(RoundedCornerShape(ShoppDimens.suggestionsCornerRadius))
+            .background(colors.menu)
+            .heightIn(max = rowHeight * QUICK_PICK_VISIBLE_ROWS)
+            .verticalScroll(scrollState)
+            .testTag("quickPicksList"),
+    ) {
+        picks.forEach { pick ->
+            val label = pick.labelId?.let { id -> labels.find { it.id == id } }
+            val dotColor = if (label != null) colors.labelPalette[label.colorIndex % colors.labelPalette.size] else colors.muted
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onAdd(pick) }
+                    .padding(
+                        horizontal = ShoppDimens.suggestionRowPaddingHorizontal,
+                        vertical = ShoppDimens.suggestionRowPaddingVertical,
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Box(modifier = Modifier.size(8.dp).background(dotColor, CircleShape))
+                Text(
+                    text = pick.title,
+                    style = ShoppType.suggestionText.copy(color = colors.foreground),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+// Styled like an Inbox chip in LabelChipRow: the selected tab takes the
+// inverted toast surface, the other the neutral unselected fill.
+@Composable
+private fun QuickPickTabChip(title: String, selected: Boolean, onClick: () -> Unit) {
+    val colors = ShoppTheme.colors
+    Box(
+        modifier = Modifier
+            .defaultMinSize(minHeight = ShoppDimens.chipMinHeight)
+            .clip(RoundedCornerShape(ShoppDimens.chipCornerRadius))
+            .background(if (selected) colors.toastBackground else colors.chipUnselectedFill)
+            .selectable(selected = selected, role = Role.Tab, onClick = onClick)
+            .padding(horizontal = ShoppDimens.chipPaddingHorizontal, vertical = ShoppDimens.chipPaddingVertical),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = title,
+            style = (if (selected) ShoppType.chipSelected else ShoppType.chipUnselected)
+                .copy(color = if (selected) colors.toastForeground else colors.chipUnselectedText),
+        )
     }
 }
 

@@ -7,11 +7,17 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.rrajath.shopp.BuildConfig
+import com.rrajath.shopp.domain.foldForMatching
 
-@Database(entities = [ItemEntity::class, LabelEntity::class], version = 2, exportSchema = true)
+@Database(
+    entities = [ItemEntity::class, LabelEntity::class, PurchaseHistoryEntity::class],
+    version = 3,
+    exportSchema = true,
+)
 abstract class ShoppDatabase : RoomDatabase() {
     abstract fun itemDao(): ItemDao
     abstract fun labelDao(): LabelDao
+    abstract fun purchaseHistoryDao(): PurchaseHistoryDao
 
     companion object {
         private const val DB_NAME = "shopping.db"
@@ -53,11 +59,62 @@ abstract class ShoppDatabase : RoomDatabase() {
             }
         }
 
+        // v3: purchase_history for Quick Add's Frequent/Recent lists, seeded
+        // from every completed row still on disk (including ones "Clear"
+        // tombstoned) so upgraders don't start with empty lists. Titles are
+        // folded in Kotlin, not SQL, to match foldForMatching exactly.
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                dropPartialIndexes(db)
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `purchase_history` (`titleFolded` TEXT NOT NULL, " +
+                        "`title` TEXT NOT NULL, `labelId` TEXT, `count` INTEGER NOT NULL, " +
+                        "`lastPurchasedAt` INTEGER NOT NULL, `previousPurchasedAt` INTEGER, " +
+                        "PRIMARY KEY(`titleFolded`))"
+                )
+                seedPurchaseHistory(db)
+            }
+        }
+
+        private fun seedPurchaseHistory(db: SupportSQLiteDatabase) {
+            // Oldest first, so the last write per title holds its latest
+            // casing, label, and time.
+            val byTitle = LinkedHashMap<String, PurchaseHistoryEntity>()
+            db.query(
+                "SELECT title, labelId, completedAt FROM items " +
+                    "WHERE state = 'completed' AND completedAt IS NOT NULL ORDER BY completedAt ASC"
+            ).use { c ->
+                while (c.moveToNext()) {
+                    val title = c.getString(0)
+                    val labelId = if (c.isNull(1)) null else c.getString(1)
+                    val completedAt = c.getLong(2)
+                    val key = title.foldForMatching()
+                    val prev = byTitle[key]
+                    byTitle[key] = PurchaseHistoryEntity(
+                        titleFolded = key,
+                        title = title,
+                        labelId = labelId,
+                        count = (prev?.count ?: 0) + 1,
+                        lastPurchasedAt = completedAt,
+                        previousPurchasedAt = prev?.lastPurchasedAt,
+                    )
+                }
+            }
+            byTitle.values.forEach { e ->
+                db.execSQL(
+                    "INSERT INTO purchase_history " +
+                        "(titleFolded, title, labelId, count, lastPurchasedAt, previousPurchasedAt) " +
+                        "VALUES (?, ?, ?, ?, ?, ?)",
+                    arrayOf<Any?>(e.titleFolded, e.title, e.labelId, e.count, e.lastPurchasedAt, e.previousPurchasedAt),
+                )
+            }
+        }
+
         // name is overridable only so migration tests can use a fresh file each.
         fun build(context: Context, name: String = DB_NAME): ShoppDatabase =
             Room.databaseBuilder(context.applicationContext, ShoppDatabase::class.java, name)
                 .setJournalMode(JournalMode.WRITE_AHEAD_LOGGING)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .addCallback(Callback)
                 .build()
 

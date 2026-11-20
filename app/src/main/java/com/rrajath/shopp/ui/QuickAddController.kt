@@ -3,6 +3,7 @@ package com.rrajath.shopp.ui
 import com.rrajath.shopp.AppContainer
 import com.rrajath.shopp.data.db.ItemEntity
 import com.rrajath.shopp.data.db.LabelEntity
+import com.rrajath.shopp.data.db.PurchaseHistoryEntity
 import com.rrajath.shopp.domain.LabelRef
 import com.rrajath.shopp.domain.MIN_QUANTITY
 import com.rrajath.shopp.domain.clampQuantity
@@ -85,6 +86,41 @@ fun itemTitleSuggestions(draft: String, completedItems: List<ItemEntity>): List<
         if (results.size >= MAX_TITLE_SUGGESTIONS) break
     }
     return results
+}
+
+const val MAX_QUICK_PICKS = 10
+
+// Quick Add's one-tap lists, shown while the draft is empty: Frequent is
+// most-purchased first (ties go to the more recent), Recent is
+// most-recently purchased first. Titles already on the active list (under
+// any label) are skipped and the next ones backfill, so every row can be
+// added. A label that no longer exists reads as Inbox.
+data class QuickPicks(
+    val frequent: List<TitleSuggestion> = emptyList(),
+    val recent: List<TitleSuggestion> = emptyList(),
+) {
+    val isEmpty: Boolean get() = frequent.isEmpty() && recent.isEmpty()
+}
+
+fun quickPicks(
+    history: List<PurchaseHistoryEntity>,
+    activeItems: List<ItemEntity>,
+    labels: List<LabelEntity>,
+): QuickPicks {
+    val onList = activeItems.mapTo(HashSet()) { it.title.foldForMatching() }
+    val liveLabelIds = labels.mapTo(HashSet()) { it.id }
+    val available = history.filter { it.titleFolded !in onList }
+
+    fun List<PurchaseHistoryEntity>.toPicks() = take(MAX_QUICK_PICKS).map {
+        TitleSuggestion(it.title, it.labelId?.takeIf { id -> id in liveLabelIds })
+    }
+
+    return QuickPicks(
+        frequent = available
+            .sortedWith(compareByDescending<PurchaseHistoryEntity> { it.count }.thenByDescending { it.lastPurchasedAt })
+            .toPicks(),
+        recent = available.sortedByDescending { it.lastPurchasedAt }.toPicks(),
+    )
 }
 
 /**
@@ -173,8 +209,22 @@ class QuickAddController(
         )
     }
 
-    fun submit() {
-        val current = _state.value
+    // One-tap add from the Frequent/Recent lists: the same path as picking
+    // a title suggestion and pressing Done, so the item lands under the
+    // label it was last bought under (the sticky chip is left alone) with
+    // the stepper's quantity, and the keep-open setting still applies.
+    fun addQuickPick(pick: TitleSuggestion) {
+        submit(
+            _state.value.copy(
+                draft = pick.title,
+                suggestionLabels = mapOf(pick.title.foldForMatching() to pick.labelId),
+            ),
+        )
+    }
+
+    fun submit() = submit(_state.value)
+
+    private fun submit(current: QuickAddState) {
         if (current.draft.isBlank()) return
         scope.launch {
             val sticky = current.stickyLabelId?.let { LabelRef.Id(it) } ?: LabelRef.None

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.rrajath.shopp.AppContainer
 import com.rrajath.shopp.data.db.ItemEntity
+import com.rrajath.shopp.data.db.PurchaseHistoryEntity
 import com.rrajath.shopp.data.db.LabelEntity
 import com.rrajath.shopp.designsystem.theme.ThemeMode
 import com.rrajath.shopp.usecases.RenameLabel
@@ -172,6 +173,11 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
     fun selectStickyChip(labelId: String?) = quickAddController.selectStickyChip(labelId)
     fun acceptSuggestion(labelName: String) = quickAddController.acceptSuggestion(labelName)
     fun acceptTitleSuggestion(suggestion: TitleSuggestion) = quickAddController.acceptTitleSuggestion(suggestion)
+    fun addQuickPick(pick: TitleSuggestion) = quickAddController.addQuickPick(pick)
+
+    val purchaseHistory: StateFlow<List<PurchaseHistoryEntity>> =
+        container.purchaseHistoryRepository.observeAll()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
     fun setQuickAddQuantity(quantity: Int) = quickAddController.setQuantity(quantity)
     fun submitQuickAdd() = quickAddController.submit()
 
@@ -206,7 +212,7 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
         val state = _readdUndo.value ?: return
         readdUndoJob?.cancel()
         _readdUndo.value = null
-        viewModelScope.launch { container.completeItem(state.itemId) }
+        viewModelScope.launch { container.completeItem(state.itemId, recordPurchase = false) }
     }
 
     fun clearAllCompleted() {

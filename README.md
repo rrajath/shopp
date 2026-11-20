@@ -17,7 +17,7 @@ More in [`screenshots/`](screenshots/).
 
 ## Features
 
-- **Quick Add** — floating capture overlay with inline `@label` tagging and autocomplete, multi-line paste, a sticky label chip across consecutive adds, a −/+ quantity stepper, and suggestions from items you've bought before (picked under the label you last bought them under). Duplicates under the same label are ignored, with a hint showing what's already on the list.
+- **Quick Add** — floating capture overlay with inline `@label` tagging and autocomplete, multi-line paste, a sticky label chip across consecutive adds, a −/+ quantity stepper, suggestions from items you've bought before (picked under the label you last bought them under), and one-tap **Frequent** / **Recent** lists of past purchases that show before you start typing. Duplicates under the same label are ignored, with a hint showing what's already on the list.
 - **Quick Settings tile** — add items without unlocking the phone; opens the same capture overlay over the lock screen.
 - **Home screen widget** — resizable, sectioned list with tap-to-complete, an Add button, and adjustable transparency.
 - **Sectioned list** — items grouped by label (Inbox first) with sticky headers; grouping can be turned off.

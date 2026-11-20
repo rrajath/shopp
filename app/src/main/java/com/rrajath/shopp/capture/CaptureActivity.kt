@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import com.rrajath.shopp.ShoppApplication
 import com.rrajath.shopp.ui.components.QuickAddOverlay
 import com.rrajath.shopp.ui.itemTitleSuggestions
+import com.rrajath.shopp.ui.quickPicks
 import com.rrajath.shopp.ui.quickAddSuggestions
 import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import com.rrajath.shopp.designsystem.theme.ThemeMode
@@ -44,6 +45,8 @@ class CaptureActivity : ComponentActivity() {
             val quickAdd by viewModel.quickAdd.collectAsState()
             val labels by viewModel.labels.collectAsState()
             val completedItems by viewModel.completedItems.collectAsState()
+            val activeItems by viewModel.activeItems.collectAsState()
+            val purchaseHistory by viewModel.purchaseHistory.collectAsState()
 
             // Closing Quick Add here means "done" -- there's no List screen
             // to fall back to, so finish the activity entirely.
@@ -58,12 +61,16 @@ class CaptureActivity : ComponentActivity() {
                 val titleSuggestions = remember(quickAdd.draft, completedItems) {
                     itemTitleSuggestions(quickAdd.draft, completedItems)
                 }
+                val quickPicks = remember(purchaseHistory, activeItems, labels) {
+                    quickPicks(purchaseHistory, activeItems, labels)
+                }
                 QuickAddOverlay(
                     draft = quickAdd.draft,
                     stickyLabelId = quickAdd.stickyLabelId,
                     labels = labels,
                     suggestions = suggestions,
                     titleSuggestions = titleSuggestions,
+                    quickPicks = quickPicks,
                     sessionAdds = quickAdd.sessionAdds,
                     quantity = quickAdd.quantity,
                     hint = quickAdd.hint,
@@ -72,6 +79,7 @@ class CaptureActivity : ComponentActivity() {
                     onSelectSticky = viewModel::selectStickyChip,
                     onAcceptSuggestion = viewModel::acceptSuggestion,
                     onAcceptTitleSuggestion = viewModel::acceptTitleSuggestion,
+                    onAddQuickPick = viewModel::addQuickPick,
                     onSubmit = viewModel::submit,
                     onDismiss = viewModel::close,
                 )

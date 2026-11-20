@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.rrajath.shopp.AppContainer
 import com.rrajath.shopp.data.db.ItemEntity
 import com.rrajath.shopp.data.db.LabelEntity
+import com.rrajath.shopp.data.db.PurchaseHistoryEntity
 import com.rrajath.shopp.ui.QuickAddController
 import com.rrajath.shopp.ui.QuickAddState
 import com.rrajath.shopp.ui.TitleSuggestion
@@ -29,6 +30,14 @@ class CaptureViewModel(container: AppContainer) : ViewModel() {
         container.itemRepository.observeCompletedItems()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    val activeItems: StateFlow<List<ItemEntity>> =
+        container.itemRepository.observeActiveItems()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    val purchaseHistory: StateFlow<List<PurchaseHistoryEntity>> =
+        container.purchaseHistoryRepository.observeAll()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     private val controller = QuickAddController(viewModelScope, container, initiallyOpen = true)
     val quickAdd: StateFlow<QuickAddState> = controller.state
 
@@ -36,6 +45,7 @@ class CaptureViewModel(container: AppContainer) : ViewModel() {
     fun selectStickyChip(labelId: String?) = controller.selectStickyChip(labelId)
     fun acceptSuggestion(labelName: String) = controller.acceptSuggestion(labelName)
     fun acceptTitleSuggestion(suggestion: TitleSuggestion) = controller.acceptTitleSuggestion(suggestion)
+    fun addQuickPick(pick: TitleSuggestion) = controller.addQuickPick(pick)
     fun setQuantity(quantity: Int) = controller.setQuantity(quantity)
     fun submit() = controller.submit()
     fun close() = controller.close()
