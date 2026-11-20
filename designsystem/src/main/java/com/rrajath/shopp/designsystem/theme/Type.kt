@@ -101,6 +101,12 @@ object ShoppType {
         fontFamily = FigtreeFamily, fontWeight = FontWeight.Light, fontSize = 15.sp, lineHeight = 15.sp,
     )
 
+    // Quantity stepper's count: same size as the Quick Add input, Medium so
+    // the number reads as a value rather than more typed text.
+    val quantityCount = TextStyle(
+        fontFamily = FigtreeFamily, fontWeight = FontWeight.Medium, fontSize = 15.sp, lineHeight = 15.sp,
+    )
+
     // Quick Add draft textarea (and reused for the label-rename field).
     val quickAddInput = TextStyle(
         fontFamily = FigtreeFamily, fontWeight = FontWeight.Normal, fontSize = 15.sp, lineHeight = 22.5.sp,

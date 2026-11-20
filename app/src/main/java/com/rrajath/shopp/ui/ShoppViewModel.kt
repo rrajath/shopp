@@ -157,8 +157,8 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch { container.undoComplete(state.itemId) }
     }
 
-    fun editTitle(itemId: String, newTitle: String) {
-        viewModelScope.launch { container.editTitle(itemId, newTitle) }
+    fun editItem(itemId: String, newTitle: String, quantity: Int) {
+        viewModelScope.launch { container.editTitle(itemId, newTitle, quantity) }
     }
 
     // --- Quick Add (shared controller -- see QuickAddController for why) ---
@@ -171,7 +171,8 @@ class ShoppViewModel(private val container: AppContainer) : ViewModel() {
     fun updateQuickAddDraft(text: String) = quickAddController.updateDraft(text)
     fun selectStickyChip(labelId: String?) = quickAddController.selectStickyChip(labelId)
     fun acceptSuggestion(labelName: String) = quickAddController.acceptSuggestion(labelName)
-    fun acceptTitleSuggestion(title: String) = quickAddController.acceptTitleSuggestion(title)
+    fun acceptTitleSuggestion(suggestion: TitleSuggestion) = quickAddController.acceptTitleSuggestion(suggestion)
+    fun setQuickAddQuantity(quantity: Int) = quickAddController.setQuantity(quantity)
     fun submitQuickAdd() = quickAddController.submit()
 
     // --- Recently Completed ---

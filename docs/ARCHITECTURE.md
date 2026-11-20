@@ -40,7 +40,8 @@ com.rrajath.shopp/
 com.rrajath.shopp.designsystem/    (separate Gradle module, see below)
 ├─ theme/                    ShoppColors, ShoppType, ShoppDimens, ShoppTheme
 └─ components/                Domain-free composables: ConfirmDialog, EmptyState,
-                               HeaderRow, SectionHeader, UndoToast, LinkifiedText
+                               HeaderRow, SectionHeader, UndoToast, LinkifiedText,
+                               QuantityStepper
 ```
 
 `ItemEntity` and `LabelEntity` double as the domain model. They're plain data classes with no Android coupling beyond Room annotations, so a separate mapping layer would add nothing.
@@ -61,6 +62,8 @@ The Glance widget can't use Compose UI components (it renders to `RemoteViews`),
 
 **IDs.** UUIDv7 with the monotonic-counter variant (RFC 9562 §6.2). Pasting several lines into Quick Add creates multiple items in one transaction, often in the same millisecond; the counter keeps them sorted in paste order.
 
+**Schema versions and migrations.** Schemas are exported to `app/schemas/`. Version 2 added `items.quantity` (`INTEGER NOT NULL DEFAULT 1`) via `ShoppDatabase.MIGRATION_1_2`. The entity's `@ColumnInfo(defaultValue = "1")` must match the migration's default, or Room's schema validation fails on upgraded installs. Every future schema change needs its own `Migration` registered in `ShoppDatabase.build()`, and every `Migration` must call `dropPartialIndexes(db)` first. The partial indexes live outside Room's schema, so Room's post-migration check would otherwise reject them ("Migration didn't properly handle"); `onOpen` recreates them after the check. `ShoppMigrationTest` opens a real v1 file to cover this.
+
 **One database instance.** `MainActivity`, `CaptureActivity`, and the widget all read `AppContainer` from the same `ShoppApplication`, so they share one `ShoppDatabase`. There are no cross-process concerns.
 
 ## Domain and use cases
@@ -71,7 +74,11 @@ The Glance widget can't use Compose UI components (it renders to `RemoteViews`),
 
 Each use case in `usecases/` wraps its work in `ShoppDatabase.withTransaction { }`. For example, `CompleteItem` trims Recently Completed to 100 items in the same transaction as the completion; `MergeLabels` reassigns items and tombstones the source label atomically; `DeleteLabel` moves items to Inbox and removes the label atomically.
 
-`CaptureItems` silently drops a line if an active item already has the same folded (case-insensitive) title under the same label, or if an earlier line in the same paste does. The same title under a different label, or one only in Recently Completed, is still added. This is enforced in the use case rather than a unique index, because completed and tombstoned rows with the same title must remain valid.
+`CaptureItems` drops a line if an active item already has the same folded (case-insensitive) title under the same label, or if an earlier line in the same paste does. The same title under a different label, or one only in Recently Completed, is still added. This is enforced in the use case rather than a unique index, because completed and tombstoned rows with the same title must remain valid. Dropped lines come back in `Result.duplicates` as the item they matched, so Quick Add can say "Eggs x3 already added" using the quantity already on the list.
+
+**Quantity.** Every item has a `quantity` (1 to 99, `domain/QuantityFormatting.kt`). `CaptureItems` applies one quantity to every line of a submit; `EditTitle` takes an optional new quantity. Display goes through `titleWithQuantity()`, which appends ` (n)` only when n is above 1, so the list, widget, and Quick Add session rows all format it the same way.
+
+**Suggestion labels.** Picking a purchase-history suggestion files that item under the label it was last bought under, without changing the sticky chip. `QuickAddController` records `folded title -> labelId` per accepted suggestion and passes the map to `CaptureItems` as `labelOverrides`. An override only applies to a line with no `@token` of its own (`ParsedLine.hasOwnToken`), so anything the user typed explicitly wins.
 
 ## UI and state
 

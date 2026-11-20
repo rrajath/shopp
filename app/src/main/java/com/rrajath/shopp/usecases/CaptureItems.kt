@@ -9,13 +9,22 @@ import com.rrajath.shopp.data.repository.LabelRepository
 import com.rrajath.shopp.domain.Clock
 import com.rrajath.shopp.domain.IdGenerator
 import com.rrajath.shopp.domain.LabelRef
+import com.rrajath.shopp.domain.clampQuantity
 import com.rrajath.shopp.domain.foldForMatching
 import com.rrajath.shopp.domain.parseCapture
 
 // Resolve/create labels -> insert N items -> bump last_used_at on
 // each touched label, one transaction. Partial failure is not observable.
 // A line whose folded title matches an active item under the same label
-// (or an earlier line in the same paste) is silently dropped.
+// (or an earlier line in the same paste) is dropped and reported back in
+// Result.duplicates as the item it matched, so the UI can show the count
+// already on the list.
+//
+// quantity applies to every inserted line. labelOverrides maps a folded
+// title to the label it should land under (from picking a history
+// suggestion); it only applies to lines without their own `@token`, never
+// changes sticky, and doesn't bump that label's lastUsedAt (touching it
+// here could double-write a label a token on another line also touches).
 class CaptureItems(
     private val database: ShoppDatabase,
     private val itemRepository: ItemRepository,
@@ -23,11 +32,21 @@ class CaptureItems(
     private val clock: Clock,
     private val idGenerator: IdGenerator,
 ) {
-    data class Result(val items: List<ItemEntity>, val newSticky: LabelRef)
+    data class Result(
+        val items: List<ItemEntity>,
+        val newSticky: LabelRef,
+        val duplicates: List<ItemEntity> = emptyList(),
+    )
 
-    suspend operator fun invoke(input: String, sticky: LabelRef): Result {
+    suspend operator fun invoke(
+        input: String,
+        sticky: LabelRef,
+        quantity: Int = 1,
+        labelOverrides: Map<String, String?> = emptyMap(),
+    ): Result {
         val parsed = parseCapture(input, sticky)
         if (parsed.lines.isEmpty()) return Result(items = emptyList(), newSticky = sticky)
+        val itemQuantity = clampQuantity(quantity)
 
         return database.withTransaction {
             val resolvedTokenIds = HashMap<String, String>() // token text -> labelId, memoized per call
@@ -48,13 +67,25 @@ class CaptureItems(
                 }
             }
 
-            val activeKeys = itemRepository.getActiveItems()
-                .mapTo(HashSet()) { it.labelId to it.title.foldForMatching() }
+            // (labelId, folded title) -> the item holding that slot, so a
+            // dropped duplicate can be reported with its existing quantity.
+            val activeByKey = itemRepository.getActiveItems()
+                .associateByTo(HashMap()) { it.labelId to it.title.foldForMatching() }
 
             val now = clock.nowMillis()
+            val duplicates = mutableListOf<ItemEntity>()
             val items = parsed.lines.mapNotNull { line ->
-                val labelId = idFor(line.label)
-                if (!activeKeys.add(labelId to line.title.foldForMatching())) return@mapNotNull null
+                val folded = line.title.foldForMatching()
+                val labelId = if (!line.hasOwnToken && folded in labelOverrides) {
+                    labelOverrides.getValue(folded)
+                } else {
+                    idFor(line.label)
+                }
+                val key = labelId to folded
+                activeByKey[key]?.let {
+                    duplicates += it
+                    return@mapNotNull null
+                }
                 ItemEntity(
                     id = idGenerator.newId(),
                     title = line.title,
@@ -64,7 +95,8 @@ class CaptureItems(
                     updatedAt = now,
                     completedAt = null,
                     deletedAt = null,
-                )
+                    quantity = itemQuantity,
+                ).also { activeByKey[key] = it }
             }
             itemRepository.insertAll(items)
 
@@ -74,6 +106,7 @@ class CaptureItems(
             Result(
                 items = items,
                 newSticky = newStickyId?.let { LabelRef.Id(it) } ?: LabelRef.None,
+                duplicates = duplicates,
             )
         }
     }

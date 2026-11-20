@@ -33,9 +33,9 @@ class ItemRepository(
         itemDao.update(item.copy(state = STATE_ACTIVE, completedAt = null, updatedAt = now))
     }
 
-    suspend fun updateTitleAndLabel(item: ItemEntity, title: String, labelId: String?) {
+    suspend fun updateTitleLabelAndQuantity(item: ItemEntity, title: String, labelId: String?, quantity: Int) {
         val now = clock.nowMillis()
-        itemDao.update(item.copy(title = title, labelId = labelId, updatedAt = now))
+        itemDao.update(item.copy(title = title, labelId = labelId, quantity = quantity, updatedAt = now))
     }
 
     suspend fun reassignLabel(sourceLabelId: String, targetLabelId: String?) {

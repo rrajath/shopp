@@ -79,6 +79,14 @@ object ShoppDimens {
     val sessionAddGap = 10.dp
     val sessionAddPaddingBottom = 10.dp
 
+    // Quantity stepper (Quick Add input row and ItemRow edit mode): 28dp
+    // circles (same height as a label chip) inside 44dp tapTarget boxes, so
+    // the visible gap between the circles is the boxes' own slack.
+    val quantityStepperButtonSize = 28.dp
+    val quantityStepperIconSize = 16.dp
+    val quantityStepperCountMinWidth = 20.dp
+    val quantityStepperGap = 6.dp // between the text field and the stepper
+
     // Drawer.
     val drawerWidth = 290.dp
     // Same elevation as the Quick Add card: `menu` equals `background` in

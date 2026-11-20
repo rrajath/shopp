@@ -40,6 +40,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.rrajath.shopp.data.db.ItemEntity
 import com.rrajath.shopp.designsystem.components.LinkifiedText
+import com.rrajath.shopp.designsystem.components.QuantityStepper
+import com.rrajath.shopp.domain.MAX_QUANTITY
+import com.rrajath.shopp.domain.MIN_QUANTITY
+import com.rrajath.shopp.domain.titleWithQuantity
 import com.rrajath.shopp.designsystem.theme.ShoppDimens
 import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import com.rrajath.shopp.designsystem.theme.ShoppType
@@ -62,13 +66,15 @@ private const val COMPLETE_REMOVE_DELAY_MS = 200L
 fun ItemRow(
     item: ItemEntity,
     onComplete: () -> Unit,
-    onCommitEdit: (String) -> Unit,
+    onCommitEdit: (title: String, quantity: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = ShoppTheme.colors
     var completing by remember(item.id) { mutableStateOf(false) }
     var editing by remember(item.id) { mutableStateOf(false) }
     var fieldValue by remember(item.id) { mutableStateOf(TextFieldValue(item.title)) }
+    var editQuantity by remember(item.id) { mutableStateOf(item.quantity) }
+    val displayTitle = titleWithQuantity(item.title, item.quantity)
     var textLayout by remember(item.id) { mutableStateOf<TextLayoutResult?>(null) }
     val focusRequester = remember(item.id) { FocusRequester() }
 
@@ -81,7 +87,8 @@ fun ItemRow(
 
     fun commitIfChanged() {
         val newTitle = fieldValue.text.trim()
-        if (newTitle.isNotEmpty() && newTitle != item.title) onCommitEdit(newTitle)
+        if (newTitle.isEmpty()) return
+        if (newTitle != item.title || editQuantity != item.quantity) onCommitEdit(newTitle, editQuantity)
     }
 
     Row(
@@ -129,9 +136,17 @@ fun ItemRow(
                     },
             )
             LaunchedEffect(item.id) { focusRequester.requestFocus() }
+            // Sits in the row's 14dp rowGap like the checkbox; its 44dp tap
+            // boxes fit the row's existing tapTarget min height.
+            QuantityStepper(
+                value = editQuantity,
+                onValueChange = { editQuantity = it },
+                min = MIN_QUANTITY,
+                max = MAX_QUANTITY,
+            )
         } else {
             LinkifiedText(
-                text = item.title,
+                text = displayTitle,
                 style = ShoppType.itemText.copy(
                     color = colors.foreground.copy(alpha = if (completing) 0.38f else 1f),
                     textDecoration = if (completing) TextDecoration.LineThrough else TextDecoration.None,
@@ -142,8 +157,14 @@ fun ItemRow(
                     .pointerInput(item.id, completing) {
                         if (!completing) {
                             detectTapGestures { offset ->
-                                val index = textLayout?.getOffsetForPosition(offset) ?: item.title.length
+                                // The laid-out text may include the " (n)"
+                                // suffix, which isn't part of the editable
+                                // title, so a tap on it lands the caret at
+                                // the end of the title.
+                                val index = (textLayout?.getOffsetForPosition(offset) ?: item.title.length)
+                                    .coerceAtMost(item.title.length)
                                 fieldValue = TextFieldValue(item.title, TextRange(index))
+                                editQuantity = item.quantity
                                 editing = true
                             }
                         }

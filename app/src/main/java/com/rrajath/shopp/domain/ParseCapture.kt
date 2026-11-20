@@ -12,7 +12,9 @@ sealed class LabelRef {
     data class Token(val text: String) : LabelRef()
 }
 
-data class ParsedLine(val title: String, val label: LabelRef)
+// hasOwnToken: this line carried its own `@token` (vs. inheriting sticky),
+// so an explicit label the user typed always wins over any inferred one.
+data class ParsedLine(val title: String, val label: LabelRef, val hasOwnToken: Boolean = false)
 
 data class ParseCaptureResult(val lines: List<ParsedLine>, val sticky: LabelRef)
 
@@ -51,7 +53,7 @@ fun parseCapture(input: String, initialSticky: LabelRef): ParseCaptureResult {
         }
 
         if (title.isEmpty()) continue // bare token line: sticky updated, no item
-        lines.add(ParsedLine(title = title, label = sticky))
+        lines.add(ParsedLine(title = title, label = sticky, hasOwnToken = token != null))
     }
 
     return ParseCaptureResult(lines = lines, sticky = sticky)

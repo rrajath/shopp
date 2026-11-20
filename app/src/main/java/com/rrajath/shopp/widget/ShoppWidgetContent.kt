@@ -39,6 +39,7 @@ import com.rrajath.shopp.data.db.ItemEntity
 import com.rrajath.shopp.ui.ListSection
 import com.rrajath.shopp.designsystem.theme.ShoppColors
 import com.rrajath.shopp.designsystem.theme.ShoppDimens
+import com.rrajath.shopp.domain.titleWithQuantity
 
 @Composable
 fun ShoppWidgetContent(
@@ -180,7 +181,7 @@ private fun ItemRow(item: ItemEntity, foreground: Color, checkboxBorder: Color, 
         }
         Spacer(modifier = GlanceModifier.width(ShoppDimens.rowGap))
         Text(
-            text = item.title,
+            text = titleWithQuantity(item.title, item.quantity),
             maxLines = 1,
             style = TextStyle(color = ColorProvider(foreground), fontSize = 15.sp),
         )

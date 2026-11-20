@@ -45,7 +45,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rrajath.shopp.data.db.LabelEntity
+import com.rrajath.shopp.designsystem.components.QuantityStepper
+import com.rrajath.shopp.domain.MAX_QUANTITY
+import com.rrajath.shopp.domain.MIN_QUANTITY
 import com.rrajath.shopp.ui.SessionAddEntry
+import com.rrajath.shopp.ui.TitleSuggestion
 import com.rrajath.shopp.designsystem.theme.ShoppDimens
 import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import com.rrajath.shopp.designsystem.theme.ShoppType
@@ -61,12 +65,15 @@ fun QuickAddOverlay(
     stickyLabelId: String?,
     labels: List<LabelEntity>,
     suggestions: List<LabelEntity>,
-    titleSuggestions: List<String>,
+    titleSuggestions: List<TitleSuggestion>,
     sessionAdds: List<SessionAddEntry>,
+    quantity: Int,
+    hint: String?,
     onDraftChange: (String) -> Unit,
+    onQuantityChange: (Int) -> Unit,
     onSelectSticky: (String?) -> Unit,
     onAcceptSuggestion: (String) -> Unit,
-    onAcceptTitleSuggestion: (String) -> Unit,
+    onAcceptTitleSuggestion: (TitleSuggestion) -> Unit,
     onSubmit: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -120,36 +127,53 @@ fun QuickAddOverlay(
                 SessionAddRow(entry = entry, labels = labels)
             }
 
-            Box(modifier = Modifier.fillMaxWidth()) {
-                if (draft.isEmpty()) {
-                    Text(text = "Add an item", style = ShoppType.quickAddInput.copy(color = colors.muted))
-                }
-                BasicTextField(
-                    value = fieldValue,
-                    onValueChange = {
-                        fieldState = it
-                        if (it.text != draft) onDraftChange(it.text)
-                    },
-                    textStyle = ShoppType.quickAddInput.copy(color = colors.foreground),
-                    cursorBrush = androidx.compose.ui.graphics.SolidColor(colors.accent),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { onSubmit() }),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                        .onPreviewKeyEvent { event ->
-                            // Return commits; pasted text may still contain \n
-                            // (that's the only way a newline enters the buffer)
-                            // since paste bypasses key events.
-                            if (event.type == androidx.compose.ui.input.key.KeyEventType.KeyDown &&
-                                (event.key == Key.Enter || event.key == Key.NumPadEnter)
-                            ) {
-                                onSubmit()
-                                true
-                            } else {
-                                false
-                            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(ShoppDimens.quantityStepperGap),
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    if (draft.isEmpty()) {
+                        Text(
+                            text = hint ?: "Add an item",
+                            style = ShoppType.quickAddInput.copy(color = colors.muted),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    BasicTextField(
+                        value = fieldValue,
+                        onValueChange = {
+                            fieldState = it
+                            if (it.text != draft) onDraftChange(it.text)
                         },
+                        textStyle = ShoppType.quickAddInput.copy(color = colors.foreground),
+                        cursorBrush = androidx.compose.ui.graphics.SolidColor(colors.accent),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { onSubmit() }),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester)
+                            .onPreviewKeyEvent { event ->
+                                // Return commits; pasted text may still contain \n
+                                // (that's the only way a newline enters the buffer)
+                                // since paste bypasses key events.
+                                if (event.type == androidx.compose.ui.input.key.KeyEventType.KeyDown &&
+                                    (event.key == Key.Enter || event.key == Key.NumPadEnter)
+                                ) {
+                                    onSubmit()
+                                    true
+                                } else {
+                                    false
+                                }
+                            },
+                    )
+                }
+                QuantityStepper(
+                    value = quantity,
+                    onValueChange = onQuantityChange,
+                    min = MIN_QUANTITY,
+                    max = MAX_QUANTITY,
                 )
             }
 
@@ -203,7 +227,7 @@ private fun SuggestionsPopover(suggestions: List<LabelEntity>, onAccept: (String
 // itemTitleSuggestions. Deliberately plain (no colored dot) to read as
 // distinct from the label-suggestion popover it shares a slot with.
 @Composable
-private fun TitleSuggestionsPopover(suggestions: List<String>, onAccept: (String) -> Unit) {
+private fun TitleSuggestionsPopover(suggestions: List<TitleSuggestion>, onAccept: (TitleSuggestion) -> Unit) {
     val colors = ShoppTheme.colors
     Column(
         modifier = Modifier
@@ -213,11 +237,11 @@ private fun TitleSuggestionsPopover(suggestions: List<String>, onAccept: (String
             .clip(RoundedCornerShape(ShoppDimens.suggestionsCornerRadius))
             .background(colors.menu),
     ) {
-        suggestions.forEachIndexed { index, title ->
+        suggestions.forEachIndexed { index, suggestion ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onAccept(title) }
+                    .clickable { onAccept(suggestion) }
                     .background(if (index == 0) colors.press else androidx.compose.ui.graphics.Color.Transparent)
                     .padding(
                         horizontal = ShoppDimens.suggestionRowPaddingHorizontal,
@@ -225,7 +249,7 @@ private fun TitleSuggestionsPopover(suggestions: List<String>, onAccept: (String
                     ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(text = title, style = ShoppType.suggestionText.copy(color = colors.foreground))
+                Text(text = suggestion.title, style = ShoppType.suggestionText.copy(color = colors.foreground))
             }
         }
     }

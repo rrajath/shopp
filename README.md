@@ -17,12 +17,13 @@ More in [`screenshots/`](screenshots/).
 
 ## Features
 
-- **Quick Add** — floating capture overlay with inline `@label` tagging and autocomplete, multi-line paste, a sticky label chip across consecutive adds, and suggestions from items you've bought before. Duplicates under the same label are ignored.
+- **Quick Add** — floating capture overlay with inline `@label` tagging and autocomplete, multi-line paste, a sticky label chip across consecutive adds, a −/+ quantity stepper, and suggestions from items you've bought before (picked under the label you last bought them under). Duplicates under the same label are ignored, with a hint showing what's already on the list.
 - **Quick Settings tile** — add items without unlocking the phone; opens the same capture overlay over the lock screen.
 - **Home screen widget** — resizable, sectioned list with tap-to-complete, an Add button, and adjustable transparency.
 - **Sectioned list** — items grouped by label (Inbox first) with sticky headers; grouping can be turned off.
 - **Tap to complete, with undo** — completion is immediate, with a 4-second undo window.
-- **Inline edit** — tap a title to edit it in place; URLs in titles are tappable links.
+- **Quantities**: items with a quantity above 1 show it in brackets, e.g. "Eggs (3)", in the list and the widget.
+- **Inline edit** — tap a title to edit it and its quantity in place; URLs in titles are tappable links.
 - **Recently Completed** — day-grouped history with tap-to-re-add and Clear.
 - **Labels** — rename, recolor (15-color palette), merge, or delete. Deleting a label moves its items to Inbox.
 - **Settings** — System/Light/Dark theme, grouping, keep Quick Add open after submit, confirm before clearing history, widget transparency.

@@ -89,6 +89,67 @@ class UseCasesTest {
     }
 
     @Test
+    fun `capture applies the quantity to every line`() = runBlocking {
+        val result = captureItems("eggs\nbread", LabelRef.None, quantity = 3)
+        assertEquals(listOf(3, 3), result.items.map { it.quantity })
+        val active = itemRepository.observeActiveItems().first()
+        assertEquals(listOf(3, 3), active.map { it.quantity })
+    }
+
+    @Test
+    fun `capture defaults the quantity to 1`() = runBlocking {
+        val result = captureItems("eggs", LabelRef.None)
+        assertEquals(1, result.items.single().quantity)
+    }
+
+    @Test
+    fun `capture reports the existing item for each ignored duplicate`() = runBlocking {
+        captureItems("eggs", LabelRef.None, quantity = 3)
+        val result = captureItems("Eggs\nbread\nbread", LabelRef.None, quantity = 1)
+        assertEquals(listOf("bread"), result.items.map { it.title })
+        assertEquals(listOf("eggs", "bread"), result.duplicates.map { it.title })
+        assertEquals(3, result.duplicates.first().quantity) // the count already on the list
+    }
+
+    @Test
+    fun `capture applies a suggestion label override only to its own line`() = runBlocking {
+        captureItems("placeholder @dairy", LabelRef.None)
+        val dairy = labelRepository.observeLabels().first().first { it.name == "dairy" }
+
+        val result = captureItems(
+            "eggs\nbread",
+            LabelRef.None,
+            labelOverrides = mapOf("eggs" to dairy.id),
+        )
+        assertEquals(dairy.id, result.items.first { it.title == "eggs" }.labelId)
+        assertNull(result.items.first { it.title == "bread" }.labelId)
+        assertEquals(LabelRef.None, result.newSticky) // the override never becomes sticky
+    }
+
+    @Test
+    fun `an inline token beats a suggestion label override`() = runBlocking {
+        captureItems("placeholder @dairy", LabelRef.None)
+        val dairy = labelRepository.observeLabels().first().first { it.name == "dairy" }
+
+        val result = captureItems("eggs @costco", LabelRef.None, labelOverrides = mapOf("eggs" to dairy.id))
+        val costco = labelRepository.observeLabels().first().first { it.name == "costco" }
+        assertEquals(costco.id, result.items.single().labelId)
+    }
+
+    @Test
+    fun `edit updates the quantity along with the title`() = runBlocking {
+        captureItems("eggs", LabelRef.None)
+        val item = itemRepository.observeActiveItems().first().first()
+
+        clock.advance(100)
+        editTitle(item.id, "eggs", quantity = 4)
+
+        val updated = itemRepository.getById(item.id)!!
+        assertEquals(4, updated.quantity)
+        assertTrue(updated.updatedAt > item.updatedAt)
+    }
+
+    @Test
     fun `capture keeps the same title under a different label or after completion`() = runBlocking {
         val first = captureItems("milk", LabelRef.None)
         captureItems("milk @costco", LabelRef.None)

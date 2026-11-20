@@ -1,5 +1,6 @@
 package com.rrajath.shopp.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -28,4 +29,7 @@ data class ItemEntity(
     val updatedAt: Long,
     val completedAt: Long?,
     val deletedAt: Long?,
+    // defaultValue must match MIGRATION_1_2's column default, or Room's
+    // schema validation fails on upgraded databases.
+    @ColumnInfo(defaultValue = "1") val quantity: Int = 1,
 )

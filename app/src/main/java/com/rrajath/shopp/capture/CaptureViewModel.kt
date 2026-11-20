@@ -8,6 +8,7 @@ import com.rrajath.shopp.data.db.ItemEntity
 import com.rrajath.shopp.data.db.LabelEntity
 import com.rrajath.shopp.ui.QuickAddController
 import com.rrajath.shopp.ui.QuickAddState
+import com.rrajath.shopp.ui.TitleSuggestion
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -34,7 +35,8 @@ class CaptureViewModel(container: AppContainer) : ViewModel() {
     fun updateDraft(text: String) = controller.updateDraft(text)
     fun selectStickyChip(labelId: String?) = controller.selectStickyChip(labelId)
     fun acceptSuggestion(labelName: String) = controller.acceptSuggestion(labelName)
-    fun acceptTitleSuggestion(title: String) = controller.acceptTitleSuggestion(title)
+    fun acceptTitleSuggestion(suggestion: TitleSuggestion) = controller.acceptTitleSuggestion(suggestion)
+    fun setQuantity(quantity: Int) = controller.setQuantity(quantity)
     fun submit() = controller.submit()
     fun close() = controller.close()
 

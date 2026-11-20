@@ -5,7 +5,7 @@ Color, typography, spacing, motion, and component conventions for Shopp. Check h
 **Code:** tokens live in the `:designsystem` module under `designsystem/src/main/java/com/rrajath/shopp/designsystem/`:
 
 - `theme/`: `Color.kt` (`ShoppColors`), `Type.kt` (`ShoppType`), `Dimens.kt` (`ShoppDimens`), `Theme.kt` (`ShoppTheme`)
-- `components/`: `ConfirmDialog`, `EmptyState`, `HeaderRow`, `SectionHeader`, `UndoToast`, `LinkifiedText`
+- `components/`: `ConfirmDialog`, `EmptyState`, `HeaderRow`, `SectionHeader`, `UndoToast`, `LinkifiedText`, `QuantityStepper`
 
 Components that take app domain types (`ItemRow`, `LabelChipRow`, `LabelManagementSheet`, `QuickAddOverlay`, `DrawerMenu`) live in `app/src/main/java/com/rrajath/shopp/ui/components/`. The docs site (`docs-site/src/styles/custom.css`) mirrors the tokens as `--shopp-*` custom properties.
 
@@ -93,6 +93,7 @@ All in `ShoppDimens` (`Dimens.kt`), grouped by component rather than a generic s
 | Undo toast | pill (`toastCornerRadius = 100.dp`), padding 18/10 dp horizontal, 11dp vertical, `toastMaxWidth = 280.dp`, `toastBottomOffset = 100.dp` (16dp on screens without a FAB) |
 | Quick Add card | `cardCornerRadius = 26.dp`, `cardHorizontalMargin = 12.dp`, 14dp padding, `cardMaxWidth = 400.dp` |
 | Label chip | pill, `chipMinHeight = 28.dp`, padding 13/6 dp, `chipRowGap = 7.dp`, dot 7dp |
+| Quantity stepper | 28dp circles (`quantityStepperButtonSize`) in 44dp tap boxes, 16dp icons, count `minWidth = 20.dp`, `quantityStepperGap = 6.dp` from the Quick Add input |
 | Merge picker | radio 16dp, 1.5dp border, 4dp inset ring; rows 11dp gap / 9dp vertical padding |
 | Sheet buttons | pill, padding 18/9 dp, `sheetButtonGap = 14.dp` |
 | Color picker | 24dp swatches, 5 per row, 32dp / 2dp selection ring |
@@ -109,12 +110,13 @@ All in `ShoppDimens` (`Dimens.kt`), grouped by component rather than a generic s
 
 ## Components
 
-- **Item row** (`ItemRow`): circular checkbox (fills with `accent` while completing) and a single-line title. Recently Completed adds a trailing label tag.
+- **Item row** (`ItemRow`): circular checkbox (fills with `accent` while completing) and a single-line title. A quantity above 1 shows as ` (n)` after the title, in the title's own style; 1 shows nothing. In edit mode a `QuantityStepper` sits at the trailing end. Recently Completed adds a trailing label tag.
+- **Quantity stepper** (`QuantityStepper`): `−  n  +`. Buttons are `chipUnselectedFill` circles with `chipUnselectedText` icons; the count is `quantityCount` (Figtree Medium 15sp) in `foreground`. At the limit (1 or 99) that button drops to 38% alpha and is disabled. Buttons don't take focus, so tapping them keeps a text field in edit mode.
 - **Section header** (`SectionHeader`): bold uppercase micro-label, text tinted with the label's color (`inboxTint` for Inbox). No leading dot.
 - **Empty state** (`EmptyState`): left-aligned `muted` primary line plus a smaller hint line.
 - **Label chip** (`LabelChipRow`, Quick Add only): unselected chips are `chipUnselectedFill` with a leading dot in the label's color. Selected chips fill with the label's color and drop the dot. Inbox has no color, so its selected state uses `toastBackground`/`toastForeground`.
 - **FAB:** 58dp `accent` circle, plus icon only.
-- **Quick Add card** (`QuickAddOverlay`): compact floating card anchored above the keyboard (`WindowInsets.navigationBars.union(WindowInsets.ime)`), shadow-only elevation. The same component is used by the FAB, the Quick Settings tile, and the widget's add button.
+- **Quick Add card** (`QuickAddOverlay`): compact floating card anchored above the keyboard (`WindowInsets.navigationBars.union(WindowInsets.ime)`), shadow-only elevation. The same component is used by the FAB, the Quick Settings tile, and the widget's add button. The input row ends in a `QuantityStepper` (default 1, resets after each submit). After a submit drops duplicates, the placeholder becomes a one-line `muted` hint ("Eggs x3 already added", or "Eggs x3 and 2 more already added") until the user types.
 - **Suggestions popovers:** `@label` suggestions and title suggestions share one slot above the input (`menu` background, `press` on the top row, 15sp). Title suggestions appear when the current line is non-empty and not mid-`@token`, matching past Recently Completed titles by prefix, most recent first. Choosing one replaces the line and moves the caret to the end.
 - **Undo toast:** content-sized pill with the item's full title and an uppercase "Undo" action. Recently Completed reuses it to confirm re-adds ("Added to Groceries"), with Undo re-completing the item.
 - **Drawer:** left-anchored, `menu` background with a `shadow`-tinted elevation so it separates from the same-colored page. Title in Caprasimo 26sp. Shows `Shopp {versionName} ({versionCode})` pinned at the bottom.

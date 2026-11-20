@@ -39,7 +39,7 @@ fun ListScreen(
     emptyTitle: String,
     emptyBody: String,
     onCompleteItem: (ItemEntity) -> Unit,
-    onCommitEdit: (itemId: String, newTitle: String) -> Unit,
+    onCommitEdit: (itemId: String, newTitle: String, quantity: Int) -> Unit,
     onUndo: () -> Unit,
     onAddClick: () -> Unit,
     onDrawerDrag: (Float) -> Unit,
@@ -80,7 +80,7 @@ fun ListScreen(
                         ItemRow(
                             item = item,
                             onComplete = { onCompleteItem(item) },
-                            onCommitEdit = { newTitle -> onCommitEdit(item.id, newTitle) },
+                            onCommitEdit = { newTitle, quantity -> onCommitEdit(item.id, newTitle, quantity) },
                             modifier = Modifier.animateItem(),
                         )
                     }
