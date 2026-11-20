@@ -36,6 +36,9 @@ class CaptureItems(
         val items: List<ItemEntity>,
         val newSticky: LabelRef,
         val duplicates: List<ItemEntity> = emptyList(),
+        // True when an `@token` in this input set newSticky, so callers can
+        // tell an explicit label choice apart from sticky passing through.
+        val stickyFromToken: Boolean = false,
     )
 
     suspend operator fun invoke(
@@ -107,6 +110,7 @@ class CaptureItems(
                 items = items,
                 newSticky = newStickyId?.let { LabelRef.Id(it) } ?: LabelRef.None,
                 duplicates = duplicates,
+                stickyFromToken = parsed.sticky is LabelRef.Token,
             )
         }
     }

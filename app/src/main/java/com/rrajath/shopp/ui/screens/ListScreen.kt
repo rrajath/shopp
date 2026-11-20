@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -53,6 +54,12 @@ fun ListScreen(
         modifier = modifier
             .fillMaxSize()
             .background(colors.background)
+            // The window no longer resizes for the keyboard under edge to
+            // edge, so shrink the list (and the FAB and toast with it) above
+            // the IME here. The root's systemBarsPadding has already consumed
+            // the navigation bar, so only the remainder is added. Quick Add is
+            // a sibling of this screen and pads for the IME on its own.
+            .imePadding()
             .pointerInput(onDrawerDrag, onDrawerDragEnd) {
                 detectHorizontalDragGestures(
                     onDragEnd = onDrawerDragEnd,
@@ -81,6 +88,10 @@ fun ListScreen(
                             item = item,
                             onComplete = { onCompleteItem(item) },
                             onCommitEdit = { newTitle, quantity -> onCommitEdit(item.id, newTitle, quantity) },
+                            // Keep the edited row clear of the FAB, which rides
+                            // up with the keyboard; same clearance the list
+                            // already reserves below its last item.
+                            editBottomClearance = ShoppDimens.listBottomPadding,
                             modifier = Modifier.animateItem(),
                         )
                     }

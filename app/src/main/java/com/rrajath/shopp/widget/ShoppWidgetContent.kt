@@ -107,7 +107,7 @@ private fun HeaderRow(colors: ShoppColors) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = "Shopp",
+            text = context.getString(R.string.app_name),
             style = TextStyle(
                 color = ColorProvider(colors.foreground),
                 fontSize = 19.sp,

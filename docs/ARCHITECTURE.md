@@ -78,7 +78,9 @@ Each use case in `usecases/` wraps its work in `ShoppDatabase.withTransaction { 
 
 **Quantity.** Every item has a `quantity` (1 to 99, `domain/QuantityFormatting.kt`). `CaptureItems` applies one quantity to every line of a submit; `EditTitle` takes an optional new quantity. Display goes through `titleWithQuantity()`, which appends ` (n)` only when n is above 1, so the list, widget, and Quick Add session rows all format it the same way.
 
-**Suggestion labels.** Picking a purchase-history suggestion files that item under the label it was last bought under, without changing the sticky chip. `QuickAddController` records `folded title -> labelId` per accepted suggestion and passes the map to `CaptureItems` as `labelOverrides`. An override only applies to a line with no `@token` of its own (`ParsedLine.hasOwnToken`), so anything the user typed explicitly wins.
+**Suggestion labels.** Picking a purchase-history suggestion files that item under the label it was last bought under. `QuickAddController` records `folded title -> labelId` per accepted suggestion and passes the map to `CaptureItems` as `labelOverrides`. An override only applies to a line with no `@token` of its own (`ParsedLine.hasOwnToken`), so anything the user typed explicitly wins.
+
+The pick also moves the sticky chip to the suggestion's label so the user sees where the item will go. The chip from before the first pick is saved once in `QuickAddState.stickyBeforeSuggestion` (wrapped in `SavedSticky` so a saved Inbox `null` differs from "nothing saved"). It is restored after the submit, or as soon as the draft is cleared. Tapping a chip manually discards the saved value, so the manual choice persists. An `@token` in the submitted text also wins over the restore, signalled by `CaptureItems.Result.stickyFromToken`.
 
 ## UI and state
 
@@ -91,6 +93,8 @@ Each use case in `usecases/` wraps its work in `ShoppDatabase.withTransaction { 
 **Caret at tap position.** Inline edit uses `Text`'s `onTextLayout` and `TextLayoutResult.getOffsetForPosition(Offset)` to place the caret where the user tapped.
 
 **Lists.** `LazyColumn` with a `stickyHeader` per section.
+
+**Keyboard and inline edit.** With `enableEdgeToEdge()` on targetSdk 36, `adjustResize` no longer resizes the window, so `ListScreen` applies `imePadding()` to its root and the list, FAB, and undo toast shrink above the keyboard. This lives in `ListScreen` rather than `ShoppApp` so other screens are unaffected; Quick Add is a sibling and handles its own IME insets. Once the keyboard finishes animating, the editing `ItemRow` calls `bringIntoView` on its bounds extended by `editBottomClearance` (the list's bottom padding), so the row sits clear of the raised FAB.
 
 ## Quick Settings tile
 

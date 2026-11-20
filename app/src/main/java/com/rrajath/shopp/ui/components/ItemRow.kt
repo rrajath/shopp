@@ -4,14 +4,19 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,20 +35,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.rrajath.shopp.data.db.ItemEntity
 import com.rrajath.shopp.designsystem.components.LinkifiedText
@@ -54,7 +65,11 @@ import com.rrajath.shopp.domain.titleWithQuantity
 import com.rrajath.shopp.designsystem.theme.ShoppDimens
 import com.rrajath.shopp.designsystem.theme.ShoppTheme
 import com.rrajath.shopp.designsystem.theme.ShoppType
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.collectLatest
 
 // Checkbox fill/check animations below total ~180ms; give them a beat to
 // finish before the row actually leaves the list.
@@ -68,14 +83,20 @@ private const val COMPLETE_REMOVE_DELAY_MS = 200L
  * `items` block). Tap elsewhere on the row enters edit mode with the caret
  * placed at the tap position via
  * [androidx.compose.ui.text.TextLayoutResult.getOffsetForPosition].
+ *
+ * While editing, once the keyboard has finished opening the row asks its
+ * scrolling parent to bring it fully into view, plus [editBottomClearance]
+ * below it so anything floating over the bottom of the list (the FAB) doesn't
+ * cover the field or stepper.
  */
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun ItemRow(
     item: ItemEntity,
     onComplete: () -> Unit,
     onCommitEdit: (title: String, quantity: Int) -> Unit,
     modifier: Modifier = Modifier,
+    editBottomClearance: Dp = 0.dp,
 ) {
     val colors = ShoppTheme.colors
     var completing by remember(item.id) { mutableStateOf(false) }
@@ -85,6 +106,8 @@ fun ItemRow(
     val displayTitle = titleWithQuantity(item.title, item.quantity)
     var textLayout by remember(item.id) { mutableStateOf<TextLayoutResult?>(null) }
     val focusRequester = remember(item.id) { FocusRequester() }
+    val bringIntoViewRequester = remember(item.id) { BringIntoViewRequester() }
+    var rowSize by remember(item.id) { mutableStateOf(IntSize.Zero) }
 
     LaunchedEffect(completing) {
         if (completing) {
@@ -101,6 +124,8 @@ fun ItemRow(
 
     Row(
         modifier = modifier
+            .bringIntoViewRequester(bringIntoViewRequester)
+            .onSizeChanged { rowSize = it }
             .defaultMinSize(minHeight = ShoppDimens.tapTarget)
             .padding(
                 horizontal = ShoppDimens.rowPaddingHorizontal,
@@ -162,6 +187,40 @@ fun ItemRow(
                     },
             )
             LaunchedEffect(item.id) { focusRequester.requestFocus() }
+            // The list shrinks above the keyboard (imePadding in ListScreen)
+            // and the framework keeps the focused field from being clipped as
+            // it does, but only just, and not the FAB clearance. Once the IME
+            // has settled (current height equals its animation target, so
+            // this also re-runs if the keyboard changes height), scroll the
+            // whole row plus the clearance into view. Reads raw IME insets,
+            // which ignore consumption by padding modifiers.
+            val density = LocalDensity.current
+            val imeInsets = WindowInsets.ime
+            val imeTarget = WindowInsets.imeAnimationTarget
+            val clearancePx = with(density) { editBottomClearance.toPx() }
+            LaunchedEffect(item.id) {
+                snapshotFlow {
+                    val target = imeTarget.getBottom(density)
+                    target > 0 && imeInsets.getBottom(density) == target
+                }.collectLatest { settled ->
+                    if (!settled) return@collectLatest
+                    // Let the shrunken viewport lay out before measuring.
+                    withFrameNanos { }
+                    val bounds = Rect(
+                        left = 0f,
+                        top = 0f,
+                        right = rowSize.width.toFloat(),
+                        bottom = rowSize.height + clearancePx,
+                    )
+                    try {
+                        bringIntoViewRequester.bringIntoView(bounds)
+                    } catch (e: CancellationException) {
+                        // A user scroll interrupts the request by cancelling
+                        // it; keep listening unless this effect itself ended.
+                        currentCoroutineContext().ensureActive()
+                    }
+                }
+            }
             // Sits in the row's 14dp rowGap like the checkbox; its 44dp tap
             // boxes fit the row's existing tapTarget min height.
             QuantityStepper(

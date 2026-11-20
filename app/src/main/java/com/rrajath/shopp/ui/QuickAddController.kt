@@ -21,6 +21,10 @@ data class SessionAddEntry(val id: String, val text: String, val labelId: String
 // so picking it can file the new item there too.
 data class TitleSuggestion(val title: String, val labelId: String?)
 
+// The sticky chip as it was before the first title suggestion was picked.
+// Wrapped so "saved Inbox" (labelId = null) differs from "nothing saved".
+data class SavedSticky(val labelId: String?)
+
 data class QuickAddState(
     val open: Boolean = false,
     val draft: String = "",
@@ -32,9 +36,12 @@ data class QuickAddState(
     // duplicates; cleared as soon as the user types again.
     val hint: String? = null,
     // Folded title -> label of each history suggestion picked for this
-    // draft. Applied per line on submit (see CaptureItems.labelOverrides),
-    // so it never touches the sticky chip.
+    // draft. Applied per line on submit (see CaptureItems.labelOverrides).
     val suggestionLabels: Map<String, String?> = emptyMap(),
+    // Set on the first title suggestion pick (picking a suggestion also
+    // moves the sticky chip to its label). Restored once the item is added
+    // or the draft is cleared; dropped if the user picks a chip by hand.
+    val stickyBeforeSuggestion: SavedSticky? = null,
 )
 
 // A line containing only a token sets sticky and yields no item, so the
@@ -100,22 +107,41 @@ class QuickAddController(
     }
 
     // Sticky resets to Inbox on close (it lives only in this
-    // ephemeral state, never persisted).
+    // ephemeral state, never persisted). That also drops any saved
+    // pre-suggestion chip, so there is nothing to restore.
     fun close() {
         _state.value = QuickAddState(open = false)
     }
 
     fun updateDraft(text: String) {
         val current = _state.value
-        _state.value = current.copy(draft = text, hint = if (text.isEmpty()) current.hint else null)
+        if (text.isEmpty()) {
+            // Clearing the draft abandons any picked suggestion, so the chip
+            // goes back to what it was before the pick.
+            val saved = current.stickyBeforeSuggestion
+            _state.value = current.copy(
+                draft = text,
+                stickyLabelId = if (saved != null) saved.labelId else current.stickyLabelId,
+                suggestionLabels = emptyMap(),
+                stickyBeforeSuggestion = null,
+            )
+        } else {
+            _state.value = current.copy(draft = text, hint = null)
+        }
     }
 
     fun setQuantity(quantity: Int) {
         _state.value = _state.value.copy(quantity = clampQuantity(quantity))
     }
 
+    // A hand-picked chip beats any picked suggestion: its label applies to
+    // every line (so per-title overrides go) and stays after the add.
     fun selectStickyChip(labelId: String?) {
-        _state.value = _state.value.copy(stickyLabelId = labelId)
+        _state.value = _state.value.copy(
+            stickyLabelId = labelId,
+            suggestionLabels = emptyMap(),
+            stickyBeforeSuggestion = null,
+        )
     }
 
     fun acceptSuggestion(labelName: String) {
@@ -124,8 +150,10 @@ class QuickAddController(
     }
 
     // Replaces just the line currently being typed (the draft may hold
-    // earlier pasted lines already) with the picked title, and remembers the
-    // suggestion's label for that title only.
+    // earlier pasted lines already) with the picked title, remembers the
+    // suggestion's label for that title, and moves the sticky chip to it.
+    // Only the first pick saves the prior chip, so a second pick before
+    // adding still restores the original one.
     fun acceptTitleSuggestion(suggestion: TitleSuggestion) {
         val current = _state.value
         val lastNewline = current.draft.lastIndexOf('\n')
@@ -137,8 +165,11 @@ class QuickAddController(
         _state.value = current.copy(
             draft = next,
             hint = null,
+            stickyLabelId = suggestion.labelId,
             suggestionLabels = current.suggestionLabels +
                 (suggestion.title.foldForMatching() to suggestion.labelId),
+            stickyBeforeSuggestion = current.stickyBeforeSuggestion
+                ?: SavedSticky(current.stickyLabelId),
         )
     }
 
@@ -153,7 +184,15 @@ class QuickAddController(
                 quantity = current.quantity,
                 labelOverrides = current.suggestionLabels,
             )
-            val newStickyId = (result.newSticky as? LabelRef.Id)?.labelId
+            // An `@token` in this submit is an explicit choice and keeps the
+            // sticky it set. Otherwise undo the chip move a picked suggestion
+            // made.
+            val saved = current.stickyBeforeSuggestion
+            val newStickyId = if (saved != null && !result.stickyFromToken) {
+                saved.labelId
+            } else {
+                (result.newSticky as? LabelRef.Id)?.labelId
+            }
             val newEntries = result.items.map {
                 SessionAddEntry(it.id, titleWithQuantity(it.title, it.quantity), it.labelId)
             }
@@ -168,6 +207,7 @@ class QuickAddController(
                     quantity = MIN_QUANTITY,
                     hint = hint,
                     suggestionLabels = emptyMap(),
+                    stickyBeforeSuggestion = null,
                 )
             } else {
                 _state.value = QuickAddState(open = false)
