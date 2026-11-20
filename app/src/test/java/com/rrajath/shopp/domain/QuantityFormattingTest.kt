@@ -12,7 +12,7 @@ class QuantityFormattingTest {
 
     @Test
     fun `quantity above 1 is shown in brackets`() {
-        assertEquals("Eggs (3)", titleWithQuantity("Eggs", 3))
+        assertEquals("Eggs x3", titleWithQuantity("Eggs", 3))
     }
 
     @Test

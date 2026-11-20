@@ -120,7 +120,11 @@ fun QuickAddOverlay(
             if (suggestions.isNotEmpty()) {
                 SuggestionsPopover(suggestions = suggestions, onAccept = onAcceptSuggestion)
             } else if (titleSuggestions.isNotEmpty()) {
-                TitleSuggestionsPopover(suggestions = titleSuggestions, onAccept = onAcceptTitleSuggestion)
+                TitleSuggestionsPopover(
+                    suggestions = titleSuggestions,
+                    labels = labels,
+                    onAccept = onAcceptTitleSuggestion,
+                )
             }
 
             sessionAdds.forEach { entry ->
@@ -223,11 +227,17 @@ private fun SuggestionsPopover(suggestions: List<LabelEntity>, onAccept: (String
     }
 }
 
-// Autocomplete from purchase history (Recently Completed) -- see
-// itemTitleSuggestions. Deliberately plain (no colored dot) to read as
-// distinct from the label-suggestion popover it shares a slot with.
+// Autocomplete from purchase history (Recently Completed), see
+// itemTitleSuggestions. Each row leads with a dot in the color of the label
+// the item was last bought under (picking it files the item there), sized
+// and spaced like the label-suggestion popover. Inbox has no palette color,
+// so it gets a neutral `muted` dot, same as SessionAddRow.
 @Composable
-private fun TitleSuggestionsPopover(suggestions: List<TitleSuggestion>, onAccept: (TitleSuggestion) -> Unit) {
+private fun TitleSuggestionsPopover(
+    suggestions: List<TitleSuggestion>,
+    labels: List<LabelEntity>,
+    onAccept: (TitleSuggestion) -> Unit,
+) {
     val colors = ShoppTheme.colors
     Column(
         modifier = Modifier
@@ -238,6 +248,8 @@ private fun TitleSuggestionsPopover(suggestions: List<TitleSuggestion>, onAccept
             .background(colors.menu),
     ) {
         suggestions.forEachIndexed { index, suggestion ->
+            val label = suggestion.labelId?.let { id -> labels.find { it.id == id } }
+            val dotColor = if (label != null) colors.labelPalette[label.colorIndex % colors.labelPalette.size] else colors.muted
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -248,7 +260,9 @@ private fun TitleSuggestionsPopover(suggestions: List<TitleSuggestion>, onAccept
                         vertical = ShoppDimens.suggestionRowPaddingVertical,
                     ),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
+                Box(modifier = Modifier.size(8.dp).background(dotColor, CircleShape))
                 Text(text = suggestion.title, style = ShoppType.suggestionText.copy(color = colors.foreground))
             }
         }
