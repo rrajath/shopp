@@ -15,6 +15,8 @@ CI never edits this file or the version keys, so the tagged commit is exactly wh
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-22
+
 ### Added
 - Set an item's quantity with a -/+ stepper in Quick Add and inline edit; quantities above 1 show as "Title xN".
 - Quick Add shows Frequent and Recent tabs while empty; tap a past purchase to add it under its last label.
