@@ -61,10 +61,13 @@ Without `keystore.properties`, `assembleRelease` produces an unsigned APK.
 
 ### Publishing a release
 
-[`.github/workflows/release.yml`](.github/workflows/release.yml) builds signed release and debug APKs and publishes a GitHub Release. Trigger it by pushing a `v*` tag or running it manually (`gh workflow run release.yml`).
+Releases are cut locally, and CI only builds what the tag points at.
 
-- Bump `VERSION_NAME` in `gradle.properties` first. `versionCode` is set automatically to the existing release count + 1.
-- Manual runs are tagged `v<VERSION_NAME>-<versionCode>`.
+1. Record each user-facing change under `## [Unreleased]` in [`CHANGELOG.md`](CHANGELOG.md) as you go.
+2. Run `scripts/release.sh X.Y.Z`. It runs the unit tests, sets `VERSION_NAME=X.Y.Z` and `VERSION_CODE` (`MAJOR*10000 + MINOR*100 + PATCH`, so `0.4.0` is `400`) in `gradle.properties`, moves the Unreleased entries under `## [X.Y.Z] - <date>`, commits `Release vX.Y.Z`, and tags it. The build fails if the two version keys disagree.
+3. Push `main` and the tag with the commands the script prints.
+
+Pushing the tag runs [`.github/workflows/release.yml`](.github/workflows/release.yml), which checks the tag matches `VERSION_NAME`, builds signed release and debug APKs, and publishes a GitHub Release using that version's CHANGELOG section as the notes. A manual run (`gh workflow run release.yml`) republishes `v<VERSION_NAME>` from `main`, for example to retry a failed build.
 - The workflow needs these repository secrets:
 
 | Secret | Value |

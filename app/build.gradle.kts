@@ -6,6 +6,38 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// VERSION_NAME in gradle.properties is the single source of truth for the app's
+// version: a SemVer string bumped by scripts/release.sh. versionCode is derived from
+// it as MAJOR * 10000 + MINOR * 100 + PATCH, so "0.4.0" becomes 400. Minor and patch
+// each occupy two decimal digits and must stay within 0-99.
+val manualVersionName: String = providers.gradleProperty("VERSION_NAME").get().trim()
+
+val derivedVersionCode: Int = run {
+    val segments = manualVersionName.split(".")
+    require(segments.size == 3) { "VERSION_NAME '$manualVersionName' must be MAJOR.MINOR.PATCH" }
+    val (major, minor, patch) = segments.map {
+        it.toIntOrNull() ?: error("VERSION_NAME '$manualVersionName' has a non-numeric segment: '$it'")
+    }
+    require(minor in 0..99 && patch in 0..99) {
+        "VERSION_NAME '$manualVersionName': minor and patch must each be 0-99 " +
+            "(they occupy two decimal digits each in versionCode)"
+    }
+    major * 10000 + minor * 100 + patch
+}
+
+// gradle.properties also stores the derived number as a literal VERSION_CODE so the
+// tagged commit alone defines the build (CI never computes or passes one). It must
+// equal the derived value; the build fails on a mismatch rather than shipping either.
+val storedVersionCode: Int = run {
+    val raw = providers.gradleProperty("VERSION_CODE").get()
+    val stored = raw.trim().toIntOrNull() ?: error("VERSION_CODE '$raw' in gradle.properties is not a number")
+    require(stored == derivedVersionCode) {
+        "VERSION_CODE=$stored in gradle.properties doesn't match VERSION_NAME $manualVersionName " +
+            "(expected $derivedVersionCode). Use scripts/release.sh to bump versions."
+    }
+    stored
+}
+
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
@@ -22,11 +54,8 @@ android {
         applicationId = "com.rrajath.shopp"
         minSdk = 26
         targetSdk = 36
-        // versionName is hand-controlled via VERSION_NAME in gradle.properties.
-        // versionCode is computed by the release workflow and passed as -PVERSION_CODE;
-        // it defaults to 1 for local builds, where the exact value doesn't matter.
-        versionCode = (findProperty("VERSION_CODE") as String?)?.toIntOrNull() ?: 1
-        versionName = findProperty("VERSION_NAME") as String? ?: "0.1"
+        versionCode = storedVersionCode
+        versionName = manualVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -132,4 +161,15 @@ dependencies {
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+// Print just the versionName (`./gradlew -q :app:printVersionName` -> "0.4.0") so CI
+// can check a tag against the source it builds.
+tasks.register("printVersionName") {
+    doLast { println(manualVersionName) }
+}
+
+// Print just the versionCode (`./gradlew -q :app:printVersionCode` -> "400"), already
+// checked against VERSION_NAME.
+tasks.register("printVersionCode") {
+    doLast { println(storedVersionCode) }
 }

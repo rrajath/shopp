@@ -1,5 +1,10 @@
 name: Release
 
+# Builds and publishes the release cut locally by scripts/release.sh. The tagged commit
+# already holds the version bump and the CHANGELOG.md section, and this workflow never
+# edits tracked files, so the published APKs build from exactly what the tag points at.
+# versionName and versionCode both come from gradle.properties.
+
 on:
   workflow_dispatch: {}
   push:
@@ -23,22 +28,29 @@ jobs:
           java-version: "21"
           cache: gradle
 
-      - name: Compute next version code
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # A tag must match VERSION_NAME and have its own CHANGELOG.md section. A manual run
+      # against main publishes v<VERSION_NAME> (e.g. to retry a failed tag build) only if
+      # that section exists; otherwise it fails before building anything.
+      - name: Resolve version and release notes
         run: |
-          RELEASE_COUNT=$(gh release list --repo "${{ github.repository }}" --limit 1000 | wc -l | tr -d ' ')
-          VERSION_CODE=$((RELEASE_COUNT + 1))
-          echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
-
-      - name: Determine release tag
-        run: |
-          if [ "${{ github.ref_type }}" = "tag" ]; then
-            echo "RELEASE_TAG=${{ github.ref_name }}" >> "$GITHUB_ENV"
-          else
-            VERSION_NAME=$(grep '^VERSION_NAME=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
-            echo "RELEASE_TAG=v${VERSION_NAME}-${VERSION_CODE}" >> "$GITHUB_ENV"
+          VERSION_NAME=$(./gradlew -q --no-daemon :app:printVersionName | tail -1 | tr -d '[:space:]')
+          VERSION_CODE=$(./gradlew -q --no-daemon :app:printVersionCode | tail -1 | tr -d '[:space:]')
+          RELEASE_TAG="v$VERSION_NAME"
+          if [ "${{ github.ref_type }}" = "tag" ] && [ "${{ github.ref_name }}" != "$RELEASE_TAG" ]; then
+            echo "::error::Tag ${{ github.ref_name }} doesn't match VERSION_NAME $VERSION_NAME in gradle.properties"
+            exit 1
           fi
+          awk -v ver="$VERSION_NAME" '
+            index($0, "## [" ver "]") == 1 { found=1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md | awk 'NF{p=1} p' > "$RUNNER_TEMP/release-notes.md"
+          if [ ! -s "$RUNNER_TEMP/release-notes.md" ]; then
+            echo "::error::CHANGELOG.md has no '## [$VERSION_NAME]' section; cut releases with scripts/release.sh"
+            exit 1
+          fi
+          echo "Releasing $RELEASE_TAG (versionCode $VERSION_CODE)"
+          echo "RELEASE_TAG=$RELEASE_TAG" >> "$GITHUB_ENV"
 
       - name: Decode release keystore
         run: |
@@ -56,14 +68,20 @@ jobs:
 
       # APKs are named shopp-v{versionName}-{buildType}.apk on CI (see app/build.gradle.kts).
       - name: Build debug and release APKs
-        run: ./gradlew :app:assembleDebug :app:assembleRelease --no-daemon -PVERSION_CODE=${{ env.VERSION_CODE }}
+        run: ./gradlew :app:assembleDebug :app:assembleRelease --no-daemon
 
+      # Re-running for an existing release re-uploads the APKs instead of failing.
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           RELEASE_APK=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
           DEBUG_APK=$(find app/build/outputs/apk/debug -name "*.apk" | head -1)
-          gh release create "$RELEASE_TAG" "$RELEASE_APK" "$DEBUG_APK" \
-            --title "$RELEASE_TAG" \
-            --generate-notes
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$RELEASE_APK" "$DEBUG_APK" --clobber
+          else
+            gh release create "$RELEASE_TAG" "$RELEASE_APK" "$DEBUG_APK" \
+              --title "$RELEASE_TAG" \
+              --notes-file "$RUNNER_TEMP/release-notes.md" \
+              --target "$GITHUB_SHA"
+          fi
